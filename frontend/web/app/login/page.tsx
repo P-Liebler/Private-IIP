@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { api, type LoginResult, type Session } from "@/lib/api";
+import { getSession, login, sessionQueryKey, verifyTotp } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,21 +21,17 @@ export default function LoginPage() {
     setBusy(true);
     try {
       if (challenge) {
-        await api<{ status: "authenticated" }>("/auth/totp/verify", {
-          method: "POST", body: JSON.stringify({ challenge, code }),
-        });
+        await verifyTotp(challenge, code);
       } else {
-        const result = await api<LoginResult>("/auth/login", {
-          method: "POST", body: JSON.stringify({ username, password }),
-        });
+        const result = await login(username, password);
         setPassword("");
         if (result.status === "totp_required") {
           setChallenge(result.challenge);
           return;
         }
       }
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
-      await queryClient.fetchQuery({ queryKey: ["session"], queryFn: () => api<Session>("/auth/session") });
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+      await queryClient.fetchQuery({ queryKey: sessionQueryKey, queryFn: getSession });
       router.replace("/dashboard");
       router.refresh();
     } catch (caught) {

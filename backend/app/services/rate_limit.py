@@ -27,12 +27,15 @@ class RateLimiter:
         settings = get_settings()
         client = make_valkey_client()
         try:
-            raw = await cast(Awaitable[list[int]], client.eval(
-                _INCREMENT_WITH_EXPIRY,
-                1,
-                _key(kind, identifier),
-                str(settings.auth_login_window_seconds),
-            ))
+            raw = await cast(
+                Awaitable[list[int]],
+                client.eval(
+                    _INCREMENT_WITH_EXPIRY,
+                    1,
+                    _key(kind, identifier),
+                    str(settings.auth_login_window_seconds),
+                ),
+            )
             count, ttl = int(raw[0]), int(raw[1])
         except RedisError as error:
             raise AppError(

@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, type Settings, type Session } from "@/lib/api";
+import { api, type Settings } from "@/lib/api";
+import { sessionQueryKey, useSession } from "@/lib/auth";
 
 type TotpSetup = { secret: string; provisioning_uri: string };
 
@@ -34,7 +35,7 @@ function SettingsForm({ initial, onNotice, onError }: {
 export default function SettingsPage() {
   const queryClient = useQueryClient();
   const settings = useQuery({ queryKey: ["settings"], queryFn: () => api<Settings>("/settings") });
-  const session = useQuery({ queryKey: ["session"], queryFn: () => api<Session>("/auth/session") });
+  const session = useSession();
   const [setup, setSetup] = useState<TotpSetup | null>(null);
   const [code, setCode] = useState("");
   const [notice, setNotice] = useState("");
@@ -51,7 +52,7 @@ export default function SettingsPage() {
     try {
       await api<{ totp_enabled: boolean }>("/auth/totp/confirm", { method: "POST", body: JSON.stringify({ code }) });
       setSetup(null); setCode(""); setNotice("Zwei-Faktor-Authentifizierung aktiviert. Bei erneuter Anmeldung den nächsten Code abwarten.");
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Code ungültig"); }
   }
 

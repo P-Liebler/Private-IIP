@@ -12,5 +12,6 @@ Read `MASTER_DEVELOPMENT_PLAN.md` before changing architecture or adding product
 - FastAPI and Celery import the same backend settings and domain/service code. Keep concrete providers inside their collector modules.
 - Use Alembic for schema changes, UTC internally, stable internal IDs, and no secrets in code, logs or Git.
 - Run tests against local services or fixtures; never make live financial provider calls in tests.
+- Use Argon2id for passwords. Keep session tokens out of browser storage and plaintext database columns; never log passwords, tokens, TOTP codes or secrets.
 
 Phase 2 adds private authentication, user settings and audit events. Keep later financial modules behind their roadmap milestones: no collectors, instruments, portfolio accounting, ML, recommendations or assistant features until requested.

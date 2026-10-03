@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { api, type User } from "@/lib/api";
+import { type User } from "@/lib/api";
+import { logout as endSession } from "@/lib/auth";
 
 export function ProtectedShell({ user, children }: { user: User; children: ReactNode }) {
   const router = useRouter();
@@ -12,7 +13,7 @@ export function ProtectedShell({ user, children }: { user: User; children: React
   const [error, setError] = useState("");
   async function logout() {
     try {
-      await api<void>("/auth/logout", { method: "POST" });
+      await endSession();
       queryClient.clear();
       router.replace("/login");
       router.refresh();

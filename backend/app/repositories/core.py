@@ -35,8 +35,8 @@ async def find_session_by_hash(db: AsyncSession, token_hash: str) -> SessionReco
 
 async def delete_old_sessions(db: AsyncSession, *, older_than: datetime) -> int:
     result = await db.execute(
-        delete(SessionRecord).where(
-            or_(SessionRecord.expires_at < older_than, SessionRecord.revoked_at < older_than)
-        ).returning(SessionRecord.id)
+        delete(SessionRecord)
+        .where(or_(SessionRecord.expires_at < older_than, SessionRecord.revoked_at < older_than))
+        .returning(SessionRecord.id)
     )
     return len(result.scalars().all())
