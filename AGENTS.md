@@ -1,0 +1,16 @@
+# Repository rules
+
+Read `MASTER_DEVELOPMENT_PLAN.md` before changing architecture or adding product features. Keep it as the detailed source of truth; update `docs/IMPLEMENTATION_STATUS.md` after each phase.
+
+- Never invent financial data. Missing or stale data must be explicit; do not return `0` or fake production values as a fallback.
+- Keep raw financial data immutable. Record provenance for every important value and snapshot non-reconstructable data from its first availability.
+- Validate hard constraints before quality scores. Do not let a score rescue invalid data.
+- Prevent future information in training and backtests. A signal may only execute at a price tradable after the signal became known.
+- Keep production predictions and their outcomes immutable and visible, including bad predictions.
+- Quantitative models decide; the LLM only explains. Prefer a simple model when it beats a complex one.
+- No autonomous trading, no mandatory paid API/cloud dependency, no fake production fixtures.
+- FastAPI and Celery import the same backend settings and domain/service code. Keep concrete providers inside their collector modules.
+- Use Alembic for schema changes, UTC internally, stable internal IDs, and no secrets in code, logs or Git.
+- Run tests against local services or fixtures; never make live financial provider calls in tests.
+
+Phase 2 adds private authentication, user settings and audit events. Keep later financial modules behind their roadmap milestones: no collectors, instruments, portfolio accounting, ML, recommendations or assistant features until requested.

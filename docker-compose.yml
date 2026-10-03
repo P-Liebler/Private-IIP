@@ -1,0 +1,174 @@
+name: investment-intelligence
+
+x-backend-environment: &backend-environment
+  APP_ENV: ${APP_ENV:-local}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://investment_dev:dev-only-change-me@postgres:5432/investment}
+  VALKEY_URL: ${VALKEY_URL:-redis://valkey:6379/0}
+  MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+  MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-investment_dev}
+  MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-dev-only-change-me-minio}
+  MINIO_BUCKET_RAW: ${MINIO_BUCKET_RAW:-raw-ingestions}
+  MINIO_SECURE: ${MINIO_SECURE:-false}
+  BASE_CURRENCY: ${BASE_CURRENCY:-CHF}
+  DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-Europe/Zurich}
+  FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+  API_PUBLIC_ORIGIN: ${API_PUBLIC_ORIGIN:-http://localhost:8000}
+  SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-investment_session}
+  SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-168}
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  AUTH_LOGIN_MAX_ATTEMPTS: ${AUTH_LOGIN_MAX_ATTEMPTS:-5}
+  AUTH_LOGIN_WINDOW_SECONDS: ${AUTH_LOGIN_WINDOW_SECONDS:-900}
+  TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:-}
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-investment}
+      POSTGRES_USER: ${POSTGRES_USER:-investment_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [platform]
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [platform]
+
+  minio:
+    # Patched MinIO community release built from upstream source; the official
+    # 2025-09 image predates the 2025-10 security release.
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-investment_dev}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-dev-only-change-me-minio}
+      MC_HOST_local: http://${MINIO_ACCESS_KEY:-investment_dev}:${MINIO_SECRET_KEY:-dev-only-change-me-minio}@localhost:9000
+    ports:
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+    networks: [platform]
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: dev
+    environment: *backend-environment
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+      minio: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=5).close()"]
+      interval: 15s
+      timeout: 6s
+      retries: 8
+      start_period: 20s
+    restart: on-failure
+    networks: [platform]
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: dev
+    command: ["celery", "-A", "app.jobs.celery_app:celery_app", "worker", "--loglevel=INFO", "--concurrency=1"]
+    environment: *backend-environment
+    volumes:
+      - ./backend:/app
+    depends_on:
+      valkey: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.jobs.celery_app:celery_app", "inspect", "ping", "--timeout=5"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: on-failure
+    networks: [platform]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: dev
+    command: ["celery", "-A", "app.jobs.celery_app:celery_app", "beat", "--loglevel=INFO", "--pidfile=/tmp/celerybeat.pid", "--schedule=/tmp/celerybeat-schedule"]
+    environment: *backend-environment
+    volumes:
+      - ./backend:/app
+    depends_on:
+      valkey: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $$(cat /tmp/celerybeat.pid)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: on-failure
+    networks: [platform]
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/web/Dockerfile
+      target: dev
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
+      INTERNAL_API_BASE_URL: ${INTERNAL_API_BASE_URL:-http://api:8000/api/v1}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-investment_session}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./frontend/web:/app
+      - web_node_modules:/app/node_modules
+      - web_next:/app/.next
+    depends_on:
+      api: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 25s
+    restart: on-failure
+    networks: [platform]
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  valkey_data:
+  minio_data:
+  web_node_modules:
+  web_next:
