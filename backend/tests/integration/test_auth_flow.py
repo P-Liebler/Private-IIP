@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pyotp
@@ -81,6 +82,21 @@ def test_private_auth_settings_totp_and_audit() -> None:
                     account = await db.get(User, user_id)
                     assert account is not None
                     account.is_active = True
+                    await db.commit()
+                async with get_session_factory()() as db:
+                    record = await db.scalar(
+                        select(SessionRecord).where(SessionRecord.token_hash == token_hash(token))
+                    )
+                    assert record is not None
+                    record.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+                    await db.commit()
+                assert (await client.get("/api/v1/settings")).status_code == 401
+                async with get_session_factory()() as db:
+                    record = await db.scalar(
+                        select(SessionRecord).where(SessionRecord.token_hash == token_hash(token))
+                    )
+                    assert record is not None
+                    record.expires_at = datetime.now(UTC) + timedelta(hours=1)
                     await db.commit()
                 assert (await client.get("/api/v1/settings")).json() == {
                     "timezone": "Europe/Zurich",

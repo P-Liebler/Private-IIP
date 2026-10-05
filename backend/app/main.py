@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=422,
-            content={"error": {"code": "INVALID_REQUEST", "message": "Invalid request"}},
+            content={"error": {"code": "VALIDATION_ERROR", "message": "Invalid request"}},
             headers={"Cache-Control": "no-store"},
         )
 
@@ -102,6 +102,10 @@ def create_app() -> FastAPI:
         finally:
             request_id_var.reset(token)
         response.headers["X-Request-ID"] = request_id
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "same-origin"
+        if request.url.path.startswith(("/api/v1/auth/", "/api/v1/settings")):
+            response.headers["Cache-Control"] = "no-store"
         return response
 
     app.include_router(health_router)

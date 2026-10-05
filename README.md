@@ -37,7 +37,7 @@ docker compose exec -T api python -m app.jobs.smoke
 docker compose exec -T api python -m app.core.storage_smoke
 ```
 
-In PowerShell, use `Copy-Item .env.example .env` for the copy step. Generate a key with `docker compose run --rm api python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`, then paste the output into `TOTP_ENCRYPTION_KEY=` in the ignored `.env`. Do this before starting services if you want TOTP; the key never belongs in Git. If you change database credentials, change both `POSTGRES_*` and `DATABASE_URL`. Change MinIO development credentials before non-local use. Production requires HTTPS frontend, secure cookies, a TOTP key and TLS to MinIO.
+In PowerShell, use `Copy-Item .env.example .env` for the copy step. Generate a key with `docker compose run --rm api python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`, then paste the output into `TOTP_ENCRYPTION_KEY=` in the ignored `.env`. Do this before starting services if you want TOTP; the key never belongs in Git. If you change database credentials, change both `POSTGRES_*` and `DATABASE_URL`. Change MinIO development credentials before non-local use. Production requires HTTPS frontend and public API origins, secure cookies, a TOTP key and TLS to MinIO.
 
 The first health request creates the empty raw bucket automatically. Alembic enables pgvector and creates `users`, `sessions` and `audit_events`. The user command prompts for a username and password without putting the password in shell history. It refuses duplicate usernames. There is no public registration.
 

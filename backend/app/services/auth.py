@@ -310,6 +310,7 @@ class AuthService:
         return secret, totp_service.provisioning_uri(secret, user.username)
 
     async def confirm_totp(self, context: AuthContext, code: str, *, ip_address: str) -> User:
+        await rate_limiter.check_totp(ip_address)
         user = await find_user_by_id(self.db, context.user.id, for_update=True)
         if user is None or not user.is_active:
             raise AppError(401, "UNAUTHENTICATED", "Authentication required")
@@ -353,6 +354,7 @@ class AuthService:
             ip_address=ip_address,
         )
         await commit_security_change(self.db)
+        await rate_limiter.clear_totp(ip_address)
         return user
 
     async def reset_totp(self, username: str) -> bool:

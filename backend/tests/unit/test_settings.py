@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from cryptography.fernet import Fernet
 from pydantic import ValidationError
 
 from app.core.config import Settings
@@ -39,3 +40,28 @@ def test_production_rejects_development_credentials() -> None:
 def test_production_requires_secure_object_storage() -> None:
     with pytest.raises(ValidationError, match="MINIO_SECURE"):
         local_settings(app_env="production")
+
+
+def test_invalid_totp_key_does_not_appear_in_error() -> None:
+    invalid_key = "invalid-test-key-value"
+    with pytest.raises(ValidationError) as caught:
+        local_settings(totp_encryption_key=invalid_key)
+    assert invalid_key not in str(caught.value)
+
+
+def test_production_requires_secure_cookie_and_https_origins() -> None:
+    base: dict[str, object] = {
+        "app_env": "production",
+        "database_url": "postgresql+asyncpg://user:password@postgres:5432/investment",
+        "minio_secret_key": "not-a-development-secret",
+        "minio_secure": True,
+        "frontend_origin": "https://investments.example",
+        "api_public_origin": "https://api.investments.example",
+        "totp_encryption_key": Fernet.generate_key().decode(),
+    }
+    with pytest.raises(ValidationError, match="SESSION_SECURE_COOKIE"):
+        local_settings(**base, session_secure_cookie=False)
+    with pytest.raises(ValidationError, match="API_PUBLIC_ORIGIN"):
+        local_settings(
+            **(base | {"session_secure_cookie": True, "api_public_origin": "http://localhost:8000"})
+        )

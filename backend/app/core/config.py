@@ -10,7 +10,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore", hide_input_in_errors=True
+    )
 
     app_env: Literal["local", "test", "staging", "production"] = "local"
     app_debug: bool = False
@@ -46,6 +48,9 @@ class Settings(BaseSettings):
                 or not parsed.netloc
                 or parsed.path
                 or parsed.query
+                or parsed.fragment
+                or parsed.username
+                or parsed.password
             ):
                 raise ValueError("Origins must be absolute HTTP(S) origins without paths")
         if self.totp_encryption_key is not None:
@@ -66,6 +71,8 @@ class Settings(BaseSettings):
                 raise ValueError("TOTP_ENCRYPTION_KEY is required in production")
             if not self.frontend_origin.startswith("https://"):
                 raise ValueError("FRONTEND_ORIGIN must use HTTPS in production")
+            if not self.api_public_origin.startswith("https://"):
+                raise ValueError("API_PUBLIC_ORIGIN must use HTTPS in production")
         return self
 
 
