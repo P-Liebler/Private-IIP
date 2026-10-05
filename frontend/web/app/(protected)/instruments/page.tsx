@@ -35,6 +35,7 @@ export default function InstrumentsPage() {
   function submitSearch(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setSearch(query.trim()); }
 
   return <main className="space-y-9 py-10">
+    <Link href="/imports" className="inline-block rounded border border-emerald-500 px-4 py-2 text-emerald-400">Neuer CSV-Import für Kurse, Aktionen und FX</Link>
     <header><h1 className="text-3xl font-semibold">Instrumente</h1><p className="mt-2 text-zinc-400">Lokaler Instrument Master. Treffer nach Name sind Kandidaten; Kennungen können mehrdeutig sein.</p></header>
     <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
       <h2 className="text-xl font-semibold">Suchen</h2>

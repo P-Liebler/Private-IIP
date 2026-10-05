@@ -21,6 +21,8 @@ _ALIASES = {
     "trading_date": "date",
     "datum": "date",
     "close": "close",
+    "adjusted_close": "adjusted_close",
+    "adj_close": "adjusted_close",
     "closing_price": "close",
     "schlusskurs": "close",
     "ticker": "ticker",

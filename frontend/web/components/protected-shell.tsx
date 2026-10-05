@@ -28,6 +28,8 @@ export function ProtectedShell({ user, children }: { user: User; children: React
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/dashboard" className="hover:text-emerald-400">Übersicht</Link>
           <Link href="/instruments" className="hover:text-emerald-400">Instrumente</Link>
+          <Link href="/imports" className="hover:text-emerald-400">CSV-Import</Link>
+          <Link href="/data-quality" className="hover:text-emerald-400">Datenqualität</Link>
           <Link href="/settings/data-sources" className="hover:text-emerald-400">Datenquellen</Link>
           <Link href="/settings" className="hover:text-emerald-400">Einstellungen</Link>
           <span className="text-zinc-400">{user.username}</span>

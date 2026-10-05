@@ -14,6 +14,7 @@ from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.imports import router as imports_router
 from app.api.instruments import router as instruments_router
+from app.api.market_data import router as market_data_router
 from app.api.settings import router as settings_router
 from app.api.sources import router as sources_router
 from app.core.config import get_settings
@@ -117,6 +118,7 @@ def create_app() -> FastAPI:
     app.include_router(instruments_router)
     app.include_router(sources_router)
     app.include_router(imports_router)
+    app.include_router(market_data_router)
     return app
 
 

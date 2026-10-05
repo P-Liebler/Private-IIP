@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     minio_bucket_raw: str = "raw-ingestions"
     minio_secure: bool = False
     base_currency: str = "CHF"
+    fx_max_carry_days: int = Field(default=5, ge=0, le=10)
     default_timezone: str = "Europe/Zurich"
     frontend_origin: str = "http://localhost:3000"
     api_public_origin: str = "http://localhost:8000"

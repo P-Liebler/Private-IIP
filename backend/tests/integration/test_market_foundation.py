@@ -17,7 +17,10 @@ from app.core.config import get_settings
 from app.core.errors import AppError
 from app.db.session import get_engine, get_session_factory
 from app.main import create_app
-from app.models import AuditEvent, DataSource, Instrument, InstrumentIdentifier, RawIngestion, User
+from app.models import (
+    AuditEvent, DataSource, Instrument, InstrumentIdentifier, PriceDaily,
+    PriceDailyVersion, RawIngestion, User,
+)
 from app.providers.openfigi import MappingService, OpenFigiProvider
 from app.services.auth import AuthService
 from app.services.csv_preview import CsvPreviewService
@@ -103,7 +106,13 @@ def test_new_apis_require_session() -> None:
         async with AsyncClient(
             transport=ASGITransport(app=create_app()), base_url="http://testserver"
         ) as client:
-            for path in ("/api/v1/instruments/search?q=AAPL", "/api/v1/data-sources"):
+            for path in (
+                "/api/v1/instruments/search?q=AAPL", "/api/v1/data-sources",
+                f"/api/v1/instruments/{uuid4()}/prices",
+                f"/api/v1/instruments/{uuid4()}/corporate-actions",
+                "/api/v1/fx/rate?base=USD&quote=CHF&on_date=2024-01-02",
+                "/api/v1/data-quality/summary",
+            ):
                 assert (await client.get(path)).status_code == 401
             assert (
                 await client.post(
@@ -116,6 +125,12 @@ def test_new_apis_require_session() -> None:
                     "/api/v1/imports/csv/preview",
                     content=b"date,ticker,close\n",
                     headers={"Content-Type": "text/csv"},
+                )
+            ).status_code == 401
+            assert (
+                await client.post(
+                    "/api/v1/market-data/imports/prices/commit",
+                    json={"raw_ingestion_id": str(uuid4()), "mapping": {}},
                 )
             ).status_code == 401
 
@@ -132,6 +147,7 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
         ticker = f"T{uuid4().hex[:7].upper()}"
         instrument_id: UUID | None = None
         raw_id: UUID | None = None
+        p3_raw_id: UUID | None = None
         async with get_session_factory()() as db:
             user = await AuthService(db).create_user(username, password)
             user_id = user.id
@@ -174,6 +190,10 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
                     "YAHOO",
                     "STOOQ",
                 }
+                assert (await client.get(f"/api/v1/instruments/{instrument_id}/prices")).json()["status"] == "UNAVAILABLE"
+                assert (await client.get(f"/api/v1/instruments/{instrument_id}/corporate-actions")).status_code == 200
+                assert (await client.get("/api/v1/fx/rate?base=USD&quote=CHF&on_date=1000-01-10")).json()["status"] == "UNAVAILABLE"
+                assert (await client.get("/api/v1/data-quality/summary")).status_code == 200
                 upload = await client.post(
                     "/api/v1/imports/csv/preview",
                     content=f"date,ticker,close\n{datetime.now(UTC).date()},{ticker},12.5\n".encode(),
@@ -183,10 +203,36 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
                 raw_id = UUID(upload.json()["raw_ingestion_id"])
                 assert upload.json()["sample_rows"][0]["resolution_status"] == "RESOLVED"
                 assert upload.json()["sample_rows"][0]["instrument_id"] == str(instrument_id)
+                market_preview = await client.post(
+                    "/api/v1/market-data/imports/prices/preview",
+                    content=f"date,ticker,close,currency\n{datetime.now(UTC).date()},{ticker},12.5,USD\n".encode(),
+                    headers={"Content-Type": "text/csv", "X-Filename": "p3-fixture.csv"},
+                )
+                assert market_preview.status_code == 200, market_preview.text
+                p3_raw_id = UUID(market_preview.json()["raw_ingestion_id"])
+                committed = await client.post(
+                    "/api/v1/market-data/imports/prices/commit",
+                    json={
+                        "raw_ingestion_id": str(p3_raw_id),
+                        "mapping": market_preview.json()["mapping"],
+                    },
+                )
+                assert committed.status_code == 200, committed.text
+                assert committed.json()["inserted"] == 1
+                prices = await client.get(f"/api/v1/instruments/{instrument_id}/prices")
+                assert prices.status_code == 200
+                assert prices.json()["prices"][0]["close"] == 12.5
+                assert prices.json()["prices"][0]["raw_ingestion_id"] == str(p3_raw_id)
         finally:
             async with get_session_factory()() as db:
                 await db.execute(delete(AuditEvent).where(AuditEvent.actor_user_id == user_id))
                 if instrument_id is not None:
+                    await db.execute(delete(PriceDaily).where(PriceDaily.instrument_id == instrument_id))
+                    await db.execute(
+                        delete(PriceDailyVersion).where(
+                            PriceDailyVersion.instrument_id == instrument_id
+                        )
+                    )
                     await db.execute(
                         delete(InstrumentIdentifier).where(
                             InstrumentIdentifier.instrument_id == instrument_id
@@ -194,6 +240,8 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
                     )
                 if raw_id is not None:
                     await db.execute(delete(RawIngestion).where(RawIngestion.id == raw_id))
+                if p3_raw_id is not None:
+                    await db.execute(delete(RawIngestion).where(RawIngestion.id == p3_raw_id))
                 if instrument_id is not None:
                     await db.execute(delete(Instrument).where(Instrument.id == instrument_id))
                 await db.execute(delete(User).where(User.id == user_id))
