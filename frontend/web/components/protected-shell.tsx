@@ -27,6 +27,8 @@ export function ProtectedShell({ user, children }: { user: User; children: React
         <Link href="/dashboard" className="font-semibold text-emerald-400">Investment Intelligence</Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/dashboard" className="hover:text-emerald-400">Übersicht</Link>
+          <Link href="/instruments" className="hover:text-emerald-400">Instrumente</Link>
+          <Link href="/settings/data-sources" className="hover:text-emerald-400">Datenquellen</Link>
           <Link href="/settings" className="hover:text-emerald-400">Einstellungen</Link>
           <span className="text-zinc-400">{user.username}</span>
           <button onClick={logout} className="rounded border border-zinc-700 px-3 py-2 hover:border-emerald-400">Abmelden</button>

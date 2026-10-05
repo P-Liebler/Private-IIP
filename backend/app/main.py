@@ -12,7 +12,10 @@ from fastapi.responses import JSONResponse, Response
 
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
+from app.api.imports import router as imports_router
+from app.api.instruments import router as instruments_router
 from app.api.settings import router as settings_router
+from app.api.sources import router as sources_router
 from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, request_id_var
@@ -30,7 +33,7 @@ def create_app() -> FastAPI:
         allow_origins=[settings.frontend_origin],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH"],
-        allow_headers=["Content-Type", "X-Request-ID"],
+        allow_headers=["Content-Type", "X-Request-ID", "X-Filename"],
     )
 
     @app.exception_handler(AppError)
@@ -111,6 +114,9 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(auth_router)
     app.include_router(settings_router)
+    app.include_router(instruments_router)
+    app.include_router(sources_router)
+    app.include_router(imports_router)
     return app
 
 

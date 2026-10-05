@@ -1,6 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: up down build logs test lint format typecheck migrate smoke config create-user reset-totp
+.PHONY: up down build logs test lint format typecheck migrate smoke config create-user reset-totp sources source-review source-enable source-disable
 
 up:
 	$(COMPOSE) up --build -d
@@ -43,3 +43,15 @@ create-user:
 
 reset-totp:
 	$(COMPOSE) exec api python -m app.auth.cli reset-totp
+
+sources:
+	$(COMPOSE) exec -T api python -m app.sources.cli list
+
+source-review:
+	$(COMPOSE) exec -T api python -m app.sources.cli review $(ARGS)
+
+source-enable:
+	$(COMPOSE) exec -T api python -m app.sources.cli enable $(SOURCE)
+
+source-disable:
+	$(COMPOSE) exec -T api python -m app.sources.cli disable $(SOURCE)

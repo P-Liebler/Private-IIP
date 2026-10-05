@@ -11,3 +11,4 @@ minio==7.2.15
 argon2-cffi==25.1.0
 cryptography==50.0.2
 pyotp==2.10.0
+httpx==0.28.1

@@ -1,0 +1,7 @@
+# Raw ingestion
+
+`RawIngestionService` stores exact input bytes in the existing MinIO raw bucket under `raw/<source>/<UTC year>/<month>/<day>/<UUID>.<extension>`. It computes SHA-256 over those bytes and writes a `raw_ingestions` row with source, resource type, request/receipt times, optional instrument, HTTP status, content type, object path, byte count and a strict allowlist of request metadata. Keys, authorization headers, credentials and query strings are never stored. Manual CSV has no HTTP status or request time; its receipt time is the platform observation time.
+
+The service commits `PENDING` with object path/hash before uploading. A successful upload advances to `STORED`; a failed upload advances to `FAILED`. If PostgreSQL fails before `PENDING`, no object was written. If it fails after the upload, the durable `PENDING` row points to a possibly existing object. Operators can list `PENDING` rows, check the object and hash, then reconcile that row after investigation; the application never silently claims success or removes a raw object. Network failures without response bytes use `FAILED` with no object path.
+
+`get_verified` only returns a `STORED` object whose recomputed SHA-256 equals the database value. A mismatch returns `RAW_INTEGRITY_ERROR` and must stop parsing. All later canonical data must carry the relevant `raw_ingestion_id`. P2 CSV preview and OpenFIGI mapping store raw bytes first; neither creates canonical prices.

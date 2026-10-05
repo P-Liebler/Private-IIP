@@ -1,0 +1,9 @@
+# Instrument master
+
+`instruments.id` is a UUID independent of ticker. P2 supports stocks and ETFs with optional ticker, ISIN, FIGI, exchange/MIC, country and listing dates. Missing fields remain null. `instrument_identifiers` records each normalized value, validity interval `[valid_from, valid_to)`, observation time and optional source/raw reference. `InstrumentService` alone changes identifiers and current convenience fields. It closes the old interval on a ticker change and rejects conflicting dates or assignments; a partial unique database index protects current values. A ticker is unique per market key, while ISIN/FIGI are global.
+
+Protected search returns `EXACT_TICKER`, `EXACT_IDENTIFIER`, `EXACT_NAME` or `FUZZY_NAME`, plus `UNIQUE`, `AMBIGUOUS` or `CANDIDATE`. Historic identifiers remain searchable. Name candidates never assert identity. Manual creation is available without an external provider. The detail API returns current fields and full identifier history with provenance. The UI displays this data without prices or fundamentals.
+
+The OpenFIGI connector is gated and uses an abstract mapping provider contract. Its exact HTTP bytes are stored before parsing. `UNIQUE_CANDIDATE` still requires explicit acceptance; multiple matches return `AMBIGUOUS` and no assignment. Acceptance verifies the selected FIGI is present in the stored, hash-checked response and records source/raw provenance and audit. The separate market data provider protocol is only a P3 interface; there is no price collector here.
+
+CSV preview stores the original upload, detects common date/close/identifier columns, validates positive close/date values and resolves rows against local identifier validity on the row date. It reports `RESOLVED`, `AMBIGUOUS` or `UNRESOLVED`; it never creates instruments or prices automatically.

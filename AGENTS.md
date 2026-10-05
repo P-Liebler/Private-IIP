@@ -13,5 +13,7 @@ Read `MASTER_DEVELOPMENT_PLAN.md` before changing architecture or adding product
 - Use Alembic for schema changes, UTC internally, stable internal IDs, and no secrets in code, logs or Git.
 - Run tests against local services or fixtures; never make live financial provider calls in tests.
 - Use Argon2id for passwords. Keep session tokens out of browser storage and plaintext database columns; never log passwords, tokens, TOTP codes or secrets.
+- An external provider must pass its approved, enabled, in-scope source gate before any network request. Trust level does not grant usage rights.
+- Persist exact provider response bytes and provenance before parsing or canonicalization. Never auto-accept ambiguous identifier mappings.
 
-Phase 2 adds private authentication, user settings and audit events. Keep later financial modules behind their roadmap milestones: no collectors, instruments, portfolio accounting, ML, recommendations or assistant features until requested.
+P1 raw ingestion and P2 instrument identity/source gates are implemented. Keep P3 market data and later portfolio, ML, recommendations and assistant features behind their roadmap milestones until requested.

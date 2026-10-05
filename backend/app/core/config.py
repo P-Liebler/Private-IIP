@@ -33,10 +33,17 @@ class Settings(BaseSettings):
     auth_login_max_attempts: int = Field(default=5, ge=1, le=100)
     auth_login_window_seconds: int = Field(default=900, ge=30, le=86400)
     totp_encryption_key: SecretStr | None = None
+    openfigi_api_key: SecretStr | None = None
+    openfigi_base_url: str = "https://api.openfigi.com"
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod
     def empty_key_is_unconfigured(cls, value: object) -> object:
+        return None if value == "" else value
+
+    @field_validator("openfigi_api_key", mode="before")
+    @classmethod
+    def empty_openfigi_key_is_unconfigured(cls, value: object) -> object:
         return None if value == "" else value
 
     @model_validator(mode="after")
@@ -58,6 +65,10 @@ class Settings(BaseSettings):
                 Fernet(self.totp_encryption_key.get_secret_value().encode())
             except (ValueError, TypeError) as error:
                 raise ValueError("TOTP_ENCRYPTION_KEY must be a valid Fernet key") from error
+        if not self.openfigi_base_url.startswith("https://") or self.openfigi_base_url.endswith(
+            "/v3/mapping"
+        ):
+            raise ValueError("OPENFIGI_BASE_URL must be an HTTPS service origin")
         if self.app_env == "production":
             if self.app_debug:
                 raise ValueError("APP_DEBUG must be false in production")

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare ephemeral local environment
+        run: |
+          cp .env.example .env
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          import secrets
+          path = Path('.env')
+          key = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode()
+          path.write_text(path.read_text().replace('TOTP_ENCRYPTION_KEY=', 'TOTP_ENCRYPTION_KEY=' + key, 1))
+          PY
+      - name: Validate Compose and start services
+        run: |
+          docker compose config --quiet
+          docker compose up --build -d --wait
+          docker compose exec -T api alembic upgrade head
+      - name: Backend checks
+        run: |
+          docker compose exec -T api ruff check .
+          docker compose exec -T api ruff format --check .
+          docker compose exec -T api mypy app
+          docker compose exec -T api pytest -q
+      - name: Frontend checks
+        run: |
+          docker compose exec -T web npm run lint
+          docker compose exec -T web npm run typecheck
+          docker compose exec -T web npm run build
+      - name: Container logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+      - name: Stop services
+        if: always()
+        run: docker compose down

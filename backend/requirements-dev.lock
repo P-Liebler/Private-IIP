@@ -1,7 +1,5 @@
 # Python 3.12/Linux development lock, captured from the tested API image.
 -r requirements.lock
-httpcore==1.0.9
-httpx==0.28.1
 iniconfig==2.3.0
 mypy==1.18.2
 mypy_extensions==1.1.0
