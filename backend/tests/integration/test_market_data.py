@@ -5,13 +5,11 @@ from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_CEILING, Decimal
 from uuid import uuid4
 
-import pytest
 import httpx
+import pytest
 from sqlalchemy import delete, or_
 
 from app.core.errors import AppError
-from app.providers.ecb_fx import EcbFxCollector
-from app.providers.snb_fx import SnbFxCollector
 from app.db.session import get_engine, get_session_factory
 from app.models import (
     AuditEvent,
@@ -26,6 +24,8 @@ from app.models import (
     PriceDailyVersion,
     RawIngestion,
 )
+from app.providers.ecb_fx import EcbFxCollector
+from app.providers.snb_fx import SnbFxCollector
 from app.services.market_import import MarketImportService
 from app.services.market_queries import MarketQueryService, total_return
 from app.services.market_validation import discrepancy, validate_price
@@ -265,7 +265,9 @@ def test_unknown_fx_sources_and_blocked_yahoo_make_no_http_request() -> None:
                 pytest.skip("An operator has already reviewed an FX source")
             async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                 with pytest.raises(AppError) as denied:
-                    await EcbFxCollector(db, client=client).collect(date(2024, 1, 2), date(2024, 1, 3))
+                    await EcbFxCollector(db, client=client).collect(
+                        date(2024, 1, 2), date(2024, 1, 3)
+                    )
                 assert denied.value.code == "SOURCE_NOT_APPROVED"
                 with pytest.raises(AppError) as denied:
                     await SnbFxCollector(db).collect(date(2024, 1, 2), date(2024, 1, 3))
@@ -282,6 +284,7 @@ def test_price_validation_and_threshold_boundaries() -> None:
         validate_price({"date": "2024-01-02", "close": "105", "high": "100"}, "USD")
     with pytest.raises(ValueError, match="währung"):
         validate_price({"date": "2024-01-02", "close": "100", "currency": "EUR"}, "USD")
+
     def at_percent(pct: str) -> Decimal:
         change = Decimal(pct)
         value = Decimal(100) * (Decimal(200) + change) / (Decimal(200) - change)

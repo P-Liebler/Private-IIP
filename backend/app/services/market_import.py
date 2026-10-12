@@ -88,6 +88,14 @@ class ParsedRow:
         return {
             "line": self.line,
             "values": self.raw,
+            "normalized": {
+                key: value.isoformat()
+                if isinstance(value, date)
+                else str(value)
+                if isinstance(value, Decimal)
+                else value
+                for key, value in self.values.items()
+            },
             "instrument_id": self.instrument_id,
             "errors": self.errors,
             "warnings": self.warnings,
@@ -158,6 +166,9 @@ class MarketImportService:
             "observed_only": 0,
             "unchanged": 0,
             "quarantined": 0,
+            "warning_rows": 0,
+            "rejected_rows": 0,
+            "new_versions": 0,
         }
         try:
             # Serialize one raw commit and protect current pointers from concurrent writers.
@@ -197,6 +208,7 @@ class MarketImportService:
                             )
                         )
                         result["quarantined"] += 1
+                        result["rejected_rows"] += 1
                     else:
                         result["unchanged"] += 1
                 elif kind == "prices":
@@ -243,7 +255,11 @@ class MarketImportService:
         except Exception:
             await self.db.rollback()
             raise
-        return {"raw_ingestion_id": raw_id, **result}
+        return {
+            "raw_ingestion_id": raw_id,
+            "accepted_rows": result["inserted"] + result["corrected"],
+            **result,
+        }
 
     async def _parse(
         self, kind: str, data: bytes, mapping: dict[str, str] | None
@@ -467,6 +483,9 @@ class MarketImportService:
         )
         self.db.add(version)
         await self.db.flush()
+        result["new_versions"] += 1
+        if version.validation_status == "WARNING":
+            result["warning_rows"] += 1
         if crosscheck == "SEVERE":
             self.db.add(
                 DataQuarantine(
@@ -490,6 +509,7 @@ class MarketImportService:
                     event="quarantine.resolved",
                     resource="price_daily",
                     resource_id=str(version.id),
+                    actor_user_id=self.actor_user_id,
                     metadata={"resolution": policy, "raw_ingestion_id": str(raw_id)},
                 )
         audit_service.record(
@@ -497,6 +517,7 @@ class MarketImportService:
             event="market.price_version_created",
             resource="price_daily_version",
             resource_id=str(version.id),
+            actor_user_id=self.actor_user_id,
             metadata={"resolution": resolution, "raw_ingestion_id": str(raw_id)},
         )
         source_count = (
@@ -616,11 +637,13 @@ class MarketImportService:
         )
         self.db.add(version)
         await self.db.flush()
+        result["new_versions"] += 1
         audit_service.record(
             self.db,
             event="market.corporate_action_version_created",
             resource="corporate_action_version",
             resource_id=str(version.id),
+            actor_user_id=self.actor_user_id,
             metadata={"raw_ingestion_id": str(raw_id)},
         )
         if current:
@@ -732,11 +755,15 @@ class MarketImportService:
         )
         self.db.add(version)
         await self.db.flush()
+        result["new_versions"] += 1
+        if version.validation_status == "WARNING":
+            result["warning_rows"] += 1
         audit_service.record(
             self.db,
             event="fx.version_created",
             resource="fx_rate_version",
             resource_id=str(version.id),
+            actor_user_id=self.actor_user_id,
             metadata={"resolution": resolution, "raw_ingestion_id": str(raw_id)},
         )
         if resolution not in {"ACCEPTED", "MANUAL_OVERRIDE"}:

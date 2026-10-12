@@ -1,0 +1,7 @@
+# Canonical versioning and time
+
+`observed_at` and `retrieved_at` mark local acquisition, while `known_at` marks when the normalized version entered the local canonical history. A historical CSV uploaded today does not acquire a historical observation time. Each version records the parser, validation and reconciliation rule versions plus `raw_ingestion_id`. Corrections append a new row and link `replaces_version_id`; the previous value remains queryable. Current tables are caches of accepted versions, not history.
+
+`as_of` queries require an explicit timezone when supplied and use only versions with `known_at <= as_of` and an event date no later than that instant. A correction entered later cannot leak backward. Price versions with review, lower-priority or quarantine resolution do not become canonical. Source counts include visible observations; they are not votes or averaged values. Historical availability before the first local snapshot is not asserted merely because an old trading date appears in a file.
+
+CSV commits lock the relevant current tables in the database transaction. Raw storage precedes parsing, so a canonical transaction failure leaves the original for inspection. PostgreSQL unique keys and source/row identity protect current records and repeated commits. A later change of rules requires a new rule version and a deliberate replay policy; P3 does not silently rewrite stored versions.

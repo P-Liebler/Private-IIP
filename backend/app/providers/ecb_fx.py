@@ -134,6 +134,10 @@ class EcbFxCollector:
                 content_type=response.headers.get("Content-Type", "text/csv"),
                 request_metadata=metadata,
             )
+            if response.status_code not in {200, 204}:
+                source.last_failure = datetime.now(UTC)
+                source.failure_count += 1
+                await self.db.commit()
             if response.status_code == 429:
                 raise AppError(429, "SOURCE_RATE_LIMITED", "ECB rate limited the request")
             if response.status_code >= 500:
@@ -146,7 +150,13 @@ class EcbFxCollector:
                     "reason": "NO_OBSERVATIONS",
                     "raw_ingestion_id": raw.id,
                 }
-            observations = parse_ecb_csv(await self.raw_service.get_verified(raw.id))
+            try:
+                observations = parse_ecb_csv(await self.raw_service.get_verified(raw.id))
+            except AppError:
+                source.last_failure = datetime.now(UTC)
+                source.failure_count += 1
+                await self.db.commit()
+                raise
             if not observations:
                 return {
                     "status": "UNAVAILABLE",
@@ -159,6 +169,9 @@ class EcbFxCollector:
                 "observed_only": 0,
                 "unchanged": 0,
                 "quarantined": 0,
+                "warning_rows": 0,
+                "rejected_rows": 0,
+                "new_versions": 0,
             }
             service = MarketImportService(self.db, self.raw_service)
             try:

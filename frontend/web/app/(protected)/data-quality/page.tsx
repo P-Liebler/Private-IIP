@@ -26,6 +26,7 @@ export default function DataQualityPage() {
         <Metric title="Instrumente mit alten Kursen" value={String(data.stale_prices)} />
       </div>
       <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6"><h2 className="text-xl font-semibold">Kursqualität</h2>{Object.keys(data.price_quality).length === 0 ? <p className="mt-3 text-zinc-400">Keine validierten Kurse verfügbar.</p> : <ul className="mt-3 grid gap-2 sm:grid-cols-2">{Object.entries(data.price_quality).map(([label, count]) => <li key={label}>{label}: {count}</li>)}</ul>}</section>
+      {data.source_failures.length > 0 && <section className="rounded-xl border border-amber-800 bg-amber-950 p-6"><h2 className="font-semibold">Quellenausfälle</h2><ul className="mt-2 space-y-1">{data.source_failures.map((source) => <li key={source.slug}>{source.slug}: {source.failure_count} Fehler, zuletzt {dateTime(source.last_failure)}</li>)}</ul></section>}
     </>}
   </main>;
 }

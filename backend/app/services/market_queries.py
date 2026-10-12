@@ -7,11 +7,12 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import AppError
 from app.core.config import get_settings
+from app.core.errors import AppError
 from app.models import (
     CorporateActionVersion,
     DataQuarantine,
+    DataSource,
     FxRateVersion,
     Instrument,
     PriceDaily,
@@ -20,6 +21,14 @@ from app.models import (
 )
 
 ACCEPTED = {"ACCEPTED", "MANUAL_OVERRIDE"}
+
+
+def pit_cutoff(as_of: datetime | None) -> datetime:
+    if as_of is None:
+        return datetime.now(UTC)
+    if as_of.tzinfo is None or as_of.utcoffset() is None:
+        raise AppError(422, "AS_OF_TIMEZONE_REQUIRED", "as_of requires an explicit timezone")
+    return as_of.astimezone(UTC)
 
 
 def price_view(row: PriceDailyVersion, source_count: int = 1) -> dict[str, object]:
@@ -60,7 +69,7 @@ class MarketQueryService:
     ) -> dict[str, object]:
         if start > end or (end - start).days > 3650:
             raise AppError(422, "DATE_RANGE_INVALID", "Select an ordered range of at most 10 years")
-        cutoff = as_of or datetime.now(UTC)
+        cutoff = pit_cutoff(as_of)
         all_versions = (
             await self.db.scalars(
                 select(PriceDailyVersion)
@@ -109,7 +118,7 @@ class MarketQueryService:
     async def actions(
         self, instrument_id: UUID, start: date, end: date, as_of: datetime | None = None
     ) -> dict[str, object]:
-        cutoff = as_of or datetime.now(UTC)
+        cutoff = pit_cutoff(as_of)
         rows = (
             await self.db.scalars(
                 select(CorporateActionVersion)
@@ -164,7 +173,7 @@ class MarketQueryService:
         base, quote = base.upper(), quote.upper()
         if base not in {"CHF", "EUR", "USD"} or quote not in {"CHF", "EUR", "USD"}:
             raise AppError(422, "FX_CURRENCY_INVALID", "Only CHF, EUR and USD are supported")
-        cutoff = as_of or datetime.now(UTC)
+        cutoff = pit_cutoff(as_of)
         if on_date > cutoff.date():
             return {
                 "status": "UNAVAILABLE",
@@ -303,10 +312,15 @@ class MarketQueryService:
             select(func.max(FxRateVersion.known_at)).where(FxRateVersion.resolution.in_(ACCEPTED))
         )
         latest_price_date = await self.db.scalar(select(func.max(PriceDaily.trading_date)))
-        latest_fx_date = await self.db.scalar(select(func.max(FxRateVersion.rate_date)).where(FxRateVersion.resolution.in_(ACCEPTED)))
+        latest_fx_date = await self.db.scalar(
+            select(func.max(FxRateVersion.rate_date)).where(FxRateVersion.resolution.in_(ACCEPTED))
+        )
         failed_raw = await self.db.scalar(
             select(func.count()).select_from(RawIngestion).where(RawIngestion.status == "FAILED")
         )
+        failed_sources = (
+            await self.db.scalars(select(DataSource).where(DataSource.last_failure.is_not(None)))
+        ).all()
         disagreements = await self.db.scalar(
             select(func.count())
             .select_from(PriceDailyVersion)
@@ -341,6 +355,14 @@ class MarketQueryService:
             "latest_price_date": latest_price_date,
             "latest_fx_date": latest_fx_date,
             "failed_raw_ingestions": failed_raw or 0,
+            "source_failures": [
+                {
+                    "slug": source.slug,
+                    "last_failure": source.last_failure,
+                    "failure_count": source.failure_count,
+                }
+                for source in failed_sources
+            ],
             "source_disagreements": disagreements or 0,
             "instruments_with_missing_prices": missing or 0,
             "stale_prices": stale or 0,

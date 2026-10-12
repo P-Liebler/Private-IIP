@@ -11,6 +11,7 @@ export type MarketPreview = {
   sample_rows: {
     line: number;
     values: Record<string, string | null>;
+    normalized: Record<string, string | null>;
     instrument_id: string | null;
     errors: string[];
     warnings: string[];
@@ -23,11 +24,15 @@ export type ImportResult = {
   observed_only: number;
   unchanged: number;
   quarantined: number;
+  accepted_rows: number;
+  warning_rows: number;
+  rejected_rows: number;
+  new_versions: number;
 };
 export type PriceRecord = {
-  id: string; date: string; open: number | null; high: number | null;
-  low: number | null; close: number; adjusted_close: number | null;
-  volume: number | null; currency: string; source_id: string;
+  id: string; date: string; open: string | null; high: string | null;
+  low: string | null; close: string; adjusted_close: string | null;
+  volume: string | null; currency: string; source_id: string;
   source_count: number; raw_ingestion_id: string; known_at: string;
   validation_status: string; quality_score: number; quality_label: string;
   warnings: string[];
@@ -38,6 +43,7 @@ export type PriceHistory = {
 export type QualitySummary = {
   status: string; price_quality: Record<string, number>;
   quarantined_rows: number; failed_raw_ingestions: number;
+  source_failures: { slug: string; last_failure: string; failure_count: number }[];
   source_disagreements: number; instruments_with_missing_prices: number;
   stale_prices: number; last_successful_price_import: string | null;
   last_successful_fx_import: string | null;

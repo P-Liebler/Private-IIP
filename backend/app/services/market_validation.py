@@ -12,7 +12,12 @@ ACTION_TYPES = {"DIVIDEND", "SPLIT", "REVERSE_SPLIT", "TICKER_CHANGE", "DELISTIN
 
 
 def number(
-    value: str | None, *, positive: bool = False, zero_allowed: bool = False
+    value: str | None,
+    *,
+    positive: bool = False,
+    zero_allowed: bool = False,
+    scale: int = 8,
+    precision: int = 24,
 ) -> Decimal | None:
     if value is None or not value.strip():
         return None
@@ -22,6 +27,11 @@ def number(
         raise ValueError("Ungültige Dezimalzahl") from None
     if not result.is_finite() or len(result.as_tuple().digits) > 20:
         raise ValueError("Dezimalzahl ausserhalb des zulässigen Bereichs")
+    if (
+        max(0, result.adjusted() + 1) > precision - scale
+        or result.scaleb(scale) != result.scaleb(scale).to_integral_value()
+    ):
+        raise ValueError("Dezimalzahl passt nicht in die gespeicherte Genauigkeit")
     if positive and (result < 0 if zero_allowed else result <= 0):
         raise ValueError("Wert muss positiv sein")
     return result
@@ -52,7 +62,13 @@ def validate_price(
     if close is None:
         raise ValueError("Schlusskurs fehlt")
     values = {
-        key: number(row.get(key), positive=True, zero_allowed=key == "volume")
+        key: number(
+            row.get(key),
+            positive=True,
+            zero_allowed=key == "volume",
+            scale=4 if key == "volume" else 8,
+            precision=28 if key == "volume" else 24,
+        )
         for key in ("open", "high", "low", "volume")
     }
     if values["high"] is not None and any(
@@ -95,7 +111,7 @@ def validate_fx(row: dict[str, str | None]) -> dict[str, object]:
     quote = currency(row.get("quote_currency"))
     if base == quote:
         raise ValueError("Identische Währungen sind abgeleitet, kein importierter Kurs")
-    rate = number(row.get("rate"), positive=True)
+    rate = number(row.get("rate"), positive=True, scale=12, precision=28)
     if rate is None:
         raise ValueError("FX-Kurs fehlt")
     return {
@@ -187,6 +203,8 @@ def quality_score(
         if crosscheck == "CONSISTENT"
         else 0.6
         if crosscheck == "NOTICE"
+        else 0.5
+        if crosscheck == "NO_REFERENCE"
         else 0.0,
         "freshness": 1.0 if (observed_at.date() - trading_date).days <= 3 else 0.3,
         "schema_quality": 1.0 if complete_ohlc else 0.6,
@@ -204,9 +222,11 @@ def quality_score(
         "EXCELLENT"
         if score >= 0.95
         else "HIGH"
-        if score >= 0.8
+        if score >= 0.85
         else "MEDIUM"
-        if score >= 0.6
+        if score >= 0.70
         else "LOW"
+        if score >= 0.50
+        else "REJECT"
     )
     return score, label, components

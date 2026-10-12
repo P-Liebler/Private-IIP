@@ -11,6 +11,7 @@ x-backend-environment: &backend-environment
   MINIO_BUCKET_RAW: ${MINIO_BUCKET_RAW:-raw-ingestions}
   MINIO_SECURE: ${MINIO_SECURE:-false}
   BASE_CURRENCY: ${BASE_CURRENCY:-CHF}
+  FX_MAX_CARRY_DAYS: ${FX_MAX_CARRY_DAYS:-5}
   DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-Europe/Zurich}
   FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
   API_PUBLIC_ORIGIN: ${API_PUBLIC_ORIGIN:-http://localhost:8000}

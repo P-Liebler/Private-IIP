@@ -1,0 +1,7 @@
+# P3 data quality and availability
+
+Hard validation runs before scoring. Rejected rows do not enter current tables; their raw object and quarantine reason remain. Severe close disagreements create a version with `QUARANTINED` resolution and retain the previous canonical value. Explicit `ACCEPT_NEW` or `KEEP_EXISTING` requires a note and generates an audit event. P3 stores row-specific errors and warnings; it does not copy the full raw response into PostgreSQL.
+
+`GET /api/v1/data-quality/summary` reports price quality labels, quarantined rows, failed raw ingestions, source failures, source disagreements, instruments without prices, stale instrument prices and the latest accepted price/FX date and import times. The protected `/data-quality` page displays those states. Freshness is currently a simple seven-calendar-day threshold, not an exchange calendar. A dated last validated value can remain visible as old; no zero or synthetic replacement is produced. Provider failure leaves existing verified values intact and is surfaced through raw response provenance and source failure state.
+
+Operational review should inspect quarantined rows, source rights, parser/rule versions and linked raw hashes before resolving a conflict. `source_count` describes independent observations, not a correctness guarantee. The present quality score is diagnostic; cross-source and corporate-action checks are deliberately marked incomplete where evidence is absent. P4 production use additionally requires monitoring, backup and isolated restore testing.

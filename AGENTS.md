@@ -16,4 +16,4 @@ Read `MASTER_DEVELOPMENT_PLAN.md` before changing architecture or adding product
 - An external provider must pass its approved, enabled, in-scope source gate before any network request. Trust level does not grant usage rights.
 - Persist exact provider response bytes and provenance before parsing or canonicalization. Never auto-accept ambiguous identifier mappings.
 
-P1 raw ingestion and P2 instrument identity/source gates are implemented. Keep P3 market data and later portfolio, ML, recommendations and assistant features behind their roadmap milestones until requested.
+P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. Keep P4 portfolio, ML, recommendations and assistant features behind their roadmap milestones until requested. P3 return results remain provisional until corporate-action coverage can be verified.

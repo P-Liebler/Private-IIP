@@ -25,7 +25,12 @@ async def main() -> None:
     try:
         await connection.execute(f"CREATE DATABASE {name}")
         try:
-            environment = {**os.environ, "DATABASE_URL": target.set(drivername="postgresql+asyncpg").render_as_string(hide_password=False)}
+            environment = {
+                **os.environ,
+                "DATABASE_URL": target.set(drivername="postgresql+asyncpg").render_as_string(
+                    hide_password=False
+                ),
+            }
             subprocess.run(["alembic", "upgrade", "head"], check=True, env=environment)
             disposable = await asyncpg.connect(target.render_as_string(hide_password=False))
             try:
@@ -33,7 +38,21 @@ async def main() -> None:
                 tables = await disposable.fetchval(
                     "SELECT count(*) FROM information_schema.tables "
                     "WHERE table_schema='public' AND table_name = ANY($1::text[])",
-                    ["users", "sessions", "audit_events", "data_sources", "instruments", "raw_ingestions", "price_daily", "price_daily_versions", "corporate_actions", "corporate_action_versions", "fx_rates", "fx_rate_versions", "data_quarantine"],
+                    [
+                        "users",
+                        "sessions",
+                        "audit_events",
+                        "data_sources",
+                        "instruments",
+                        "raw_ingestions",
+                        "price_daily",
+                        "price_daily_versions",
+                        "corporate_actions",
+                        "corporate_action_versions",
+                        "fx_rates",
+                        "fx_rate_versions",
+                        "data_quarantine",
+                    ],
                 )
                 assert revision == "0005_p3_contract" and tables == 13
                 print(f"Fresh migration verified: {revision}; {tables} required tables")

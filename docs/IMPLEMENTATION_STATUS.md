@@ -1,31 +1,36 @@
 # Implementation status
 
-**Updated:** 2026-10-05
-**Source of truth:** [Master Development Plan](../MASTER_DEVELOPMENT_PLAN.md), section 158. Assignment phases split the plan's foundation work into deliveries.
+**Updated:** 2026-10-12
+**Source of truth:** [Master Development Plan](../MASTER_DEVELOPMENT_PLAN.md), section 158.
 
 | Assignment phase | Plan mapping | Status | Delivered |
 | --- | --- | --- | --- |
-| Phase 0 — project foundation | P0 | DONE | Repository rules, local environment, Compose, architecture docs and ADRs. |
-| Phase 1A — minimal core | P1 subset | DONE | Next.js, FastAPI health, shared settings/logging, request IDs, SQLAlchemy, Alembic and pgvector. |
-| Phase 1B — data/background foundation | P1 subset | DONE | Valkey, Celery worker/Beat, MinIO adapter, health probes and smoke commands. |
-| Phase 2 — authentication + core | P1 subset | DONE | Private CLI bootstrap, Argon2id, server-side sessions, TOTP, settings, audit trail, protected web routes and hourly session cleanup. |
-| P1 raw-ingestion closure | P1 remaining scope | DONE | `raw_ingestions`, immutable MinIO object path, SHA-256 verification, provenance and manual CSV raw input. This was missing when Phase 2 was first marked done and was closed in this assignment. |
-| Phase 3 — Instrument Master | P2 | DONE | Stable UUID instruments, dated identifiers, protected search/detail/create/update APIs, source rights gate and admin CLI, gated OpenFIGI mapping, CSV validation preview and minimal protected UI. |
-| Phase 4 — Market Data Foundation | P3 | NOT STARTED | No Yahoo/Stooq price collector, canonical prices, FX or corporate actions. |
-| Production access/observability | P4 gate | NOT STARTED | Caddy/TLS ingress, monitoring and backup/restore deployment remain future work. |
+| Phase 0 — project foundation | P0 | DONE | Repository rules, Compose and architecture decisions. |
+| Phase 1A — minimal core | P1 subset | DONE | Next.js, FastAPI, settings, PostgreSQL, Alembic and pgvector. |
+| Phase 1B — data/background foundation | P1 subset | DONE | Valkey, Celery, MinIO and readiness. |
+| Phase 2 — authentication | P1 subset | DONE | Private Argon2id login, sessions, TOTP, settings and audit. |
+| P1 raw-ingestion closure | P1 | DONE | Immutable raw objects, hash verification and provenance. |
+| Phase 3 — Instrument Master | P2 | DONE | Stable instruments, identifier history, source gate, gated OpenFIGI mapping and CSV preview. |
+| Phase 4 — Market Data Foundation | P3 | DONE WITH GATED SOURCES | Manual CSV preview/commit, canonical and versioned prices/actions/FX, validation, reconciliation, quarantine, PIT queries, indicative return, FX derivation, ECB connector, data-quality and UI. SNB daily format remains unverified; its connector fails closed. |
+| Portfolio and production access | P4 | NOT STARTED | Portfolio accounting, Caddy/TLS, monitoring and backup/restore deployment are future work. |
 
-## P1/P2 verification
+## P3 contracts and limits
 
-- `docker compose config --quiet` and `docker compose up -d --build` passed. All seven services reported healthy after rebuilding with the runtime `httpx` dependency.
-- Existing Phase-2 database upgraded to `0003_raw_sources_instruments`. An empty temporary database upgraded from `0001` through `0003`; `users`, `sessions`, `audit_events`, `data_sources`, `instruments`, `instrument_identifiers` and `raw_ingestions` were confirmed, then the temporary database was removed. The existing auth tables and session data remained available.
-- `docker compose exec -T api pytest -q`: **27 passed**, one upstream `StarletteDeprecationWarning`. P1/P2 tests cover raw bytes/hash/integrity/failure handling, metadata secrets, manual CSV, identifier history/conflicts/ambiguity, source approvals and shared rate limiting, OpenFIGI MockTransport responses and zero HTTP requests behind blocked/unknown gates, explicit mapping acceptance/provenance, protected APIs and CSV resolution. No test calls a live financial provider.
-- `ruff check .`, `ruff format --check .`, `mypy app`, frontend `npm run lint`, `npm run typecheck` and `npm run build`: passed locally. The build includes `/instruments`, `/instrument/[id]` and `/settings/data-sources`.
-- Celery and MinIO smoke commands passed. API readiness returned HTTP 200; anonymous protected web routes returned 307 to login; anonymous source API returned 401. Source CLI showed `MANUAL_CSV` approved/enabled, `YAHOO` blocked/disabled and `STOOQ`/`OPENFIGI` unknown/disabled.
-- `.github/workflows/ci.yml` runs Compose-backed backend checks and frontend checks with an ephemeral TOTP key. **NOT VERIFIED REMOTELY**: no GitHub Actions run was available in this local assignment.
+- Manual CSV is the functional input for daily prices, corporate actions and FX. Raw bytes precede parsing; committed values reference their verified raw object. The P2 preview still creates no canonical data. Repeated P3 commit is idempotent.
+- Price/action/FX current rows point to append-only versions. `known_at` and explicit timezone-aware `as_of` prevent later corrections from appearing in earlier queries. No historical local availability is inferred from an old event date.
+- Hard-invalid rows are rejected and, on explicit partial commit, quarantined. Close disagreement thresholds are 0.25%, 0.50% and 2%; manual override requires a reason. Quality components use 40/25/15/10/10 weights after validation.
+- Return arithmetic uses raw close plus explicit validated actions. The API labels results `PROVISIONAL` because P3 cannot attest complete action coverage. Adjusted close is never added to those returns.
+- FX supports CHF, EUR and USD, direct/inverse/cross conversion and bounded, visibly dated carry forward (`FX_MAX_CARRY_DAYS`, default 5). No valid rate yields `UNAVAILABLE`.
+- Source states: `MANUAL_CSV` APPROVED/enabled; `YAHOO` BLOCKED/disabled; `STOOQ` and `OPENFIGI` UNKNOWN/disabled; `SNB` and `ECB` UNKNOWN/disabled. No live financial provider was activated or called during this phase. The ECB collector has a documented CSV contract behind the gate. The SNB stub remains `SOURCE_FORMAT_UNVERIFIED` after gate approval until a daily series is verified.
+- The protected `/imports`, `/data-quality` and instrument pages show import, quality and canonical price states. The legacy instrument CSV preview remains available.
 
-## Operational limits
+## Verification
 
-- The local Compose setup uses HTTP and binds published ports to localhost. Production requires HTTPS, secure cookies, protected secret storage, controlled ingress, monitoring and tested backup/restore procedures.
-- TOTP recovery is an administrative CLI reset; no email recovery or public registration exists. The Fernet key must be kept with protected backups.
-- Python lockfiles pin versions but do not include artifact hashes. Review [ADR-010](decisions/ADR-010-minio-image.md) before production.
-- P2 OpenFIGI is a gated mapping connector. It remains disabled without an explicit rights decision. Yahoo is blocked; Stooq is unreviewed. The CSV flow is a preview and creates no canonical prices. Assignment Phase 4 / normative P3 starts in a future task.
+- Baseline on `e4c60ba`: 27 backend tests, Ruff, Mypy, frontend typecheck and Compose configuration passed locally. The earlier GitHub Actions run on that commit was reported successful by the user; no remote CI action was initiated for P3.
+- After P3: `docker compose exec -T api pytest -q`: **48 passed**, one upstream Starlette warning. Integration tests cover preview/commit, repeat import, correction and `as_of`, quarantine, actions, FX and source gates. No test calls a live provider.
+- Existing database upgraded to `0005_p3_contract`; disposable database migration from `0001` through `0005` verified 13 required tables. See `python -m scripts.verify_fresh_migration`.
+- `docker compose up -d --build`, `docker compose config --quiet`, Ruff, Mypy, frontend lint/typecheck/build, Alembic schema check, Celery and MinIO smoke checks passed locally. All seven Compose services were healthy and API readiness returned HTTP 200.
+
+## Operational boundary
+
+Local Compose binds public ports to localhost over HTTP. Production use waits for P4 access control, monitoring, separate backups and a successful isolated restore. The P3 source gates are not a rights decision; enabling an external source still requires documented operator review. See [market data](architecture/market-data.md), [versioning](architecture/canonical-versioning.md), [FX](architecture/fx-data.md), [quality](architecture/data-quality.md) and [ADR-005](decisions/ADR-005-price-adjustment-policy.md).

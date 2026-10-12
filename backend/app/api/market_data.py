@@ -136,7 +136,8 @@ async def instrument_return(
     if any(action["type"] in {"TICKER_CHANGE", "DELISTING"} for action in actions):
         return {"status": "UNAVAILABLE", "reason": "ACTION_REQUIRES_REVIEW"}
     return {
-        "status": "AVAILABLE",
+        "status": "PROVISIONAL",
+        "action_coverage": "UNVERIFIED",
         "start": first["date"],
         "end": last["date"],
         "total_return": total_return(

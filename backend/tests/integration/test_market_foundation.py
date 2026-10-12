@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID, uuid4
 
@@ -18,8 +19,14 @@ from app.core.errors import AppError
 from app.db.session import get_engine, get_session_factory
 from app.main import create_app
 from app.models import (
-    AuditEvent, DataSource, Instrument, InstrumentIdentifier, PriceDaily,
-    PriceDailyVersion, RawIngestion, User,
+    AuditEvent,
+    DataSource,
+    Instrument,
+    InstrumentIdentifier,
+    PriceDaily,
+    PriceDailyVersion,
+    RawIngestion,
+    User,
 )
 from app.providers.openfigi import MappingService, OpenFigiProvider
 from app.services.auth import AuthService
@@ -107,7 +114,8 @@ def test_new_apis_require_session() -> None:
             transport=ASGITransport(app=create_app()), base_url="http://testserver"
         ) as client:
             for path in (
-                "/api/v1/instruments/search?q=AAPL", "/api/v1/data-sources",
+                "/api/v1/instruments/search?q=AAPL",
+                "/api/v1/data-sources",
                 f"/api/v1/instruments/{uuid4()}/prices",
                 f"/api/v1/instruments/{uuid4()}/corporate-actions",
                 "/api/v1/fx/rate?base=USD&quote=CHF&on_date=2024-01-02",
@@ -190,9 +198,15 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
                     "YAHOO",
                     "STOOQ",
                 }
-                assert (await client.get(f"/api/v1/instruments/{instrument_id}/prices")).json()["status"] == "UNAVAILABLE"
-                assert (await client.get(f"/api/v1/instruments/{instrument_id}/corporate-actions")).status_code == 200
-                assert (await client.get("/api/v1/fx/rate?base=USD&quote=CHF&on_date=1000-01-10")).json()["status"] == "UNAVAILABLE"
+                assert (await client.get(f"/api/v1/instruments/{instrument_id}/prices")).json()[
+                    "status"
+                ] == "UNAVAILABLE"
+                assert (
+                    await client.get(f"/api/v1/instruments/{instrument_id}/corporate-actions")
+                ).status_code == 200
+                assert (
+                    await client.get("/api/v1/fx/rate?base=USD&quote=CHF&on_date=1000-01-10")
+                ).json()["status"] == "UNAVAILABLE"
                 assert (await client.get("/api/v1/data-quality/summary")).status_code == 200
                 upload = await client.post(
                     "/api/v1/imports/csv/preview",
@@ -221,13 +235,15 @@ def test_authenticated_instrument_and_csv_apis(monkeypatch: pytest.MonkeyPatch) 
                 assert committed.json()["inserted"] == 1
                 prices = await client.get(f"/api/v1/instruments/{instrument_id}/prices")
                 assert prices.status_code == 200
-                assert prices.json()["prices"][0]["close"] == 12.5
+                assert Decimal(prices.json()["prices"][0]["close"]) == Decimal("12.5")
                 assert prices.json()["prices"][0]["raw_ingestion_id"] == str(p3_raw_id)
         finally:
             async with get_session_factory()() as db:
                 await db.execute(delete(AuditEvent).where(AuditEvent.actor_user_id == user_id))
                 if instrument_id is not None:
-                    await db.execute(delete(PriceDaily).where(PriceDaily.instrument_id == instrument_id))
+                    await db.execute(
+                        delete(PriceDaily).where(PriceDaily.instrument_id == instrument_id)
+                    )
                     await db.execute(
                         delete(PriceDailyVersion).where(
                             PriceDailyVersion.instrument_id == instrument_id
