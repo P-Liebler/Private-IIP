@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     minio_secret_key: str = Field(min_length=8)
     minio_bucket_raw: str = "raw-ingestions"
     minio_secure: bool = False
+    minio_ca_cert_path: str | None = None
     base_currency: str = "CHF"
     fx_max_carry_days: int = Field(default=5, ge=0, le=10)
     default_timezone: str = "Europe/Zurich"

@@ -13,7 +13,16 @@ from app.core.storage import ObjectStorage, get_storage
 from app.models import RawIngestion
 
 logger = logging.getLogger(__name__)
-_METADATA_KEYS = {"endpoint", "method", "identifier_type", "identifier_value", "filename"}
+_METADATA_KEYS = {
+    "endpoint",
+    "method",
+    "identifier_type",
+    "identifier_value",
+    "filename",
+    "user_id",
+    "portfolio_id",
+    "account_id",
+}
 
 
 def safe_request_metadata(values: dict[str, str | int] | None) -> dict[str, str | int]:

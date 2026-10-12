@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSession, login, sessionQueryKey, verifyTotp } from "@/lib/auth";
 
 export default function LoginPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +30,7 @@ export default function LoginPage() {
       }
       await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
       await queryClient.fetchQuery({ queryKey: sessionQueryKey, queryFn: getSession });
-      router.replace("/dashboard");
-      router.refresh();
+      window.location.replace("/dashboard");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Anmeldung fehlgeschlagen");
     } finally {

@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: Private IIP
+    folder: Private IIP
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

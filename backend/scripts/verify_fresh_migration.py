@@ -18,7 +18,7 @@ from app.core.config import get_settings
 
 async def main() -> None:
     current = make_url(get_settings().database_url)
-    name = f"p3_migration_test_{uuid4().hex[:12]}"
+    name = f"p4_migration_test_{uuid4().hex[:12]}"
     admin = current.set(drivername="postgresql", database="postgres")
     target = current.set(drivername="postgresql", database=name)
     connection = await asyncpg.connect(admin.render_as_string(hide_password=False))
@@ -52,9 +52,17 @@ async def main() -> None:
                         "fx_rates",
                         "fx_rate_versions",
                         "data_quarantine",
+                        "benchmarks",
+                        "portfolios",
+                        "portfolio_accounts",
+                        "transactions",
+                        "portfolio_action_applications",
+                        "cash_balances",
+                        "position_snapshots",
+                        "portfolio_snapshots",
                     ],
                 )
-                assert revision == "0005_p3_contract" and tables == 13
+                assert revision == "0007_snapshot_provenance" and tables == 21
                 print(f"Fresh migration verified: {revision}; {tables} required tables")
             finally:
                 await disposable.close()

@@ -1,12 +1,12 @@
 FROM node:24.13.0-alpine AS dependencies
 WORKDIR /app
 COPY frontend/web/package.json frontend/web/package-lock.json ./
-RUN npm ci
+RUN npm ci && sha256sum package-lock.json | cut -d ' ' -f 1 > node_modules/.private-iip-lock
 
 FROM dependencies AS dev
 COPY frontend/web/ ./
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+CMD ["sh", "scripts/dev-entrypoint.sh"]
 
 FROM dependencies AS build
 COPY frontend/web/ ./

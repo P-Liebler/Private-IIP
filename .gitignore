@@ -21,4 +21,7 @@ data/
 minio-data/
 postgres-data/
 valkey-data/
+backups/
+playwright-report/
+test-results/
 !.gitkeep

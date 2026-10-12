@@ -12,7 +12,7 @@
 | P1 raw-ingestion closure | P1 | DONE | Immutable raw objects, hash verification and provenance. |
 | Phase 3 — Instrument Master | P2 | DONE | Stable instruments, identifier history, source gate, gated OpenFIGI mapping and CSV preview. |
 | Phase 4 — Market Data Foundation | P3 | DONE WITH GATED SOURCES | Manual CSV preview/commit, canonical and versioned prices/actions/FX, validation, reconciliation, quarantine, PIT queries, indicative return, FX derivation, ECB connector, data-quality and UI. SNB daily format remains unverified; its connector fails closed. |
-| Portfolio and production access | P4 | NOT STARTED | Portfolio accounting, Caddy/TLS, monitoring and backup/restore deployment are future work. |
+| Portfolio and production access | P4 | FUNCTIONAL — PRODUCTION GATE OPEN | Owned portfolios/accounts, preserved transaction ledger, Decimal WAC, corporate-action application, P3 valuation/FX, returns, snapshots with provenance, transaction CSV, portfolio UI, Caddy/private TLS, monitoring and verified isolated recovery. Target homelab/VPN client trust and an independent production backup mount still require deployment acceptance. |
 
 ## P3 contracts and limits
 
@@ -33,4 +33,20 @@
 
 ## Operational boundary
 
-Local Compose binds public ports to localhost over HTTP. Production use waits for P4 access control, monitoring, separate backups and a successful isolated restore. The P3 source gates are not a rights decision; enabling an external source still requires documented operator review. See [market data](architecture/market-data.md), [versioning](architecture/canonical-versioning.md), [FX](architecture/fx-data.md), [quality](architecture/data-quality.md) and [ADR-005](decisions/ADR-005-price-adjustment-policy.md).
+Local Compose binds public ports to localhost over HTTP. The separate P4 production stack provides HTTPS and Secure cookies, private backend/MinIO access, Prometheus/Grafana and configurable independent backups. Production use still requires acceptance on the actual homelab/VPN hostname and browser trust store, an independent protected backup mount, a daily host schedule and encrypted key recovery. The local tests establish the application and recovery path; they do not establish those external deployment conditions. The P3 source gates are unchanged. See [deployment](architecture/production-deployment.md), [backup/restore](architecture/backup-restore.md) and [P4 acceptance report](P4_ACCEPTANCE_REPORT.md).
+
+## P4 contracts
+
+- Migration `0006_portfolio` adds eight tables: benchmarks, portfolios, portfolio_accounts, transactions, portfolio_action_applications, cash_balances, position_snapshots and portfolio_snapshots. `0007_snapshot_provenance` adds nullable knowledge cutoff and exact input references; existing unknown provenance stays null. No prior migration was changed.
+- User ownership is checked on portfolio, account, transaction and derived-report operations. Portfolio-row locks serialize accounting writes and rebuilds. Corrections preserve the old transaction and append a replacement; void timestamps preserve earlier PIT replay.
+- WAC includes buy costs; sale fees/taxes reduce proceeds and realized P/L. Negative cash remains visible, oversells fail. Corporate actions apply explicitly and idempotently, block manual double counting and require review for revisions, same-day split/income entitlement and delisting settlement.
+- Raw closes and P3 dated FX supply native/base valuations. Missing/stale prices, missing FX and unresolved eligible actions leave the total null and the portfolio `PARTIAL`. Event-date FX provenance supplies realized P/L, income, fees and taxes. Missing historical FX leaves only those analytics unavailable.
+- Absolute return, daily-linked TWR, bounded conventional-flow XIRR, annualized TWR CAGR and opening-exposure FX contribution have documented definitions. Portfolio and real-instrument benchmark returns remain `PROVISIONAL` while corporate-action coverage is unverified. Dashboard sums stay in backend Decimal and are grouped by base currency.
+- Transaction CSV persists exact raw bytes before preview, supports editable mapping and dated ticker/ISIN/FIGI resolution, and commits atomically. Broker IDs take precedence over normalized fingerprints. Invalid references, ambiguity, duplicates or overselling block commit.
+- Portfolio pages provide overview, holdings, performance/value chart, allocation charts, income, transaction entry/correction/void/import and data-quality issues. No P5 or later product feature was introduced.
+
+## P4 verification
+
+Final commands, recovery artifacts, local production evidence and remaining deployment gates are recorded in [P4 acceptance report](P4_ACCEPTANCE_REPORT.md). Remote CI has not been run or reported successful for this work. **V1 NOT READY for an unverified target production deployment.**
+
+The local backend suite now contains 61 passing cases; the two browser cases include explicit dividend-cost confirmation and split application. Manual/canonical effects can be linked after exact review, without double booking. Pre-event quotes and invalid preserved ledger rows cannot become invented valuations. The executable Windows scheduling installer is provided and syntax checked; installation against a real production target remains an operator step.

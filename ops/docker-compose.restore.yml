@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    environment:
+      POSTGRES_DB: investment
+      POSTGRES_USER: restore_user
+      POSTGRES_PASSWORD: ${RESTORE_DB_PASSWORD:?set RESTORE_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U restore_user -d investment"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [isolated]
+
+  minio:
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: restore_user
+      MINIO_ROOT_PASSWORD: ${RESTORE_MINIO_PASSWORD:?set RESTORE_MINIO_PASSWORD}
+      MC_HOST_local: http://restore_user:${RESTORE_MINIO_PASSWORD:?set RESTORE_MINIO_PASSWORD}@localhost:9000
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [isolated]
+
+  mc:
+    profiles: [ops]
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    entrypoint: ["mc"]
+    environment:
+      MC_HOST_restored: http://restore_user:${RESTORE_MINIO_PASSWORD:?set RESTORE_MINIO_PASSWORD}@minio:9000
+    volumes:
+      - "${RESTORE_BACKUP_ROOT:?set RESTORE_BACKUP_ROOT}:/backup:ro"
+    depends_on:
+      minio: { condition: service_healthy }
+    networks: [isolated]
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      target: production
+    environment:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://restore_user:${RESTORE_DB_PASSWORD:?set RESTORE_DB_PASSWORD}@postgres:5432/investment
+      VALKEY_URL: redis://valkey:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: restore_user
+      MINIO_SECRET_KEY: ${RESTORE_MINIO_PASSWORD:?set RESTORE_MINIO_PASSWORD}
+      MINIO_BUCKET_RAW: raw-ingestions
+      MINIO_SECURE: "false"
+      FRONTEND_ORIGIN: http://restore.local
+      API_PUBLIC_ORIGIN: http://restore.local
+      RESTORE_TEST_USERNAME: ${RESTORE_TEST_USERNAME:?set RESTORE_TEST_USERNAME}
+      RESTORE_TEST_PASSWORD: ${RESTORE_TEST_PASSWORD:?set RESTORE_TEST_PASSWORD}
+      RESTORE_TEST_PORTFOLIO_ID: ${RESTORE_TEST_PORTFOLIO_ID:?set RESTORE_TEST_PORTFOLIO_ID}
+      RESTORE_TEST_RAW_ID: ${RESTORE_TEST_RAW_ID:?set RESTORE_TEST_RAW_ID}
+      RESTORE_TEST_VALUE: ${RESTORE_TEST_VALUE:?set RESTORE_TEST_VALUE}
+    depends_on:
+      postgres: { condition: service_healthy }
+      minio: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live', timeout=5).close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [isolated]
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server"]
+    networks: [isolated]
+
+networks:
+  isolated:
+    internal: true

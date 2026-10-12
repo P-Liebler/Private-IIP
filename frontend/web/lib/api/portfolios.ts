@@ -1,0 +1,48 @@
+import { api } from "@/lib/api";
+
+export type Portfolio = { id: string; name: string; base_currency: string; benchmark_id: string | null };
+export type Account = { id: string; portfolio_id: string; name: string; account_type: string; default_currency: string | null };
+export type Transaction = { id: string; account_id: string; instrument_id: string | null; type: string;
+  trade_date: string; quantity: string | null; price: string | null; amount: string | null;
+  currency: string; fee: string; tax: string; status: string; source: string; notes: string | null;
+  amount_base?: string | null; net_amount_base?: string | null; base_currency?: string; action_locked?: boolean; system_generated?: boolean };
+export type Fx = { status: string; rate_date?: string; age_days?: number; derived?: string };
+export type Cash = { account_id: string; currency: string; amount: string; base_amount: string | null; fx: Fx };
+export type Holding = { account_id: string; instrument_id: string; name: string; asset_type: string;
+  quantity: string; average_cost_native: string; cost_basis_native: string; currency: string;
+  price: string | null; price_date: string | null; price_age_days: number | null;
+  market_value_native: string | null; market_value_base: string | null;
+  unrealized_pnl_native: string | null; valuation_status: string; weight: string | null; fx: Fx };
+export type Issue = { code: string; instrument_id?: string; account_id?: string;
+  action_version_ids?: string[]; currency?: string };
+export type Valuation = { status: "COMPLETE" | "PARTIAL"; base_currency: string; on_date: string;
+  total_value_base: string | null; known_value_base: string; cash_value_base: string | null;
+  analytics_status: string;
+  securities_value_base: string | null; cash: Cash[]; holdings: Holding[]; issues: Issue[];
+  realized_pnl_base_at_trade_fx: string | null; unrealized_pnl_base_at_valuation_fx: string | null;
+  income_base_at_event_fx: string | null; fees_base_at_event_fx: string | null;
+  taxes_base_at_event_fx: string | null;
+  income_native: Record<string, string>; fees_native: Record<string, string>; taxes_native: Record<string, string> };
+export type Allocation = { status: string; by_instrument?: { instrument_id: string; value: string; weight: string }[];
+  by_currency?: { currency: string; value: string; weight: string }[];
+  by_asset_type?: { asset_type: string; value: string; weight: string }[] };
+export type Performance = { status: string; reason?: string; absolute_return_base: string | null;
+  return_status?: string; income_base?: string | null; fees_base?: string | null; taxes_base?: string | null;
+  benchmark?: { status: string; reason?: string; name?: string; return_base?: string };
+  twr: string | null; xirr: string | null; cagr: string | null; fx_contribution_base: string | null;
+  series: { date: string; status: string; value_base: string | null }[] };
+export type ImportPreview = { raw_ingestion_id: string; mapping: Record<string, string>; columns: string[]; row_count: number;
+  ready_count: number; rows: { line: number; status: string; error?: string }[] };
+
+export const listPortfolios = () => api<Portfolio[]>("/portfolios");
+export const listAccounts = (id: string) => api<Account[]>(`/portfolios/${id}/accounts`);
+export const listTransactions = (id: string) => api<Transaction[]>(`/portfolios/${id}/transactions`);
+export const getValuation = (id: string, day?: string) => api<Valuation>(`/portfolios/${id}/valuation${day ? `?on_date=${day}` : ""}`);
+export type PortfolioSummary = { valuation: Valuation; daily_change_base: string | null;
+  total_return_base: string | null; ytd_return_base: string | null; return_status: string };
+export const getSummary = (id: string) => api<PortfolioSummary>(`/portfolios/${id}/summary`);
+export type Benchmark = { id: string; name: string; instrument_id: string };
+export const listBenchmarks = () => api<Benchmark[]>("/benchmarks");
+export const getAllocation = (id: string) => api<Allocation>(`/portfolios/${id}/allocation`);
+export const getPerformance = (id: string, start: string, end: string) =>
+  api<Performance>(`/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly`);

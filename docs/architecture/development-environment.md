@@ -1,5 +1,7 @@
 # Development environment
 
+The web development process uses the documented Next.js Webpack mode with Watchpack polling so edits on Windows Docker bind mounts are detected reliably. Its entrypoint checks the package-lock digest and synchronizes the persistent node_modules volume only when dependencies change. Auth transitions use a document navigation after the session response, avoiding stale cached server layouts across login/logout. Production builds retain the standard Next.js build path.
+
 ## Compose services and ports
 
 | Service | Container port | Host binding | Readiness |

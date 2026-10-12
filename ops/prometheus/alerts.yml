@@ -1,0 +1,33 @@
+groups:
+  - name: private-iip-v1
+    rules:
+      - alert: PrivateIIPApiDown
+        expr: up{job="private-iip-api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "Private IIP API is down" }
+      - alert: PrivateIIPDatabaseUnavailable
+        expr: private_iip_db_ready == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "Private IIP database is unavailable" }
+      - alert: PrivateIIPImportFailures
+        expr: increase(private_iip_failed_imports[1h]) > 2
+        for: 1m
+        labels: { severity: warning }
+        annotations: { summary: "Repeated raw import failures" }
+      - alert: PrivateIIPStalePrices
+        expr: private_iip_stale_prices > 0
+        for: 30m
+        labels: { severity: warning }
+        annotations: { summary: "At least one instrument has stale prices" }
+      - alert: PrivateIIPBackupFailed
+        expr: absent(private_iip_backup_timestamp_seconds) or private_iip_backup_success == 0 or time() - private_iip_backup_timestamp_seconds > 93600
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "Backup failed or is older than 26 hours" }
+      - alert: PrivateIIPQueueUnavailable
+        expr: private_iip_queue_ready == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "Private IIP task queue is unavailable" }

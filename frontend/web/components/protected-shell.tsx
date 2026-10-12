@@ -1,22 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { type User } from "@/lib/api";
 import { logout as endSession } from "@/lib/auth";
 
 export function ProtectedShell({ user, children }: { user: User; children: ReactNode }) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
   async function logout() {
     try {
       await endSession();
       queryClient.clear();
-      router.replace("/login");
-      router.refresh();
+      window.location.replace("/login");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Abmeldung fehlgeschlagen");
     }
@@ -27,6 +24,7 @@ export function ProtectedShell({ user, children }: { user: User; children: React
         <Link href="/dashboard" className="font-semibold text-emerald-400">Investment Intelligence</Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/dashboard" className="hover:text-emerald-400">Übersicht</Link>
+          <Link href="/portfolios" className="hover:text-emerald-400">Portfolios</Link>
           <Link href="/instruments" className="hover:text-emerald-400">Instrumente</Link>
           <Link href="/imports" className="hover:text-emerald-400">CSV-Import</Link>
           <Link href="/data-quality" className="hover:text-emerald-400">Datenqualität</Link>

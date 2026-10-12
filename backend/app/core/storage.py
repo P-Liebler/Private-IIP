@@ -6,6 +6,7 @@ from typing import Protocol
 
 from minio import Minio
 from minio.error import S3Error
+from urllib3 import PoolManager
 
 from app.core.config import get_settings
 
@@ -65,10 +66,16 @@ class MinioObjectStorage:
 @lru_cache
 def get_storage() -> MinioObjectStorage:
     settings = get_settings()
+    http_client = (
+        PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=settings.minio_ca_cert_path)
+        if settings.minio_ca_cert_path
+        else None
+    )
     client = Minio(
         settings.minio_endpoint,
         access_key=settings.minio_access_key,
         secret_key=settings.minio_secret_key,
         secure=settings.minio_secure,
+        http_client=http_client,
     )
     return MinioObjectStorage(client, settings.minio_bucket_raw)

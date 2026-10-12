@@ -1,0 +1,240 @@
+name: private-iip-production
+
+x-backend-environment: &backend-environment
+  APP_ENV: production
+  APP_DEBUG: "false"
+  DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?set POSTGRES_USER}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-investment}
+  VALKEY_URL: redis://valkey:6379/0
+  MINIO_ENDPOINT: caddy:9002
+  MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
+  MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
+  MINIO_BUCKET_RAW: ${MINIO_BUCKET_RAW:-raw-ingestions}
+  MINIO_SECURE: "true"
+  MINIO_CA_CERT_PATH: /caddy-ca/root.crt
+  FRONTEND_ORIGIN: https://${APP_DOMAIN:?set APP_DOMAIN}
+  API_PUBLIC_ORIGIN: https://${APP_DOMAIN:?set APP_DOMAIN}
+  SESSION_SECURE_COOKIE: "true"
+  SESSION_COOKIE_NAME: investment_session
+  TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY:?set TOTP_ENCRYPTION_KEY}
+  FX_MAX_CARRY_DAYS: ${FX_MAX_CARRY_DAYS:-5}
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-investment}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [platform]
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes: [valkey_data:/data]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [platform]
+
+  minio:
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
+      MC_HOST_local: http://${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}:${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}@localhost:9000
+    volumes: [minio_data:/data]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks: [platform]
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN}
+    ports:
+      - "${VPN_BIND_ADDRESS:-127.0.0.1}:80:80"
+      - "${VPN_BIND_ADDRESS:-127.0.0.1}:443:443"
+    volumes:
+      - ./ops/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+    networks: [platform]
+
+  ca-export:
+    image: caddy:2.11.4-alpine
+    command: ["sh", "-c", "while ! test -f /data/caddy/pki/authorities/local/root.crt; do sleep 1; done; cp /data/caddy/pki/authorities/local/root.crt /trust/root.crt; chmod 644 /trust/root.crt"]
+    volumes:
+      - caddy_data:/data:ro
+      - caddy_ca:/trust
+    depends_on:
+      caddy: { condition: service_started }
+    networks: [platform]
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: production
+    environment: *backend-environment
+    volumes:
+      - caddy_ca:/caddy-ca:ro
+      - ${BACKUP_ROOT:-./backups}/runtime:/app/runtime:ro
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+      minio: { condition: service_healthy }
+      caddy: { condition: service_started }
+      ca-export: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=5).close()"]
+      interval: 15s
+      timeout: 6s
+      retries: 8
+      start_period: 30s
+    restart: unless-stopped
+    networks: [platform]
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: production
+    command: ["celery", "-A", "app.jobs.celery_app:celery_app", "worker", "--loglevel=INFO", "--concurrency=1"]
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.jobs.celery_app:celery_app", "inspect", "ping", "--timeout=5"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 20s
+    environment: *backend-environment
+    volumes: [caddy_ca:/caddy-ca:ro]
+    depends_on:
+      valkey: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+      caddy: { condition: service_started }
+      ca-export: { condition: service_completed_successfully }
+    restart: unless-stopped
+    networks: [platform]
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: production
+    command: ["celery", "-A", "app.jobs.celery_app:celery_app", "beat", "--loglevel=INFO", "--pidfile=/tmp/celerybeat.pid", "--schedule=/tmp/celerybeat-schedule"]
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $$(cat /tmp/celerybeat.pid)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    environment: *backend-environment
+    volumes: [caddy_ca:/caddy-ca:ro]
+    depends_on:
+      valkey: { condition: service_healthy }
+      ca-export: { condition: service_completed_successfully }
+    restart: unless-stopped
+    networks: [platform]
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/web/Dockerfile
+      target: production
+      args:
+        NEXT_PUBLIC_API_BASE_URL: https://${APP_DOMAIN:?set APP_DOMAIN}/api/v1
+    environment:
+      HOSTNAME: 0.0.0.0
+      INTERNAL_API_BASE_URL: http://api:8000/api/v1
+      SESSION_COOKIE_NAME: investment_session
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 6s
+      retries: 8
+    restart: unless-stopped
+    networks: [platform]
+
+  prometheus:
+    image: prom/prometheus:v3.6.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=30d"]
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./ops/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports: ["127.0.0.1:9090:9090"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+    networks: [platform]
+
+  grafana:
+    image: grafana/grafana:12.3.4
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?set GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports: ["127.0.0.1:3001:3000"]
+    depends_on:
+      prometheus: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+    networks: [platform]
+
+  backup:
+    profiles: [ops]
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    entrypoint: ["mc"]
+    environment:
+      MC_HOST_local: http://${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}:${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}@minio:9000
+    volumes: ["${BACKUP_ROOT:-./backups}:/backup"]
+    depends_on:
+      minio: { condition: service_healthy }
+    networks: [platform]
+
+networks:
+  platform: {}
+
+volumes:
+  postgres_data: {}
+  valkey_data: {}
+  minio_data: {}
+  caddy_data: {}
+  caddy_ca: {}
+  caddy_config: {}
+  prometheus_data: {}
+  grafana_data: {}

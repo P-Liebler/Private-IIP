@@ -1,0 +1,23 @@
+{$APP_DOMAIN} {
+    tls internal
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Frame-Options "DENY"
+    }
+    @internal path /internal/*
+    respond @internal 404
+    handle /api/v1/* {
+        reverse_proxy api:8000
+    }
+    handle {
+        reverse_proxy web:3000
+    }
+}
+
+caddy:9002 {
+    tls internal
+    reverse_proxy minio:9000
+}

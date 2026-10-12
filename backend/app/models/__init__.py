@@ -9,9 +9,21 @@ from app.models.market_data import (
     PriceDailyVersion,
 )
 from app.models.market_foundation import DataSource, Instrument, InstrumentIdentifier, RawIngestion
+from app.models.portfolio import (
+    Benchmark,
+    CashBalance,
+    Portfolio,
+    PortfolioAccount,
+    PortfolioActionApplication,
+    PortfolioSnapshot,
+    PositionSnapshot,
+    Transaction,
+)
 
 __all__ = [
     "AuditEvent",
+    "Benchmark",
+    "CashBalance",
     "CorporateAction",
     "CorporateActionVersion",
     "DataSource",
@@ -22,7 +34,13 @@ __all__ = [
     "InstrumentIdentifier",
     "PriceDaily",
     "PriceDailyVersion",
+    "Portfolio",
+    "PortfolioAccount",
+    "PortfolioActionApplication",
+    "PortfolioSnapshot",
+    "PositionSnapshot",
     "RawIngestion",
     "SessionRecord",
     "User",
+    "Transaction",
 ]
