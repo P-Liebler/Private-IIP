@@ -60,9 +60,18 @@ async def main() -> None:
                         "cash_balances",
                         "position_snapshots",
                         "portfolio_snapshots",
+                        "filings",
+                        "fundamental_fact_versions",
+                        "research_snapshots",
+                        "research_metrics",
+                        "watchlists",
+                        "watchlist_items",
+                        "news_articles",
+                        "news_instruments",
+                        "analyst_estimate_snapshots",
                     ],
                 )
-                assert revision == "0007_snapshot_provenance" and tables == 21
+                assert revision == "0009_filing_document" and tables == 30
                 print(f"Fresh migration verified: {revision}; {tables} required tables")
             finally:
                 await disposable.close()

@@ -16,7 +16,10 @@ Read `MASTER_DEVELOPMENT_PLAN.md` before changing architecture or adding product
 - An external provider must pass its approved, enabled, in-scope source gate before any network request. Trust level does not grant usage rights.
 - Persist exact provider response bytes and provenance before parsing or canonicalization. Never auto-accept ambiguous identifier mappings.
 
-P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 portfolio accounting and V1 operations are in progress. Keep P5 and later fundamentals, ML, recommendations and assistant features behind their roadmap milestones until requested. P3 return results remain provisional until corporate-action coverage can be verified.
+P1 raw ingestion, P2 identity/source gates and P3 market-data foundation are implemented. P4 is functional with its production gate open. P5 research is functional with gated sources. Keep P6 and later dataset/backtesting, ML, recommendations and assistant features behind their roadmap milestones until requested. P3 returns and P5 Momentum remain restricted until corporate-action coverage is verified. P5 does not close the P4 homelab/VPN, CA, backup-schedule or key-recovery gates.
+
+- Fundamental and estimate versions distinguish public availability from first local observation; historical research requires both <= as_of. Preserve restatements and rejected observations.
+- Research scores use versioned deterministic rules and complete required inputs; missing, stale or unresolved conflicting facts suspend affected scores. No private-universe market percentile or investment recommendation is implied.
 
 - The transaction ledger is the accounting source of truth. Portfolio snapshots are derived and reproducible; preserve corrected and voided transactions for audit and point-in-time replay.
 - Use Decimal arithmetic with explicit posting precision. Missing or stale prices and FX must never become zero-valued holdings.

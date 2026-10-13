@@ -25,5 +25,9 @@ celery_app.conf.update(
             "task": "auth.cleanup_sessions",
             "schedule": 3600.0,
         },
+        "approved-research-collection": {
+            "task": "research.collect_approved",
+            "schedule": 86400.0,
+        },
     },
 )

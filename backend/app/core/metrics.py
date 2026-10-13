@@ -15,7 +15,7 @@ from sqlalchemy import func, select
 
 from app.core.valkey import make_valkey_client
 from app.db.session import check_database, get_session_factory
-from app.models import DataQuarantine, PriceDaily, RawIngestion
+from app.models import DataQuarantine, FundamentalFact, NewsArticle, PriceDaily, RawIngestion
 
 router = APIRouter()
 _request_count: Counter[tuple[str, str, int]] = Counter()
@@ -83,6 +83,24 @@ async def metrics() -> PlainTextResponse:
                     f"private_iip_failed_imports {failed or 0}",
                     f"private_iip_quarantined_rows {quarantined or 0}",
                     f"private_iip_stale_prices {stale or 0}",
+                ]
+            )
+            rejected = await db.scalar(
+                select(func.count())
+                .select_from(FundamentalFact)
+                .where(FundamentalFact.validation_status == "REJECTED")
+            )
+            news_duplicates = await db.scalar(
+                select(func.count())
+                .select_from(NewsArticle)
+                .where(NewsArticle.duplicate_of_id.is_not(None))
+            )
+            lines.extend(
+                [
+                    "# TYPE private_iip_research_rejected_facts gauge",
+                    f"private_iip_research_rejected_facts {rejected or 0}",
+                    "# TYPE private_iip_news_duplicates gauge",
+                    f"private_iip_news_duplicates {news_duplicates or 0}",
                 ]
             )
     except Exception:

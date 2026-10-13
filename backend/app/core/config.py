@@ -37,6 +37,12 @@ class Settings(BaseSettings):
     totp_encryption_key: SecretStr | None = None
     openfigi_api_key: SecretStr | None = None
     openfigi_base_url: str = "https://api.openfigi.com"
+    sec_user_agent: str = ""
+    sec_contact_email: str = ""
+    sec_base_url: str = "https://data.sec.gov"
+    sec_rate_limit: int = Field(default=5, ge=1, le=10)
+    sec_enabled: bool = False
+    research_collection_contracts: str = "[]"
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod

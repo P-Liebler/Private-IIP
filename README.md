@@ -1,5 +1,15 @@
 # Private Investment Intelligence Platform
 
+## P5 Research
+
+Die geschützten Seiten `/research`, `/watchlists`, `/news` und die Research-Tabs der Instrumentenseite lesen aus eigenen validierten Daten. Fundamentaldaten werden mit Raw-Provenienz und unveränderlichen Versionen importiert; Restatements und historische Wissenszeitpunkte bleiben nachvollziehbar. Bewertungszahlen und Scores benötigen ihre vollständigen geprüften Inputs. Momentum, Forward P/E und PEG bleiben ohne ausreichend belegte Eingaben unverfügbar.
+
+Neue Quellen `SEC_EDGAR`, `COMPANY_IR`, `NEWS_RSS` und `MANUAL_RESEARCH` sind standardmäßig UNKNOWN/deaktiviert. Die bisherige MANUAL_CSV-Freigabe wird nicht erweitert. Ein Operator muss Nutzungsrechte und Scope über die bestehende Source-CLI dokumentieren und die Quelle gesondert aktivieren. `SEC_ENABLED=false` ist eine weitere technische Schranke. Keine Research-Seite fragt live einen Finanzprovider ab.
+
+CSV-Fundamentals: Upload, Spaltenmapping, Vorschau und ausdrückliche Bestätigung auf `/research`. Unterstützte Felder und Zeitverträge stehen in [Fundamentals](docs/architecture/fundamentals.md); Quellenverträge, Bewertungsformeln und Score-Gewichte in den verlinkten P5-Architekturdokumenten. Der [P5-Abnahmebericht](docs/P5_ACCEPTANCE_REPORT.md) dokumentiert die tatsächliche Verifikation und Grenzen.
+
+Die V1-Produktion bleibt wegen der offenen Homelab-/VPN-, CA-, Backup- und Schlüssel-Recovery-Bedingungen nicht freigegeben. P5 erweitert die lokale Funktionalität; P6 wird noch nicht begonnen.
+
 Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. Fundamentals, ML, recommendations and the assistant remain later phases.
 
 ## Current architecture

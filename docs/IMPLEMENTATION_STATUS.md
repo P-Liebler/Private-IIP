@@ -1,6 +1,6 @@
 # Implementation status
 
-**Updated:** 2026-10-12
+**Updated:** 2026-10-13
 **Source of truth:** [Master Development Plan](../MASTER_DEVELOPMENT_PLAN.md), section 158.
 
 | Assignment phase | Plan mapping | Status | Delivered |
@@ -50,3 +50,13 @@ Local Compose binds public ports to localhost over HTTP. The separate P4 product
 Final commands, recovery artifacts, local production evidence and remaining deployment gates are recorded in [P4 acceptance report](P4_ACCEPTANCE_REPORT.md). Remote CI has not been run or reported successful for this work. **V1 NOT READY for an unverified target production deployment.**
 
 The local backend suite now contains 61 passing cases; the two browser cases include explicit dividend-cost confirmation and split application. Manual/canonical effects can be linked after exact review, without double booking. Pre-event quotes and invalid preserved ledger rows cannot become invented valuations. The executable Windows scheduling installer is provided and syntax checked; installation against a real production target remains an operator step.
+
+## P5 — Fundamentals & Research
+
+**Status: FUNCTIONAL WITH GATED SOURCES.** Append-only fundamental facts and filings, public/local availability separation, restatements, SEC JSON and explicit primary-document storage, global SEC limiter, Company-IR CSV contract and manual fundamental import, deterministic metrics/valuation/scores, materialized database screener, private watchlists, deduplicated news metadata, typed estimate snapshots and source-gated scheduling are implemented locally. No real company-specific HTML/PDF IR parser or automatic estimate provider has been accepted. Momentum and forward metrics remain unavailable where the required coverage/estimate contracts are absent.
+
+New sources SEC_EDGAR, COMPANY_IR, NEWS_RSS and MANUAL_RESEARCH are **UNKNOWN/disabled**. Existing source gates remain unchanged. Synthetic fixture sources are local test data and do not grant external rights. Migration heads 0008_research and 0009_filing_document add nine tables and distinguish exact response versus primary-document hashes. Earlier migrations are unchanged. Both existing-schema upgrade and fresh migration through 30 required tables passed.
+
+Baseline: main at af101ffed5203cc098599c1409587fd93d1ec421, clean working tree, 61 passing backend cases. P5 regression: 89 backend cases passed, plus the P4 and P5 browser acceptance cases. Ruff/Mypy and frontend lint/typecheck/build passed locally. Screener with 300 isolated instruments used four SELECTs and returned 25 rows in 0.233 seconds on this machine; no market-wide performance guarantee is inferred. Isolated recovery preserved the P5 raw hash and exact CHF 10'180 portfolio value. Detailed commands and limitations: [P5 acceptance](P5_ACCEPTANCE_REPORT.md).
+
+**P4 remains FUNCTIONAL — PRODUCTION GATE OPEN. V1/V1.5 NOT PRODUCTION READY for the unverified target installation.** Hostname/VPN, browser CA trust, independent protected backup mount, daily host schedule and encrypted key recovery remain operator acceptance conditions. P6 was not started. **REMOTE CI NOT VERIFIED FOR THIS CHANGE**; the workflow was extended locally to prepare isolated fixtures and run browser tests, without push or release.

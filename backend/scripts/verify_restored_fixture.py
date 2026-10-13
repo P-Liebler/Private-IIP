@@ -8,6 +8,8 @@ from decimal import Decimal
 from uuid import UUID
 
 import httpx
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import select, text
 
 from app.db.session import get_session_factory
@@ -23,7 +25,11 @@ async def main() -> None:
     expected = Decimal(os.environ["RESTORE_TEST_VALUE"])
     async with get_session_factory()() as db:
         revision = await db.scalar(text("SELECT version_num FROM alembic_version"))
-        assert revision == "0007_snapshot_provenance", "Migration head mismatch"
+        expected_head = (
+            os.environ.get("RESTORE_EXPECTED_REVISION")
+            or ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
+        )
+        assert revision == expected_head, "Migration head mismatch"
         user = await db.scalar(select(User).where(User.username == username))
         assert user is not None and user.is_active, "Fixture user missing"
         portfolio = await db.get(Portfolio, portfolio_id)

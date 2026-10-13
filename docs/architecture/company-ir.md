@@ -1,0 +1,7 @@
+# Company Investor Relations (P5)
+
+Der konkrete Vertrag ist `ReportContract`: Instrument-ID, freigegebene Source, genaue HTTPS-URL, genehmigter Host, explizites Spaltenmapping und Parserversion. COMPANY_IR startet UNKNOWN/deaktiviert. Der Source-Scope muss `host=<genauer Host>` und `fundamentals` erlauben. Die Hostprüfung läuft nach dem Rechtegate; private IP-Adressen, Credentials, Query-URLs und Redirects werden nicht akzeptiert.
+
+Tatsächlich implementiertes Format: strukturierte UTF-8-CSV mit dem normalisierten Fact-Vertrag. Collector, Parser und normalisierte Validierung sind getrennt. Eine offizielle Reportdatei wird vor Parsing als unverändertes Rohobjekt gespeichert. Für nicht verlässlich automatisierbare Annual-/Half-Year-/Quarterly-Berichte bleibt der validierte manuelle Fundamentaldatenimport nutzbar, nachdem seine gesonderte Source freigegeben wurde.
+
+**Kein konkretes reales Unternehmen ist bisher als automatischer HTML/PDF-Connector abgenommen.** Die CH-Testfixture ist ausdrücklich ein manuelles synthetisches CHF-Reporting-Beispiel. Sie beweist Metriknormalisierung und unabhängigen CH-Datenpfad, keine produktive Schweizer Website-Anbindung. PDF-Tabellen, OCR und universelles Webscraping werden nicht ungeprüft als Finanzfakten interpretiert. Weitere Unternehmensformate brauchen jeweils eigenen Collector/Parser/Normalizer/Validator sowie gespeicherte Fixtures und Tests.

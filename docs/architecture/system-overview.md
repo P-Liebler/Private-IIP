@@ -1,6 +1,6 @@
 # Implemented system overview
 
-The current repository is a single application codebase with seven local Compose services. It contains no domain data or financial collectors yet.
+The repository is one application codebase with seven local Compose services. P1–P3 provide authentication, raw storage, stable instruments and validated market/FX versions. P4 adds portfolio accounting and a separate private production stack; P5 adds versioned fundamentals, research, watchlists, news and estimate snapshots. New external sources remain gated and disabled. The normative phase sequence remains Master Plan section 158.
 
 ```mermaid
 flowchart LR
@@ -15,8 +15,8 @@ flowchart LR
     Beat[Celery Beat] --> Valkey
 ```
 
-FastAPI and Celery import the same `backend/app` settings and future domain services. HTTP routes stay in `app/api`; infrastructure adapters live in `app/core` and `app/db`. Alembic owns database schema changes. The first migration enables the vector extension but creates no domain tables.
+FastAPI and Celery import the same `backend/app` settings and domain services. HTTP routes stay in `app/api`; infrastructure adapters live in `app/core` and `app/db`. Alembic owns schema changes, currently through `0009_filing_document`. Portfolio and research pages read validated local versions, never live providers. Exact raw bytes precede parsing; missing inputs and corrections remain explicit.
 
-The status page calls the API from the browser. The API's readiness response probes a SQL `SELECT 1`, Valkey `PING`, and MinIO bucket access. It does not return invented success when a dependency is down. MinIO's bucket is created automatically on first successful probe; object tests use a disposable `smoke/` key. Financial raw data will have a separate immutable ingestion contract in a later phase.
+The status page calls the API from the browser. Readiness probes SQL, Valkey and MinIO access; failed dependencies do not yield invented success. MinIO stores financial originals under the implemented immutable raw-ingestion contract. Object smoke tests use a separate disposable key.
 
-Request IDs travel in `X-Request-ID` and structured UTC JSON logs. The application ports are bound to localhost in Compose. Caddy, authentication and production monitoring are outside this assignment.
+Request IDs travel in `X-Request-ID` and structured UTC JSON logs. Local ports are localhost-bound. Caddy/private TLS, authentication, Prometheus/Grafana, backups and isolated recovery are implemented. Actual homelab/VPN, client CA trust, independent backup storage, daily host schedule and encrypted key recovery still require target acceptance. P5 does not close that production gate or start P6.

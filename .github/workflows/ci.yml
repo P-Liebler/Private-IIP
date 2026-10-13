@@ -37,6 +37,33 @@ jobs:
           docker compose exec -T web npm run lint
           docker compose exec -T web npm run typecheck
           docker compose exec -T web npm run build
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/web/package-lock.json
+      - name: Prepare explicit synthetic browser fixtures
+        run: |
+          docker compose exec -T api python -m scripts.create_restore_fixture > "$RUNNER_TEMP/p4-fixture.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          value = json.loads(Path(os.environ['RUNNER_TEMP'], 'p4-fixture.json').read_text())
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              for key, field in [('E2E_USERNAME', 'username'), ('E2E_PORTFOLIO_ID', 'portfolio_id'), ('E2E_RESEARCH_INSTRUMENT_ID', 'instrument_id')]:
+                  output.write(f'{key}={value[field]}\n')
+          PY
+      - name: Prepare P5 fixture and run browser tests
+        env:
+          E2E_PASSWORD: test-only-restore-password-2
+        run: |
+          docker compose exec -T -e E2E_USERNAME -e E2E_RESEARCH_INSTRUMENT_ID api python -m scripts.create_research_fixture > "$RUNNER_TEMP/p5-fixture.json"
+          export E2E_MISSING_INSTRUMENT_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p5-fixture.json").read_text())["missing_instrument_id"])')
+          docker compose restart web
+          cd frontend/web
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- --workers=1
       - name: Container logs on failure
         if: failure()
         run: docker compose logs --tail=100

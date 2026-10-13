@@ -59,7 +59,10 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: "DEPOSIT" })).toBeVisible();
     await page.getByRole("combobox", { name: "Typ", exact: true }).selectOption("BUY");
-    await page.getByLabel("Instrument suchen").fill("Disposable restore test instrument");
+    const fixtureInstrument = process.env.E2E_RESEARCH_INSTRUMENT_ID
+      ? await (await page.request.get(`${apiBase}/instruments/${process.env.E2E_RESEARCH_INSTRUMENT_ID}`)).json() as {ticker:string}
+      : null;
+    await page.getByLabel("Instrument suchen").fill(fixtureInstrument?.ticker ?? "Disposable restore test instrument");
     await page.getByRole("button", { name: "Suchen", exact: true }).click();
     await page.getByRole("button", { name: /Disposable restore test instrument/ }).click();
     await page.getByLabel("Stückzahl", { exact: true }).fill("10");

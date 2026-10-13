@@ -19,8 +19,28 @@ from app.models.portfolio import (
     PositionSnapshot,
     Transaction,
 )
+from app.models.research import (
+    AnalystEstimate,
+    Filing,
+    FundamentalFact,
+    NewsArticle,
+    NewsInstrument,
+    ResearchMetric,
+    ResearchSnapshot,
+    Watchlist,
+    WatchlistItem,
+)
 
 __all__ = [
+    "AnalystEstimate",
+    "Filing",
+    "FundamentalFact",
+    "NewsArticle",
+    "NewsInstrument",
+    "ResearchMetric",
+    "ResearchSnapshot",
+    "Watchlist",
+    "WatchlistItem",
     "AuditEvent",
     "Benchmark",
     "CashBalance",
