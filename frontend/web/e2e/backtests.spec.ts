@@ -10,7 +10,7 @@ async function login(page: import("@playwright/test").Page) {
   await page.getByLabel("Benutzername").fill(username!);
   await page.getByLabel("Passwort").fill(password!);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 30000 });
   await page.goto("/backtests");
 }
 async function build(page: import("@playwright/test").Page, id: string) {

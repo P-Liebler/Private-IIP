@@ -48,6 +48,14 @@ class Settings(BaseSettings):
     p6_max_sessions: int = Field(default=400, ge=1, le=1000)
     p6_max_concurrent_runs: int = Field(default=1, ge=1, le=4)
     p6_timeout_seconds: int = Field(default=240, ge=10, le=600)
+    ml_operator_usernames: list[str] = Field(default_factory=list)
+    ml_training_timeout_seconds: int = Field(default=300, ge=30, le=600)
+    ml_max_pending_jobs: int = Field(default=2, ge=1, le=5)
+    p8_max_instruments: int = Field(default=30, ge=1, le=100)
+    p8_timeout_seconds: int = Field(default=120, ge=10, le=300)
+    mlflow_tracking_uri: str = "http://mlflow:5000"
+    mlflow_tracking_username: str = ""
+    mlflow_tracking_password: SecretStr | None = None
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod

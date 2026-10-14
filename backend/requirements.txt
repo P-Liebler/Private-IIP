@@ -14,3 +14,6 @@ pyotp==2.10.0
 httpx==0.28.1
 urllib3==2.8.0
 exchange-calendars==4.13.2
+scikit-learn==1.9.1
+lightgbm==4.7.0
+xgboost-cpu==3.4.1

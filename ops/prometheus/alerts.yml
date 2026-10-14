@@ -31,3 +31,18 @@ groups:
         for: 2m
         labels: { severity: critical }
         annotations: { summary: "Private IIP task queue is unavailable" }
+      - alert: PrivateIIPRiskCalculationFailures
+        expr: increase(private_iip_risk_calculation_failures_total[15m]) > 2
+        for: 1m
+        labels: { severity: warning }
+        annotations: { summary: "Repeated risk calculation failures" }
+      - alert: PrivateIIPMLTrainingFailures
+        expr: increase(private_iip_ml_training_failures_total[1h]) > 0
+        for: 1m
+        labels: { severity: warning }
+        annotations: { summary: "Local model training failed; inspect controlled job status" }
+      - alert: PrivateIIPMLCalibrationDrift
+        expr: private_iip_calibration_drift > 0.1
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Observed model calibration drift; production review required" }

@@ -12,7 +12,10 @@ ENGINE_VERSION = "long-only-v1"
 
 
 def run_backtest(
-    dataset: dict[str, Any], config: BacktestInput, compare: bool = True
+    dataset: dict[str, Any],
+    config: BacktestInput,
+    compare: bool = True,
+    signal_scores: dict[tuple[str, str], Decimal] | None = None,
 ) -> dict[str, Any]:
     """Pure simulation from a pinned dataset. Decision rows never see fill data."""
     cash = config.initial_capital
@@ -196,7 +199,23 @@ def run_backtest(
         if config.strategy == "BENCHMARK_ONLY":
             chosen = [benchmark_id] if benchmark_id in bars else []
         else:
-            chosen = ranking(rows, config.strategy, config.top_n)
+            if signal_scores is not None:
+                scored = [
+                    {
+                        **r,
+                        "features": {
+                            "ml_score": {
+                                "value": signal_scores.get((r["date"], r["instrument_id"])),
+                                "missing_flag": (r["date"], r["instrument_id"])
+                                not in signal_scores,
+                            }
+                        },
+                    }
+                    for r in rows
+                ]
+                chosen = ranking(scored, "ML_SCORE", config.top_n)
+            else:
+                chosen = ranking(rows, config.strategy, config.top_n)
         day_rows = [r for r in features if r["date"] == day]
         legitimate_exit = config.strategy == "EQUAL_WEIGHT" and not day_rows and bool(positions)
         if not chosen and not legitimate_exit:

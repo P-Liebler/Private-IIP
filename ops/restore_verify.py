@@ -41,10 +41,16 @@ def main() -> int:
     parser.add_argument("--expected-value", required=True)
     parser.add_argument("--dataset-id")
     parser.add_argument("--expected-dataset-hash")
+    parser.add_argument("--model-id")
+    parser.add_argument("--expected-artifact-hash")
+    parser.add_argument("--prediction-history-hash")
+    parser.add_argument("--risk-history-hash")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
         parser.error("Dataset ID and expected hash must be provided together")
+    if bool(args.model_id) != bool(args.expected_artifact_hash):
+        parser.error("Model ID and expected artifact hash must be provided together")
     password = os.environ.get("RESTORE_TEST_PASSWORD")
     if not password:
         parser.error("Set RESTORE_TEST_PASSWORD to the explicit fixture user's password")
@@ -73,6 +79,10 @@ def main() -> int:
         "RESTORE_TEST_VALUE": args.expected_value,
         "RESTORE_TEST_DATASET_ID": args.dataset_id or "",
         "RESTORE_TEST_DATASET_HASH": args.expected_dataset_hash or "",
+        "RESTORE_TEST_MODEL_ID": args.model_id or "",
+        "RESTORE_TEST_ARTIFACT_HASH": args.expected_artifact_hash or "",
+        "RESTORE_TEST_PREDICTION_HISTORY_HASH": args.prediction_history_hash or "",
+        "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
     }
     status: dict[str, object] = {
         "started_at": datetime.now(UTC).isoformat(),

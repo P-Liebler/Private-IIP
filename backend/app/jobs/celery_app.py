@@ -11,7 +11,7 @@ celery_app = Celery(
     "investment_intelligence",
     broker=settings.valkey_url,
     backend=settings.valkey_url,
-    include=["app.jobs.tasks"],
+    include=["app.jobs.tasks", "app.jobs.ml"],
 )
 celery_app.conf.update(
     task_serializer="json",

@@ -31,7 +31,13 @@ def train_only_baselines(
 def ranking(rows: list[dict[str, Any]], strategy: str, top_n: int) -> list[str]:
     if strategy == "EQUAL_WEIGHT":
         return sorted(str(r["instrument_id"]) for r in rows)
-    key = "momentum_120d" if strategy == "MOMENTUM" else "quality_value"
+    key = (
+        "ml_score"
+        if strategy == "ML_SCORE"
+        else "momentum_120d"
+        if strategy == "MOMENTUM"
+        else "quality_value"
+    )
     eligible = [
         r
         for r in rows

@@ -409,7 +409,7 @@ class DatasetBuilder:
             **code_manifest(),
             "calendar_version": self.calendar.version,
             "feature_version": FEATURE_VERSION,
-            "target_version": f"total-return-next-open-{config.target_horizon}-v1",
+            "target_version": f"total-return-next-open-{config.target_horizon}-v2",
             "action_policy": "raw+explicit_actions-v1",
             "execution_policy": "next-open-v1",
             "fx_policy": "P3-dated-bounded-carry",
@@ -493,7 +493,7 @@ class DatasetBuilder:
             "label_end": self.calendar.session_close(instrument.exchange, end).isoformat(),
             "label_available_at": None,
             "horizon_sessions": config.target_horizon,
-            "definition_version": "next-open-total-return-v1",
+            "definition_version": "next-open-total-return-v2",
         }
         now = datetime.now(UTC)
         if self.calendar.session_close(instrument.exchange, end) > now:
@@ -591,6 +591,29 @@ class DatasetBuilder:
                     for leg in cast(list[dict[str, Any]], fx.get("legs", [])):
                         assert isinstance(leg, dict)
                         target_versions["fx"].append(str(leg["id"]))
+                        fx_row = await self.db.get(FxRateVersion, leg["id"])
+                        review = await self.evidence.latest("fx", leg["id"])
+                        if config.availability_mode == "STRICT_PIT" and (
+                            review is None
+                            or fx_row is None
+                            or not available(
+                                "STRICT_PIT",
+                                now,
+                                fx_row.known_at,
+                                fx_row.observed_at,
+                                review.level,
+                                review.created_at,
+                            )
+                        ):
+                            daily_base = []
+                            break
+                        if fx_row:
+                            availability.extend([fx_row.known_at, fx_row.observed_at])
+                        if review:
+                            target_versions["evidence"].append(str(review.id))
+                            availability.append(review.created_at)
+                    if not daily_base:
+                        break
                 if len(daily_base) == config.target_horizon:
                     entry = Decimal(str(series[0]["close"])) * Decimal(str(start_fx["rate"]))
                     returns = [daily_base[0] / entry - 1] + [
@@ -630,6 +653,29 @@ class DatasetBuilder:
 
     async def rebuild(self, dataset_id: UUID, user_id: UUID) -> dict[str, Any]:
         dataset = await self.owned(dataset_id, user_id)
+        if dataset.configuration.get("composition_version"):
+            from app.ml.datasets import compose_windows
+
+            windows = []
+            for reference in dataset.manifest["windows"]:
+                child = await self.owned(UUID(reference["id"]), user_id)
+                if child.configuration.get("composition_version"):
+                    raise AppError(409, "NESTED_COMPOSITION_FORBIDDEN", "Invalid pinned window")
+                await self.rebuild(child.id, user_id)
+                if child.content_hash != reference["content_hash"]:
+                    raise AppError(409, "PINNED_WINDOW_CHANGED", "Window content changed")
+                windows.append(
+                    {
+                        "id": str(child.id),
+                        "content_hash": child.content_hash,
+                        "configuration": child.configuration,
+                        "manifest": child.manifest,
+                        "rows": child.rows,
+                        "quality": child.quality,
+                    }
+                )
+            if compose_windows(windows)["content_hash"] != dataset.content_hash:
+                raise AppError(409, "COMPOSITION_HASH_MISMATCH", "Window composition changed")
         for kind, ids in dataset.manifest["versions"].items():
             for value in ids:
                 model = ENTITIES[kind]

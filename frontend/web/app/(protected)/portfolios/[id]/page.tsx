@@ -10,6 +10,7 @@ import { getAllocation, getPerformance, getValuation, listAccounts, listPortfoli
   listTransactions, getSummary, listBenchmarks, type Account, type ImportPreview, type Transaction } from "@/lib/api/portfolios";
 import { money, ratio } from "@/lib/portfolio-format";
 import { AllocationChart, ValueChart } from "@/components/portfolio-charts";
+import { PortfolioRiskPanel } from "@/components/portfolio-risk-panel";
 import { CorporateActionReview } from "@/components/corporate-action-review";
 
 const input = "w-full rounded border border-zinc-700 bg-zinc-950 p-2";
@@ -107,7 +108,8 @@ export default function PortfolioDetailPage() {
       <p className="mt-2 text-sm text-zinc-400">Ein im Transaktionsformular gewähltes Instrument kann als Benchmark registriert werden.</p><button disabled={!instrumentId} onClick={() => createBenchmark.mutate()} className="text-emerald-400">Gewähltes Instrument als Benchmark registrieren</button>
       {[updatePortfolio, archivePortfolio, createBenchmark].map((mutation, index) => mutation.isError && <p key={index} role="alert">{mutation.error.message}</p>)}
     </details>
-    <nav className="flex flex-wrap gap-2" aria-label="Portfolio-Bereiche">{["Übersicht", "Positionen", "Performance", "Allokation", "Dividenden", "Transaktionen", "Datenqualität"].map(item => <button key={item} onClick={() => setTab(item)} className={`rounded px-3 py-2 ${tab === item ? "bg-emerald-500 text-zinc-950" : "border border-zinc-700"}`}>{item}</button>)}</nav>
+    <nav className="flex flex-wrap gap-2" aria-label="Portfolio-Bereiche">{["Übersicht", "Positionen", "Performance", "Allokation", "Risiko", "Korrelationen", "Szenarien", "What-if", "Dividenden", "Transaktionen", "Datenqualität"].map(item => <button key={item} onClick={() => setTab(item)} className={`rounded px-3 py-2 ${tab === item ? "bg-emerald-500 text-zinc-950" : "border border-zinc-700"}`}>{item}</button>)}</nav>
+    {["Risiko", "Korrelationen", "Szenarien", "What-if"].includes(tab) && <PortfolioRiskPanel portfolioId={id} tab={tab} />}
     {valuation.isPending && <p>Bewertung wird geladen…</p>}
     {valuation.isError && <p role="alert" className="text-rose-400">{valuation.error.message}</p>}
     {valuationData && <>

@@ -260,6 +260,90 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "id": 13,
+      "title": "ML training failures",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "private_iip_ml_training_failures_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Risk calculation failures",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "private_iip_risk_calculation_failures_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Partial risk snapshots",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "private_iip_risk_snapshots_partial_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Scenario / What-if runs",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 22
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "private_iip_scenario_runs_total + private_iip_what_if_runs_total",
+          "refId": "A"
+        }
+      ]
     }
   ]
 }

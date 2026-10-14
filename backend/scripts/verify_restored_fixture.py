@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 from decimal import Decimal
 from uuid import UUID
@@ -12,10 +13,15 @@ from alembic.config import Config
 from alembic.script import ScriptDirectory
 from sqlalchemy import select, text
 
+from app.api.research import view
+from app.core.storage import get_storage
 from app.db.session import get_session_factory
-from app.models import Portfolio, Transaction, User
+from app.models import Portfolio, Prediction, PredictionOutcome, Transaction, User
+from app.services.fundamentals import digest
+from app.services.ml_registry import ModelRegistryService
 from app.services.pit_datasets import DatasetBuilder
 from app.services.raw_ingestion import RawIngestionService
+from app.services.risk_audit import history_checkpoint
 
 
 async def main() -> None:
@@ -48,6 +54,67 @@ async def main() -> None:
                 "Restored dataset hash mismatch"
             )
             print("P6 restored dataset: pinned versions, raw bytes and manifest verified")
+        model_id = os.environ.get("RESTORE_TEST_MODEL_ID")
+        if model_id:
+            model = await ModelRegistryService(db).owned(UUID(model_id), user.id)
+            assert model.artifact_hash == os.environ["RESTORE_TEST_ARTIFACT_HASH"]
+            await ModelRegistryService(db).artifact(model)
+            await DatasetBuilder(db).rebuild(model.dataset_id, user.id)
+            if model.mlflow_run_id:
+                assert (
+                    await db.scalar(
+                        text("SELECT count(*) FROM iip_mlflow.runs WHERE run_uuid=:run_id"),
+                        {"run_id": model.mlflow_run_id},
+                    )
+                    == 1
+                )
+                artifact_uri = await db.scalar(
+                    text("SELECT artifact_uri FROM iip_mlflow.runs WHERE run_uuid=:run_id"),
+                    {"run_id": model.mlflow_run_id},
+                )
+                relative = artifact_uri.removeprefix("mlflow-artifacts:/").lstrip("/")
+                tracked_data = get_storage().get("mlflow-artifacts/" + relative + "/model.json")
+                assert hashlib.sha256(tracked_data).hexdigest() == model.artifact_hash
+            print("P7 restored model: internal artifact hash, dataset and MLflow metadata verified")
+        expected_predictions = os.environ.get("RESTORE_TEST_PREDICTION_HISTORY_HASH")
+        if expected_predictions:
+            predictions = (
+                await db.scalars(
+                    select(Prediction).where(Prediction.user_id == user.id).order_by(Prediction.id)
+                )
+            ).all()
+            outcomes = (
+                await db.scalars(
+                    select(PredictionOutcome)
+                    .where(PredictionOutcome.prediction_id.in_([p.id for p in predictions]))
+                    .order_by(PredictionOutcome.id)
+                )
+            ).all()
+            assert (
+                digest(
+                    {
+                        "predictions": [view(p) for p in predictions],
+                        "outcomes": [view(o) for o in outcomes],
+                    }
+                )
+                == expected_predictions
+            )
+            print("P7 restored prediction/outcome history: exact content hash verified")
+        expected_risk_history = os.environ.get("RESTORE_TEST_RISK_HISTORY_HASH")
+        if expected_risk_history:
+            checkpoint = await history_checkpoint(db, user.id, portfolio_id, verify=True)
+            assert checkpoint["risk_history_hash"] == expected_risk_history, (
+                "Restored risk/scenario/what-if history mismatch"
+            )
+            assert (
+                checkpoint["risk_count"]
+                and checkpoint["scenario_count"]
+                and checkpoint["what_if_count"]
+            )
+            print(
+                "P8 restored risk, scenario and what-if histories: "
+                "exact hashes and provenance verified"
+            )
     async with httpx.AsyncClient(
         base_url="http://127.0.0.1:8000", headers={"Origin": "http://restore.local"}
     ) as client:

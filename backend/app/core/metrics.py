@@ -22,26 +22,35 @@ from app.models import (
     DataQuarantine,
     DatasetVersion,
     FundamentalFact,
+    MLTrainingRun,
+    ModelPromotionReview,
     NewsArticle,
     PITJob,
+    Prediction,
     PriceDaily,
     RawIngestion,
+    RiskSnapshot,
+    ScenarioRun,
+    WhatIfRun,
 )
 
 router = APIRouter()
 _request_count: Counter[tuple[str, str, int]] = Counter()
 _duration_sum: dict[tuple[str, str], float] = defaultdict(float)
 _valuation_failures = 0
+_risk_failures = 0
 BACKUP_STATUS_PATH = Path("/app/runtime/backup-status.json")
 
 
 def observe(method: str, route: str, status: int, duration: float) -> None:
-    global _valuation_failures
+    global _valuation_failures, _risk_failures
     key = (method, route, status)
     _request_count[key] += 1
     _duration_sum[(method, route)] += duration
     if route.endswith("/valuation") and status >= 500:
         _valuation_failures += 1
+    if method == "POST" and route.endswith("/risk") and status >= 400:
+        _risk_failures += 1
 
 
 @router.get("/internal/metrics", include_in_schema=False)
@@ -50,6 +59,8 @@ async def metrics() -> PlainTextResponse:
         "# TYPE private_iip_http_requests_total counter",
         "# TYPE private_iip_http_duration_seconds_sum counter",
         "# TYPE private_iip_db_ready gauge",
+        "# TYPE private_iip_risk_calculation_failures_total counter",
+        f"private_iip_risk_calculation_failures_total {_risk_failures}",
         "# TYPE private_iip_failed_imports gauge",
         "# TYPE private_iip_quarantined_rows gauge",
         "# TYPE private_iip_stale_prices gauge",
@@ -71,6 +82,88 @@ async def metrics() -> PlainTextResponse:
         await check_database()
         lines.append("private_iip_db_ready 1")
         async with get_session_factory()() as db:
+            for name, model, condition in [
+                ("ml_training_jobs_total", MLTrainingRun, None),
+                ("risk_snapshots_total", RiskSnapshot, None),
+                (
+                    "risk_snapshots_partial_total",
+                    RiskSnapshot,
+                    RiskSnapshot.result["status"].astext == "PARTIAL",
+                ),
+                (
+                    "var_unavailable_total",
+                    RiskSnapshot,
+                    RiskSnapshot.result["metrics"]["var"]["var"].astext.is_(None),
+                ),
+                ("scenario_runs_total", ScenarioRun, None),
+                ("what_if_runs_total", WhatIfRun, None),
+                ("ml_training_failures_total", MLTrainingRun, MLTrainingRun.status == "FAILED"),
+                (
+                    "prediction_abstentions_total",
+                    Prediction,
+                    Prediction.result["confidence_status"].astext == "NO RELIABLE FORECAST",
+                ),
+                (
+                    "prediction_generation_failures_total",
+                    Prediction,
+                    Prediction.result["reason"].astext == "INFERENCE_FAILED",
+                ),
+            ]:
+                statement = select(func.count()).select_from(model)
+                if condition is not None:
+                    statement = statement.where(condition)
+                persisted_count = await db.scalar(statement)
+                lines.extend(
+                    [
+                        f"# TYPE private_iip_{name} counter",
+                        f"private_iip_{name} {persisted_count or 0}",
+                    ]
+                )
+            ranked_status = select(
+                ModelPromotionReview.status,
+                func.row_number()
+                .over(
+                    partition_by=ModelPromotionReview.model_id,
+                    order_by=(
+                        ModelPromotionReview.created_at.desc(),
+                        ModelPromotionReview.id.desc(),
+                    ),
+                )
+                .label("rank"),
+            ).subquery()
+            status_rows = (
+                await db.execute(
+                    select(ranked_status.c.status, func.count())
+                    .where(ranked_status.c.rank == 1)
+                    .group_by(ranked_status.c.status)
+                )
+            ).all()
+            status_counts = {str(status): int(number) for status, number in status_rows}
+            lines.append("# TYPE private_iip_model_status gauge")
+            for model_status in ("EXPERIMENT", "VALIDATION", "SHADOW", "PRODUCTION", "RETIRED"):
+                lines.append(
+                    f'private_iip_model_status{{status="{model_status}"}} '
+                    f"{status_counts.get(model_status, 0)}"
+                )
+            drift_reviews = (
+                await db.scalars(
+                    select(ModelPromotionReview)
+                    .where(ModelPromotionReview.evidence["origin"].astext == "MODEL_DEGRADED")
+                    .order_by(ModelPromotionReview.created_at.desc())
+                    .limit(10)
+                )
+            ).all()
+            drift_value = (
+                str(max(float(r.evidence["metrics"]["ece"]) for r in drift_reviews))
+                if drift_reviews
+                else "NaN"
+            )
+            lines.extend(
+                [
+                    "# TYPE private_iip_calibration_drift gauge",
+                    f"private_iip_calibration_drift {drift_value}",
+                ]
+            )
             for kind, prefix in [("DATASET_BUILD", "dataset_build"), ("BACKTEST", "backtest")]:
                 job_count = await db.scalar(
                     select(func.count()).select_from(PITJob).where(PITJob.kind == kind)

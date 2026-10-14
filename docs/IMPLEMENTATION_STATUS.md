@@ -1,5 +1,15 @@
 # Implementation status
 
+## P7/P8-Auftrag — technisch abgeschlossen (2026-10-14)
+
+Start: `main`, `552e96b106903422d4d07a5e4eb5ba1e56873878`; lokal und remote identisch. Ausgangsverzeichnis sauber. Baseline erneut: 113 Backend-/6 Browser-Tests. Der Commit-Workflow-Lookup lieferte keine Runs; neue Änderungen wurden nicht gepusht, Remote-CI bleibt unbestätigt.
+
+**P7 FUNCTIONAL — MODELS SHADOW / DATA LIMITED**, separat vor P8 abgenommen: 142 Backend-/8 Browser-Tests, sechs native CPU-Modelle, tatsächlich ausgeführter synthetischer Celery-Trainingslauf, private MLflow/Auth/Artefakte, Ausfallprüfung und isolierter Restore. **V2 NOT VALIDATED**; keine reale Modell-Promotion. [P7-Abnahme](P7_ACCEPTANCE_REPORT.md).
+
+**P8 FUNCTIONAL — RISK DATA LIMITED**: P4-Ledger-Returns, Kalender-/Actions-/FX-Gates, Risiko/Exposure/Health, sieben Szenarien, reine What-if-Hypothesen, immutable Snapshots und APIs/UI. Abschluss: **155 Backend-/10 Browser-Tests bestanden**, Frontend lint/typecheck/build, Ruff/Format/Mypy, Alembic 0014 driftfrei und frisch mit 50 Tabellen. MLflow vollständig gestoppt: Portfolio, Research und Risiko verfügbar. Isolierter Restore am 2026-10-14 bestanden einschließlich Modell-/Prediction-/Risk-/Scenario-/What-if-Hashes und exakt CHF 10'180. [P8-Abnahme](P8_ACCEPTANCE_REPORT.md).
+
+Reale historische Risiko-/PIT-Daten sind weiterhin unvollständig. **V2.5 NOT RELEASED**; bestehende Homelab/VPN-, CA-, Backup-Schedule/Mount- und Schlüssel-Recovery-Gates bleiben offen. Ungenehmigte Quellen bleiben deaktiviert. **P9/P10 nicht begonnen.**
+
 **Updated:** 2026-10-14
 **Source of truth:** [Master Development Plan](../MASTER_DEVELOPMENT_PLAN.md), section 158.
 
@@ -15,6 +25,8 @@
 | Portfolio and production access | P4 | FUNCTIONAL — PRODUCTION GATE OPEN | Owned portfolios/accounts, preserved transaction ledger, Decimal WAC, corporate-action application, P3 valuation/FX, returns, snapshots with provenance, transaction CSV, portfolio UI, Caddy/private TLS, monitoring and verified isolated recovery. Target homelab/VPN client trust and an independent production backup mount still require deployment acceptance. |
 | Fundamentals and Research | P5 | FUNCTIONAL WITH GATED SOURCES | Versioned fundamentals/filings, metrics, valuation, research, news and estimates; no automatic source activation. |
 | Point-in-Time and Backtesting | P6 | FUNCTIONAL WITH HISTORICAL DATA LIMITATIONS | Evidence reviews, strict/reconstructed modes, historical membership, offline calendars, feature/dataset versions and content manifests, targets, purging/embargo, baselines, cost/execution contracts, private APIs/UI and monitoring. Real historical completeness is not inferred from synthetic tests or late imports. |
+| Machine Learning and Forecasts | P7 | FUNCTIONAL — MODELS SHADOW / DATA LIMITED | PIT readiness/composition, six local CPU estimators, chronological training/calibration/evaluation, fixed operator promotion gates, private MLflow, immutable forecasts/outcomes, model APIs/UI and restore. V2 not validated. |
+| Risk and Scenario Intelligence | P8 | FUNCTIONAL — RISK DATA LIMITED | Ledger TWR, validated risk statistics, exposures, versioned Health, seven scenarios, immutable hypothetical trades/snapshots, owned APIs/UI, monitoring and verified recovery. V2.5 target deployment not released. |
 
 ## P3 contracts and limits
 

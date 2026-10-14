@@ -9,6 +9,13 @@ from app.models.market_data import (
     PriceDailyVersion,
 )
 from app.models.market_foundation import DataSource, Instrument, InstrumentIdentifier, RawIngestion
+from app.models.ml import (
+    MLModelVersion,
+    MLTrainingRun,
+    ModelPromotionReview,
+    Prediction,
+    PredictionOutcome,
+)
 from app.models.pit import (
     ActionCoverageReview,
     AvailabilityReview,
@@ -43,8 +50,18 @@ from app.models.research import (
     Watchlist,
     WatchlistItem,
 )
+from app.models.risk import RiskSnapshot, ScenarioDefinition, ScenarioRun, WhatIfRun
 
 __all__ = [
+    "RiskSnapshot",
+    "ScenarioDefinition",
+    "ScenarioRun",
+    "WhatIfRun",
+    "MLModelVersion",
+    "MLTrainingRun",
+    "ModelPromotionReview",
+    "Prediction",
+    "PredictionOutcome",
     "PITJob",
     "MacroObservation",
     "WalkForwardSplit",

@@ -1,8 +1,26 @@
 # Private Investment Intelligence Platform
 
+## P7 ML — technische Abnahme abgeschlossen
+
+`/models` zeigt Trainingsläufe, versionierte Modellbewertungen und Datenbereitschaft. Die Instrumentseite zeigt Forecast-Status und unveränderliche Prognosehistorie. Fehlende Freigabe bleibt **NO RELIABLE FORECAST**. Synthetische Simulationen sind ausschließlich technische Tests und begründen kein V2-Prognoseprodukt.
+
+Training nutzt gepinnte P6-Datasets, vier getrennte Zeitfenster, sechs lokale CPU-Modelltypen, Platt-Kalibrierung und datenbasierte Conformal-Intervalle. Administration erfordert `ML_OPERATOR_USERNAMES` als explizite JSON-Allowlist. MLflow/Trainingsworker starten nur bei Bedarf mit `docker compose --profile ml up -d --build`. MLflow besitzt keinen Hostport; `MLFLOW_TRACKING_USERNAME` und ein eigenes Secret mit mindestens 24 Zeichen sind erforderlich. Keine Secrets in Git.
+
+Details: [Training](docs/architecture/ml-training.md), [Validierung](docs/architecture/ml-validation.md), [Registry](docs/architecture/model-registry.md), [Freigabegates](docs/architecture/forecast-quality.md). [P7-Abnahme](docs/P7_ACCEPTANCE_REPORT.md) ist abgeschlossen: **MODELS SHADOW / DATA LIMITED**, **V2 NOT VALIDATED**. Die realen Produktions- und Quellen-Gates bleiben offen.
+
+## P8 Risiko, Szenarien und What-if
+
+Die Portfolioansicht bietet **Risiko**, **Korrelationen**, **Szenarien** und **What-if**. „Risiko-Snapshot berechnen“ erzeugt einen unveränderlichen Datenstand aus dem tatsächlichen P4-Ledger und geprüften Kursen/FX/Actions. Volatilität, Beta, Drawdown, VaR/CVaR und Korrelationen benötigen ihre dokumentierten Stichproben und vollständigen Inputs. Fehlende Historie bleibt sichtbar unverfügbar. Exposure und direkte Szenarien können unabhängig davon verfügbar sein.
+
+Szenarien trennen Positions-, FX-, Beta- und Volatilitätshypothesen. What-if kopiert die Bestände, prüft Cash/FX/Quotes/Quantity und zeigt Kosten sowie vorher/nachher. Der reale Ledger bleibt unverändert. Hypothetische historische Risiken verwenden ausdrücklich konstante vorgeschlagene Gewichte; es gibt keine automatische Empfehlung oder Order.
+
+`P8_MAX_INSTRUMENTS=30`, `P8_TIMEOUT_SECONDS=120`; kein MLflow-/ML-Worker-/LLM-Zwang. API-Historien liefern paginierte Zusammenfassungen, Einzelresultate sind user-owned. Formeln: [Risiko](docs/architecture/portfolio-risk.md), [Szenarien](docs/architecture/scenarios.md), [What-if](docs/architecture/what-if.md).
+
+[P8-Abnahme](docs/P8_ACCEPTANCE_REPORT.md): **155 Backend-/10 Browser-Tests**, Head 0014, erfolgreicher isolierter Restore mit Modell-/Forecast-/Risk-/Scenario-/What-if-Historie und exakt CHF 10'180. **P8 FUNCTIONAL — RISK DATA LIMITED; V2.5 NOT RELEASED**. Reale Homelab/VPN-, CA-, Backup- und Schlüssel-Gates bleiben offen. P9/P10 wurden nicht begonnen.
+
 ## P6 Point-in-Time und Backtests
 
-Die geschützte Seite `/backtests` erstellt private Universes, importiert Membership-CSV, baut versionierte Datasets und führt tatsächliche Equal-Weight-, Benchmark-, Momentum- und Quality/Value-Baselines aus. Ergebnisse enthalten Equity/Benchmark-Kurven, Kosten, Fills, Herkunft und Datenlücken. `/data-quality` zeigt Dataset-Ausschlüsse und Feature-/Target-Missingness. Es gibt kein ML-Training und keine Forecast UI.
+Die geschützte Seite `/backtests` erstellt private Universes, importiert Membership-CSV, baut versionierte Datasets und führt tatsächliche Equal-Weight-, Benchmark-, Momentum- und Quality/Value-Baselines aus. Ergebnisse enthalten Equity/Benchmark-Kurven, Kosten, Fills, Herkunft und Datenlücken. `/data-quality` zeigt Dataset-Ausschlüsse und Feature-/Target-Missingness. P7 baut darauf auf.
 
 1. Universe erstellen; Membership mit internen Instrument-UUIDs als CSV hochladen, Vorschau prüfen und bestätigen. Source `MANUAL_PIT` ist standardmäßig UNKNOWN/deaktiviert; ein Operator muss den Scope `universe_membership` ausdrücklich freigeben. Beispielspalten: `instrument_id,valid_from,valid_to,known_at,membership_status`.
 2. Historische Availability- und Vollständigkeitsbelege sowie instrumentbezogene Corporate-Action-Coverage über `python -m scripts.review_pit_evidence <review.json>` prüfen. Ein manuell behaupteter Zeitstempel erfüllt keinen strengen Nachweis. [Evidence und Dataset-Vertrag](docs/architecture/pit-datasets.md).
@@ -12,7 +30,7 @@ Die geschützte Seite `/backtests` erstellt private Universes, importiert Member
 
 Konfiguration für API und Worker: `P6_MAX_INSTRUMENTS=30`, `P6_MAX_SESSIONS=400`, `P6_MAX_CONCURRENT_RUNS=1`, `P6_TIMEOUT_SECONDS=240`. `CODE_COMMIT` auf den Checkout-Commit setzen; das Manifest speichert zusätzlich den Quelldatei-Hash und Dependency-Lock. API/Worker nach Codeänderungen neu starten, bevor neue wissenschaftliche Runs entstehen. Der Mypy-Cache liegt im Entwicklungscontainer, um Windows-Bind-Mount-Staus zu vermeiden.
 
-P6 ist eine funktionale Grundlage mit historischen Datenbeschränkungen; die technische Simulation beweist keine vollständige reale historische Markt-/Universe-Abdeckung. Siehe [P6-Abnahmebericht](docs/P6_ACCEPTANCE_REPORT.md), [Feature-Formeln](docs/architecture/feature-store.md) und [Backtesting](docs/architecture/backtesting.md). Die realen P4-Produktions-Gates bleiben offen; P7 wurde nicht begonnen.
+P6 ist eine funktionale Grundlage mit historischen Datenbeschränkungen; die technische Simulation beweist keine vollständige reale historische Markt-/Universe-Abdeckung. Siehe [P6-Abnahmebericht](docs/P6_ACCEPTANCE_REPORT.md), [Feature-Formeln](docs/architecture/feature-store.md) und [Backtesting](docs/architecture/backtesting.md). Die realen P4-Produktions-Gates bleiben offen.
 
 ## P5 Research
 
@@ -24,7 +42,7 @@ CSV-Fundamentals: Upload, Spaltenmapping, Vorschau und ausdrückliche Bestätigu
 
 Die V1-Produktion bleibt wegen der offenen Homelab-/VPN-, CA-, Backup- und Schlüssel-Recovery-Bedingungen nicht freigegeben. P5 erweitert die lokale Research-Funktionalität; die P6-Grundlage steht im vorherigen Abschnitt.
 
-Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. Fundamentals, ML, recommendations and the assistant remain later phases.
+Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. P5 research, P6 PIT/backtesting, P7 guarded local ML and P8 risk/scenarios are implemented with explicit data and deployment limits. Recommendations and the assistant remain later phases.
 
 ## Current architecture
 
