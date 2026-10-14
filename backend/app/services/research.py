@@ -18,6 +18,29 @@ from app.services.market_queries import MarketQueryService, pit_cutoff
 from app.services.research_scores import SCORE_RULE, calculate_scores
 
 
+def snapshot_identity(result: dict[str, Any], explicit_as_of: datetime | None) -> str:
+    """Ignore refresh wall-clock time; retain every semantic output/input change.
+
+    Explicit historical requests pin their exact cutoff. Live refreshes reuse the
+    first immutable observation while inputs, age eligibility and rules agree.
+    """
+
+    def semantic(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {k: semantic(v) for k, v in value.items() if k != "as_of"}
+        if isinstance(value, list):
+            return [semantic(v) for v in value]
+        return value
+
+    return digest(
+        {
+            "identity_contract": "research-identity-v2",
+            "historical_cutoff": pit_cutoff(explicit_as_of).isoformat() if explicit_as_of else None,
+            "semantic_result": semantic(result),
+        }
+    )
+
+
 class ResearchService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
@@ -158,7 +181,7 @@ class ResearchService:
         result = await self.calculate(instrument_id, as_of)
         # JSON serialization is stable and retains decimal strings, exact input version IDs.
         result = json.loads(json.dumps(result, default=str))
-        input_hash = digest(result)
+        input_hash = snapshot_identity(result, as_of)
         existing = (
             await self.db.scalars(
                 select(ResearchSnapshot).where(

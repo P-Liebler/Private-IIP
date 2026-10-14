@@ -7,6 +7,7 @@ import Link from "next/link";
 import { listPortfolios, getValuation } from "@/lib/api/portfolios";
 import { useQueries } from "@tanstack/react-query";
 import { ResearchQualityPanel } from "@/components/research-quality";
+import { DatasetQualityPanel } from "@/components/dataset-quality";
 
 type OperationalStatus = { backup: { status: string; completed_at: string | null };
   restore_test: { status: string; completed_at: string | null } };
@@ -33,6 +34,7 @@ export default function DataQualityPage() {
       {portfolios.data?.map((portfolio, index) => <article key={portfolio.id}><Link className="text-emerald-400 underline" href={`/portfolios/${portfolio.id}`}>{portfolio.name}</Link><p>{valuations[index].isPending ? "Wird geprüft…" : valuations[index].data?.status ?? "DATA_UNAVAILABLE"}</p>{valuations[index].isError && <p role="alert">{valuations[index].error.message}</p>}<ul className="text-sm text-amber-400">{valuations[index].data?.issues.map((issue, item) => <li key={item}>{issue.code} · {issue.currency}{issue.instrument_id && <Link href={`/instrument/${issue.instrument_id}`} className="ml-2 underline">Instrument / Quelle prüfen</Link>}</li>)}</ul></article>)}
     </section>
     <ResearchQualityPanel />
+    <DatasetQualityPanel />
     {data && <>
       {data.status === "UNAVAILABLE" && <p className="rounded border border-amber-800 bg-amber-950 p-4">No validated data available</p>}
       <div className="grid gap-4 sm:grid-cols-2">

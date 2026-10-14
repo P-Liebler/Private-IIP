@@ -243,6 +243,24 @@ class FundamentalMetricsService:
                 ("current_ratio", "current_assets", "current_liabilities", True),
             ]
         }
+        debt = self.latest("total_debt", "INSTANT")
+        cash = self.latest("cash", "INSTANT")
+        ebitda = self.latest("ebitda", period)
+        result["net_debt_to_EBITDA"] = unavailable(
+            "Compatible debt, cash and positive EBITDA required"
+        )
+        if (
+            debt
+            and cash
+            and ebitda
+            and compatible([debt, cash, ebitda], mixed=True)
+            and ebitda.value is not None
+            and ebitda.value > 0
+        ):
+            assert debt.value is not None and cash.value is not None
+            result["net_debt_to_EBITDA"] = output(
+                (debt.value - cash.value) / ebitda.value, [debt, cash, ebitda]
+            )
         for name, metric in [
             ("revenue_growth_yoy", "revenue"),
             ("eps_growth_yoy", "eps_diluted"),

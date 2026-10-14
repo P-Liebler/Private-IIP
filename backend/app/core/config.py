@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     sec_rate_limit: int = Field(default=5, ge=1, le=10)
     sec_enabled: bool = False
     research_collection_contracts: str = "[]"
+    code_commit: str = "UNVERIFIED"
+    p6_max_instruments: int = Field(default=30, ge=1, le=100)
+    p6_max_sessions: int = Field(default=400, ge=1, le=1000)
+    p6_max_concurrent_runs: int = Field(default=1, ge=1, le=4)
+    p6_timeout_seconds: int = Field(default=240, ge=10, le=600)
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod

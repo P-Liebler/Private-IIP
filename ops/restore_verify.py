@@ -39,8 +39,12 @@ def main() -> int:
     parser.add_argument("--portfolio-id", required=True)
     parser.add_argument("--raw-id", required=True)
     parser.add_argument("--expected-value", required=True)
+    parser.add_argument("--dataset-id")
+    parser.add_argument("--expected-dataset-hash")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
+    if bool(args.dataset_id) != bool(args.expected_dataset_hash):
+        parser.error("Dataset ID and expected hash must be provided together")
     password = os.environ.get("RESTORE_TEST_PASSWORD")
     if not password:
         parser.error("Set RESTORE_TEST_PASSWORD to the explicit fixture user's password")
@@ -67,6 +71,8 @@ def main() -> int:
         "RESTORE_TEST_PORTFOLIO_ID": args.portfolio_id,
         "RESTORE_TEST_RAW_ID": args.raw_id,
         "RESTORE_TEST_VALUE": args.expected_value,
+        "RESTORE_TEST_DATASET_ID": args.dataset_id or "",
+        "RESTORE_TEST_DATASET_HASH": args.expected_dataset_hash or "",
     }
     status: dict[str, object] = {
         "started_at": datetime.now(UTC).isoformat(),

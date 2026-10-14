@@ -69,9 +69,20 @@ async def main() -> None:
                         "news_articles",
                         "news_instruments",
                         "analyst_estimate_snapshots",
+                        "availability_reviews",
+                        "action_coverage_reviews",
+                        "universe_definitions",
+                        "universe_membership_versions",
+                        "feature_snapshots",
+                        "dataset_versions",
+                        "backtest_runs",
+                        "macro_observation_versions",
+                        "news_mapping_versions",
+                        "walk_forward_splits",
+                        "pit_jobs",
                     ],
                 )
-                assert revision == "0009_filing_document" and tables == 30
+                assert revision == "0012_pit_immutability" and tables == 41
                 print(f"Fresh migration verified: {revision}; {tables} required tables")
             finally:
                 await disposable.close()

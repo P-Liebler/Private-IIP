@@ -13,6 +13,7 @@ jobs:
       - name: Prepare ephemeral local environment
         run: |
           cp .env.example .env
+          echo "CODE_COMMIT=$GITHUB_SHA" >> .env
           python3 - <<'PY'
           import base64
           from pathlib import Path
@@ -53,14 +54,23 @@ jobs:
               for key, field in [('E2E_USERNAME', 'username'), ('E2E_PORTFOLIO_ID', 'portfolio_id'), ('E2E_RESEARCH_INSTRUMENT_ID', 'instrument_id')]:
                   output.write(f'{key}={value[field]}\n')
           PY
-      - name: Prepare P5 fixture and run browser tests
+      - name: Prepare P5/P6 fixtures and run browser tests
         env:
           E2E_PASSWORD: test-only-restore-password-2
         run: |
           docker compose exec -T -e E2E_USERNAME -e E2E_RESEARCH_INSTRUMENT_ID api python -m scripts.create_research_fixture > "$RUNNER_TEMP/p5-fixture.json"
           export E2E_MISSING_INSTRUMENT_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p5-fixture.json").read_text())["missing_instrument_id"])')
+          docker compose exec -T -e E2E_USERNAME api python -m scripts.create_p6_fixture > "$RUNNER_TEMP/p6-fixture.json"
+          export E2E_P6_UNIVERSE_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["universe_id"])')
+          export E2E_P6_UNVERIFIED_UNIVERSE_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["unverified_universe_id"])')
+          export E2E_P6_BENCHMARK_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["benchmark_id"])')
           docker compose restart web
-          cd frontend/web
+          # Docker creates bind-mount mountpoints as root on Linux. Install the
+          # browser runner in a runner-owned directory, never in that mountpoint.
+          runner_dir=$(mktemp -d "$RUNNER_TEMP/iip-browser.XXXXXX")
+          cp frontend/web/package.json frontend/web/package-lock.json frontend/web/playwright.config.ts "$runner_dir/"
+          cp -R frontend/web/e2e "$runner_dir/e2e"
+          cd "$runner_dir"
           npm ci
           npx playwright install --with-deps chromium
           npm run test:e2e -- --workers=1

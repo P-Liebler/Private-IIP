@@ -11,11 +11,22 @@ from typing import cast
 
 from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import func, select
+from sqlalchemy import Integer, func, select
+from sqlalchemy import cast as sql_cast
+from sqlalchemy.dialects.postgresql import JSONPATH
 
 from app.core.valkey import make_valkey_client
 from app.db.session import check_database, get_session_factory
-from app.models import DataQuarantine, FundamentalFact, NewsArticle, PriceDaily, RawIngestion
+from app.models import (
+    BacktestRun,
+    DataQuarantine,
+    DatasetVersion,
+    FundamentalFact,
+    NewsArticle,
+    PITJob,
+    PriceDaily,
+    RawIngestion,
+)
 
 router = APIRouter()
 _request_count: Counter[tuple[str, str, int]] = Counter()
@@ -60,6 +71,53 @@ async def metrics() -> PlainTextResponse:
         await check_database()
         lines.append("private_iip_db_ready 1")
         async with get_session_factory()() as db:
+            for kind, prefix in [("DATASET_BUILD", "dataset_build"), ("BACKTEST", "backtest")]:
+                job_count = await db.scalar(
+                    select(func.count()).select_from(PITJob).where(PITJob.kind == kind)
+                )
+                failures = await db.scalar(
+                    select(func.count())
+                    .select_from(PITJob)
+                    .where(PITJob.kind == kind, PITJob.status == "FAILED")
+                )
+                duration = await db.scalar(
+                    select(
+                        func.sum(func.extract("epoch", PITJob.completed_at - PITJob.started_at))
+                    ).where(PITJob.kind == kind)
+                )
+                lines.extend(
+                    [
+                        f"# TYPE private_iip_{prefix}_total counter",
+                        f"private_iip_{prefix}_total {job_count or 0}",
+                        f"private_iip_{prefix}_failures_total {failures or 0}",
+                        f"private_iip_{prefix}_duration_seconds_sum {duration or 0}",
+                    ]
+                )
+            exclusions = await db.scalar(
+                select(
+                    func.sum(
+                        sql_cast(DatasetVersion.quality["excluded_observations"].astext, Integer)
+                    )
+                )
+            )
+            no_fill = await db.scalar(
+                select(
+                    func.sum(
+                        func.jsonb_array_length(
+                            func.jsonb_path_query_array(
+                                BacktestRun.result,
+                                sql_cast('$.orders[*] ? (@.status == "NO_FILL")', JSONPATH),
+                            )
+                        )
+                    )
+                )
+            )
+            lines.extend(
+                [
+                    f"private_iip_pit_exclusions_total {exclusions or 0}",
+                    f"private_iip_execution_unavailable_total {no_fill or 0}",
+                ]
+            )
             failed = await db.scalar(
                 select(func.count())
                 .select_from(RawIngestion)

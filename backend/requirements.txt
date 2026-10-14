@@ -13,3 +13,4 @@ cryptography==50.0.2
 pyotp==2.10.0
 httpx==0.28.1
 urllib3==2.8.0
+exchange-calendars==4.13.2

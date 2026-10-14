@@ -22,13 +22,14 @@ export function ProtectedShell({ user, children }: { user: User; children: React
     <div className="mx-auto min-h-screen max-w-5xl px-6 py-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-5">
         <Link href="/dashboard" className="font-semibold text-emerald-400">Investment Intelligence</Link>
-        <nav className="flex items-center gap-5 text-sm">
+        <nav className="flex flex-wrap items-center gap-5 text-sm">
           <Link href="/dashboard" className="hover:text-emerald-400">Übersicht</Link>
           <Link href="/portfolios" className="hover:text-emerald-400">Portfolios</Link>
           <Link href="/instruments" className="hover:text-emerald-400">Instrumente</Link>
           <Link href="/research" className="hover:text-emerald-400">Research</Link>
           <Link href="/watchlists" className="hover:text-emerald-400">Watchlists</Link>
           <Link href="/news" className="hover:text-emerald-400">News</Link>
+          <Link href="/backtests" className="hover:text-emerald-400">Backtests</Link>
           <Link href="/imports" className="hover:text-emerald-400">CSV-Import</Link>
           <Link href="/data-quality" className="hover:text-emerald-400">Datenqualität</Link>
           <Link href="/settings/data-sources" className="hover:text-emerald-400">Datenquellen</Link>

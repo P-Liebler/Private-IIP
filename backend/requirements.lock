@@ -50,3 +50,9 @@ urllib3==2.8.0
 uvicorn==0.34.2
 vine==5.1.0
 wcwidth==0.9.1
+exchange_calendars==4.13.2
+korean_lunar_calendar==0.4.0
+numpy==2.5.4
+pandas==3.0.6
+pyluach==2.3.0
+toolz==1.2.0

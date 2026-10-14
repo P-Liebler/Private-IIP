@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.lock
 COPY backend/ /app/
 
 FROM base AS dev
+ENV MYPY_CACHE_DIR=/tmp/private-iip-mypy
 COPY backend/requirements-dev.txt /app/requirements-dev.txt
 COPY backend/requirements-dev.lock /app/requirements-dev.lock
 RUN pip install --no-cache-dir -r requirements-dev.lock

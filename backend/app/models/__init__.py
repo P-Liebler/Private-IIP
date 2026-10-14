@@ -9,6 +9,19 @@ from app.models.market_data import (
     PriceDailyVersion,
 )
 from app.models.market_foundation import DataSource, Instrument, InstrumentIdentifier, RawIngestion
+from app.models.pit import (
+    ActionCoverageReview,
+    AvailabilityReview,
+    BacktestRun,
+    DatasetVersion,
+    FeatureSnapshot,
+    MacroObservation,
+    NewsMappingVersion,
+    PITJob,
+    UniverseDefinition,
+    UniverseMembershipVersion,
+    WalkForwardSplit,
+)
 from app.models.portfolio import (
     Benchmark,
     CashBalance,
@@ -32,6 +45,17 @@ from app.models.research import (
 )
 
 __all__ = [
+    "PITJob",
+    "MacroObservation",
+    "WalkForwardSplit",
+    "NewsMappingVersion",
+    "ActionCoverageReview",
+    "AvailabilityReview",
+    "BacktestRun",
+    "DatasetVersion",
+    "FeatureSnapshot",
+    "UniverseDefinition",
+    "UniverseMembershipVersion",
     "AnalystEstimate",
     "Filing",
     "FundamentalFact",

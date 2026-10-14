@@ -1,5 +1,19 @@
 # Private Investment Intelligence Platform
 
+## P6 Point-in-Time und Backtests
+
+Die geschützte Seite `/backtests` erstellt private Universes, importiert Membership-CSV, baut versionierte Datasets und führt tatsächliche Equal-Weight-, Benchmark-, Momentum- und Quality/Value-Baselines aus. Ergebnisse enthalten Equity/Benchmark-Kurven, Kosten, Fills, Herkunft und Datenlücken. `/data-quality` zeigt Dataset-Ausschlüsse und Feature-/Target-Missingness. Es gibt kein ML-Training und keine Forecast UI.
+
+1. Universe erstellen; Membership mit internen Instrument-UUIDs als CSV hochladen, Vorschau prüfen und bestätigen. Source `MANUAL_PIT` ist standardmäßig UNKNOWN/deaktiviert; ein Operator muss den Scope `universe_membership` ausdrücklich freigeben. Beispielspalten: `instrument_id,valid_from,valid_to,known_at,membership_status`.
+2. Historische Availability- und Vollständigkeitsbelege sowie instrumentbezogene Corporate-Action-Coverage über `python -m scripts.review_pit_evidence <review.json>` prüfen. Ein manuell behaupteter Zeitstempel erfüllt keinen strengen Nachweis. [Evidence und Dataset-Vertrag](docs/architecture/pit-datasets.md).
+3. Zeitraum, Benchmark-ID, Basiswährung und `STRICT_PIT` oder `RECONSTRUCTED_HISTORICAL` wählen. Ein nachträglicher Import wird nicht zu einem früheren eigenen Archivstand. Im rekonstruierten Modus bleiben methodische Grenzen sichtbar.
+4. Dataset auswählen, Baseline, Ausführung und Kosten wählen und starten. Fehlender Open/FX oder ungültige Coverage erzeugt keinen erfundenen Fill. Das Kostenmodell verwendet explizite tägliche Referenz-FX; keine behaupteten historischen Intraday-Spotquotes.
+5. Run und Dataset-Qualität prüfen. `POST /api/v1/datasets/{id}/rebuild` prüft gepinnte Inhalte und Raw-Hashes; `POST /api/v1/datasets/{id}/splits` erzeugt sessionbasiertes Purging/Embargo und train-only Referenzwerte. Fehlende historische Versionen werden als Fehler ausgewiesen.
+
+Konfiguration für API und Worker: `P6_MAX_INSTRUMENTS=30`, `P6_MAX_SESSIONS=400`, `P6_MAX_CONCURRENT_RUNS=1`, `P6_TIMEOUT_SECONDS=240`. `CODE_COMMIT` auf den Checkout-Commit setzen; das Manifest speichert zusätzlich den Quelldatei-Hash und Dependency-Lock. API/Worker nach Codeänderungen neu starten, bevor neue wissenschaftliche Runs entstehen. Der Mypy-Cache liegt im Entwicklungscontainer, um Windows-Bind-Mount-Staus zu vermeiden.
+
+P6 ist eine funktionale Grundlage mit historischen Datenbeschränkungen; die technische Simulation beweist keine vollständige reale historische Markt-/Universe-Abdeckung. Siehe [P6-Abnahmebericht](docs/P6_ACCEPTANCE_REPORT.md), [Feature-Formeln](docs/architecture/feature-store.md) und [Backtesting](docs/architecture/backtesting.md). Die realen P4-Produktions-Gates bleiben offen; P7 wurde nicht begonnen.
+
 ## P5 Research
 
 Die geschützten Seiten `/research`, `/watchlists`, `/news` und die Research-Tabs der Instrumentenseite lesen aus eigenen validierten Daten. Fundamentaldaten werden mit Raw-Provenienz und unveränderlichen Versionen importiert; Restatements und historische Wissenszeitpunkte bleiben nachvollziehbar. Bewertungszahlen und Scores benötigen ihre vollständigen geprüften Inputs. Momentum, Forward P/E und PEG bleiben ohne ausreichend belegte Eingaben unverfügbar.
@@ -8,7 +22,7 @@ Neue Quellen `SEC_EDGAR`, `COMPANY_IR`, `NEWS_RSS` und `MANUAL_RESEARCH` sind st
 
 CSV-Fundamentals: Upload, Spaltenmapping, Vorschau und ausdrückliche Bestätigung auf `/research`. Unterstützte Felder und Zeitverträge stehen in [Fundamentals](docs/architecture/fundamentals.md); Quellenverträge, Bewertungsformeln und Score-Gewichte in den verlinkten P5-Architekturdokumenten. Der [P5-Abnahmebericht](docs/P5_ACCEPTANCE_REPORT.md) dokumentiert die tatsächliche Verifikation und Grenzen.
 
-Die V1-Produktion bleibt wegen der offenen Homelab-/VPN-, CA-, Backup- und Schlüssel-Recovery-Bedingungen nicht freigegeben. P5 erweitert die lokale Funktionalität; P6 wird noch nicht begonnen.
+Die V1-Produktion bleibt wegen der offenen Homelab-/VPN-, CA-, Backup- und Schlüssel-Recovery-Bedingungen nicht freigegeben. P5 erweitert die lokale Research-Funktionalität; die P6-Grundlage steht im vorherigen Abschnitt.
 
 Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. Fundamentals, ML, recommendations and the assistant remain later phases.
 

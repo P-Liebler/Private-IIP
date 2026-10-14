@@ -1,0 +1,13 @@
+# Baseline Backtesting
+
+P6. Pure `app/backtesting/engine.py` verarbeitet ausschließlich die gepinnte Dataset-Version; kein Broker und keine Live-Providerabfrage. Long-only, Cash, Positionen, virtuelle BUY/SELL-Rebalances, fractional Decimal-Mengen, konfigurierbare Rebalance-Sessions, Top-N und Positionslimit. Ein Run speichert Configuration, Dataset, Engine-/Ausführungs-/Kostenvertrag, Hash, Signals, Orders, Fills, Equity, Benchmark, Warnings und Metrics unveränderlich.
+
+Baselines: Equal Weight der historisch geeigneten Mitglieder, Benchmark-only, Momentum nach verfügbarem 120-Session Total Return, Quality/Value nach vollständigen historischen P5-Rubriken. Top-N sortiert absteigend mit stabiler Instrument-ID als Tie-breaker; kein Random. Fehlende Faktorinputs erzeugen BASELINE_UNAVAILABLE. Passive Benchmark-Kurve wird mit demselben Startkapital, Zeitraum, Kosten- und Ausführungsvertrag simuliert. Nicht zulässige Titel werden nicht durch Scores gerettet.
+
+Splits ändern gehaltene und offene Ordermengen. Dividendenanspruch entsteht mit Bestand vor Ex-Date-Fills, wird bis zum Payment Date als Forderung bewertet und erst dann Cash; fehlender Payment-/FX-Vertrag erzeugt INCOMPLETE. Cash wird frühestens beim nächsten regulären Rebalance reinvestiert. Ein einzelner validierter Action-Effekt wird je Run einmal angewendet. Fehlende Bewertung wird null; kein Nullwert-Ersatz und keine erfundene Delisting-Liquidation.
+
+Status STRICT_PIT_VALID nur bei erfüllten Daten- und Execution-Gates, RECONSTRUCTED_WITH_LIMITATIONS für reine Rekonstruktion, sonst INCOMPLETE oder REJECTED. Ein solcher technischer Status ist keine Freigabe eines Prognosemodells; synthetische Fixtures beweisen ausschließlich die Engine.
+
+## Metrics
+
+Total Return = Endwert / Initial Capital − 1. Maximum Drawdown ist Minimum aktueller Equity / bisheriges Maximum − 1, inklusive Anfangskapital. Turnover = sum absolute rohe Fill-Notionals / Anfangskapital (einseitige Notional-Konvention). Kosten = Commission plus Spread/Slippage in Basiswährung. CAGR erst ab 365 Kalendertagen, Annualisierung 365.25 Tage. Volatilität Sample-Std täglicher Equity-Returns × sqrt(252). Sharpe und Sortino brauchen mindestens 20 Returns und eine explizite konstante Risk-Free-Rate; unbekannte Rate setzt beide aus. Sortino verwendet alle Downside-Abweichungen unter dieser Tagesrate im RMS-Nenner. Beta = Sample-Cov(Portfolio,Benchmark) / Sample-Var(Benchmark). Alpha ist annualisierte überschüssige Mean-Return-Differenz nach Beta; ohne Risk-Free-Rate unavailable. Win Rate bezeichnet positive Equity-Sessions, keine behauptete Trade-Hit-Rate. Zu kleine/konstante Stichprobe oder fehlende Equity setzt betroffene Metrics aus.

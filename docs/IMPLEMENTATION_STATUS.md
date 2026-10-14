@@ -1,6 +1,6 @@
 # Implementation status
 
-**Updated:** 2026-10-13
+**Updated:** 2026-10-14
 **Source of truth:** [Master Development Plan](../MASTER_DEVELOPMENT_PLAN.md), section 158.
 
 | Assignment phase | Plan mapping | Status | Delivered |
@@ -13,6 +13,8 @@
 | Phase 3 — Instrument Master | P2 | DONE | Stable instruments, identifier history, source gate, gated OpenFIGI mapping and CSV preview. |
 | Phase 4 — Market Data Foundation | P3 | DONE WITH GATED SOURCES | Manual CSV preview/commit, canonical and versioned prices/actions/FX, validation, reconciliation, quarantine, PIT queries, indicative return, FX derivation, ECB connector, data-quality and UI. SNB daily format remains unverified; its connector fails closed. |
 | Portfolio and production access | P4 | FUNCTIONAL — PRODUCTION GATE OPEN | Owned portfolios/accounts, preserved transaction ledger, Decimal WAC, corporate-action application, P3 valuation/FX, returns, snapshots with provenance, transaction CSV, portfolio UI, Caddy/private TLS, monitoring and verified isolated recovery. Target homelab/VPN client trust and an independent production backup mount still require deployment acceptance. |
+| Fundamentals and Research | P5 | FUNCTIONAL WITH GATED SOURCES | Versioned fundamentals/filings, metrics, valuation, research, news and estimates; no automatic source activation. |
+| Point-in-Time and Backtesting | P6 | FUNCTIONAL WITH HISTORICAL DATA LIMITATIONS | Evidence reviews, strict/reconstructed modes, historical membership, offline calendars, feature/dataset versions and content manifests, targets, purging/embargo, baselines, cost/execution contracts, private APIs/UI and monitoring. Real historical completeness is not inferred from synthetic tests or late imports. |
 
 ## P3 contracts and limits
 
@@ -60,3 +62,13 @@ New sources SEC_EDGAR, COMPANY_IR, NEWS_RSS and MANUAL_RESEARCH are **UNKNOWN/di
 Baseline: main at af101ffed5203cc098599c1409587fd93d1ec421, clean working tree, 61 passing backend cases. P5 regression: 89 backend cases passed, plus the P4 and P5 browser acceptance cases. Ruff/Mypy and frontend lint/typecheck/build passed locally. Screener with 300 isolated instruments used four SELECTs and returned 25 rows in 0.233 seconds on this machine; no market-wide performance guarantee is inferred. Isolated recovery preserved the P5 raw hash and exact CHF 10'180 portfolio value. Detailed commands and limitations: [P5 acceptance](P5_ACCEPTANCE_REPORT.md).
 
 **P4 remains FUNCTIONAL — PRODUCTION GATE OPEN. V1/V1.5 NOT PRODUCTION READY for the unverified target installation.** Hostname/VPN, browser CA trust, independent protected backup mount, daily host schedule and encrypted key recovery remain operator acceptance conditions. P6 was not started. **REMOTE CI NOT VERIFIED FOR THIS CHANGE**; the workflow was extended locally to prepare isolated fixtures and run browser tests, without push or release.
+
+## P6 — Point-in-Time / Backtesting
+
+**FUNCTIONAL WITH HISTORICAL DATA LIMITATIONS**, 2026-10-14. The P5 closure above describes its historical state; P6 has now been explicitly requested and implemented. The foundation distinguishes public/local knowledge and review availability, immutable content-pinned inputs, exact session horizons and realized labels, purged/embargoed splits, quantitative baselines and next-session execution. Unknown membership, missing price/FX and unverified action coverage remain excluded or incomplete. No P7 model training or forecasts were introduced.
+
+Local verification: **113 backend tests and 6 browser tests passed**, Ruff/format/Mypy, frontend lint/typecheck/build, Compose, existing/fresh migrations through **0012_pit_immutability** (41 required tables), Celery and MinIO smoke. Golden end value 1098.90 on 1000 capital with one 1-unit fee. Private cross-user access and missing pinned input/immutable update rejection are tested. Detailed contracts, verification and limits: [P6 acceptance report](P6_ACCEPTANCE_REPORT.md).
+
+CI EACCES was confirmed in actual GitHub logs and reproduced on Linux. The browser runner now installs into a separate runner-owned temporary directory. **REMOTE CI NOT VERIFIED** for the correction; no push/release. P4 production gates and P5 source limitations remain open. Actual historical availability/universe coverage is required before any strict P7 dataset/model acceptance.
+
+P6 backup/isolated recovery passed on 2026-10-14: head 0012, exact raw hashes, private login, CHF 10'180 portfolio value and the pinned P6 dataset content hash survived. See the acceptance report for the local backup set and dataset identifier. This does not close the independent production backup-mount/schedule/key-recovery gates.

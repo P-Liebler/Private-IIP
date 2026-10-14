@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from typing import Any, Protocol
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -13,7 +13,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models import NewsArticle, NewsInstrument, RawIngestion
+from app.models import NewsArticle, NewsInstrument, NewsMappingVersion, RawIngestion
 from app.services.instruments import InstrumentService
 from app.services.market_queries import pit_cutoff
 
@@ -161,6 +161,14 @@ class NewsService:
                     )
                     linked[hit.instrument.id] = linked.get(hit.instrument.id, False) or confirmed
             for instrument_id, confirmed in linked.items():
+                self.db.add(
+                    NewsMappingVersion(
+                        article_id=row.id,
+                        instrument_id=instrument_id,
+                        mapping_status="CONFIRMED" if confirmed else "CANDIDATE",
+                        observed_at=datetime.now(UTC),
+                    )
+                )
                 self.db.add(
                     NewsInstrument(
                         article_id=row.id,

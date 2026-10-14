@@ -14,6 +14,7 @@ from sqlalchemy import select, text
 
 from app.db.session import get_session_factory
 from app.models import Portfolio, Transaction, User
+from app.services.pit_datasets import DatasetBuilder
 from app.services.raw_ingestion import RawIngestionService
 
 
@@ -40,6 +41,13 @@ async def main() -> None:
         assert rows, "Fixture transactions missing"
         raw = await RawIngestionService(db).get_verified(raw_id)
         assert raw, "Fixture raw object empty"
+        dataset_id = os.environ.get("RESTORE_TEST_DATASET_ID")
+        if dataset_id:
+            replay = await DatasetBuilder(db).rebuild(UUID(dataset_id), user.id)
+            assert replay["content_hash"] == os.environ["RESTORE_TEST_DATASET_HASH"], (
+                "Restored dataset hash mismatch"
+            )
+            print("P6 restored dataset: pinned versions, raw bytes and manifest verified")
     async with httpx.AsyncClient(
         base_url="http://127.0.0.1:8000", headers={"Origin": "http://restore.local"}
     ) as client:
