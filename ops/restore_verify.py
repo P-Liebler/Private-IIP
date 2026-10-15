@@ -29,6 +29,29 @@ def command(project: str, file: Path, env: dict[str, str], *args: str) -> None:
         check=False,
     )
     if result.returncode:
+        detail = (result.stdout + result.stderr).decode("utf-8", errors="replace")
+        for name, value in env.items():
+            if value and any(
+                part in name.upper()
+                for part in (
+                    "PASSWORD",
+                    "TOKEN",
+                    "SECRET",
+                    "API_KEY",
+                    "ACCESS_KEY",
+                    "ENCRYPTION_KEY",
+                )
+            ):
+                detail = detail.replace(value, "[REDACTED]")
+        diagnostic = Path(env["RESTORE_BACKUP_ROOT"]) / "runtime" / "restore-command-failure.log"
+        diagnostic.parent.mkdir(parents=True, exist_ok=True)
+        diagnostic.write_text("step=" + repr(args[:4]) + "\n" + detail[-16000:], encoding="utf-8")
+        print(
+            ("Restore step failed: " + repr(args[:4]) + "\n" + detail[-4000:])
+            .encode("ascii", "backslashreplace")
+            .decode(),
+            file=sys.stderr,
+        )
         raise RuntimeError(f"Isolated Compose step failed ({result.returncode})")
 
 
@@ -45,6 +68,8 @@ def main() -> int:
     parser.add_argument("--expected-artifact-hash")
     parser.add_argument("--prediction-history-hash")
     parser.add_argument("--risk-history-hash")
+    parser.add_argument("--recommendation-history-hash")
+    parser.add_argument("--intelligence-history-hash")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
@@ -83,6 +108,8 @@ def main() -> int:
         "RESTORE_TEST_ARTIFACT_HASH": args.expected_artifact_hash or "",
         "RESTORE_TEST_PREDICTION_HISTORY_HASH": args.prediction_history_hash or "",
         "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
+        "RESTORE_TEST_INTELLIGENCE_HISTORY_HASH": args.intelligence_history_hash or "",
+        "RESTORE_TEST_RECOMMENDATION_HISTORY_HASH": args.recommendation_history_hash or "",
     }
     status: dict[str, object] = {
         "started_at": datetime.now(UTC).isoformat(),

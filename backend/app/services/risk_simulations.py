@@ -126,8 +126,14 @@ class RiskSimulationService:
                 trade.instrument_id, source["current_valuation"]["base_currency"], dates
             )
             source["asset_returns"][iid] = json_value(returns["returns"])
+            source["asset_quality"][iid] = json_value(
+                {k: v for k, v in returns.items() if k != "returns"}
+            )
+            source["liquidity_evidence"][iid] = await market.liquidity(instrument)
         config = request.model_dump(mode="json")
         result = hypothetical(source, config, quotes)
+        result["asset_quality"] = source["asset_quality"]
+        result["liquidity_evidence"] = source["liquidity_evidence"]
         result["scenarios"] = {
             slug: {"before": scenario(source, mapped), "after": scenario(result, mapped)}
             for slug, _, definition in SCENARIOS

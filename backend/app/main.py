@@ -11,15 +11,18 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
+from app.api.assistant import router as assistant_router
 from app.api.auth import router as auth_router
 from app.api.forecasts import router as forecasts_router
 from app.api.health import router as health_router
 from app.api.imports import router as imports_router
 from app.api.instruments import router as instruments_router
+from app.api.intelligence import router as intelligence_router
 from app.api.market_data import router as market_data_router
 from app.api.ml import router as ml_router
 from app.api.pit import router as pit_router
 from app.api.portfolios import router as portfolios_router
+from app.api.recommendations import router as recommendations_router
 from app.api.research import router as research_router
 from app.api.risk import router as risk_router
 from app.api.settings import router as settings_router
@@ -128,6 +131,8 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(assistant_router)
+    app.include_router(intelligence_router)
     app.include_router(settings_router)
     app.include_router(instruments_router)
     app.include_router(sources_router)
@@ -139,6 +144,7 @@ def create_app() -> FastAPI:
     app.include_router(ml_router)
     app.include_router(forecasts_router)
     app.include_router(risk_router)
+    app.include_router(recommendations_router)
     app.include_router(system_status_router)
     app.include_router(metrics_router)
     return app

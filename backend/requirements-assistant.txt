@@ -1,0 +1,4 @@
+# Supporting document/vector packages; numerical core pins stay in requirements.lock.
+# pgvector uses the already pinned NumPy. Install this layer with --no-deps.
+pgvector==0.5.1
+pypdf==6.20.1

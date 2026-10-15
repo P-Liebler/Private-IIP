@@ -15,20 +15,29 @@ from sqlalchemy import Integer, func, select
 from sqlalchemy import cast as sql_cast
 from sqlalchemy.dialects.postgresql import JSONPATH
 
+from app.assistant.metrics import exposition as intelligence_exposition
 from app.core.valkey import make_valkey_client
 from app.db.session import check_database, get_session_factory
 from app.models import (
+    AlertEvaluation,
+    AlertEvent,
+    AssistantMessage,
     BacktestRun,
+    ChunkEmbedding,
+    DailyBrief,
     DataQuarantine,
     DatasetVersion,
     FundamentalFact,
     MLTrainingRun,
     ModelPromotionReview,
     NewsArticle,
+    OptimizerRun,
     PITJob,
     Prediction,
     PriceDaily,
     RawIngestion,
+    Recommendation,
+    ResearchDocument,
     RiskSnapshot,
     ScenarioRun,
     WhatIfRun,
@@ -83,6 +92,33 @@ async def metrics() -> PlainTextResponse:
         lines.append("private_iip_db_ready 1")
         async with get_session_factory()() as db:
             for name, model, condition in [
+                (
+                    "assistant_messages_total",
+                    AssistantMessage,
+                    AssistantMessage.role == "ASSISTANT",
+                ),
+                (
+                    "assistant_unavailable_total",
+                    AssistantMessage,
+                    (AssistantMessage.role == "ASSISTANT")
+                    & (AssistantMessage.status != "AVAILABLE"),
+                ),
+                ("rag_documents_total", ResearchDocument, None),
+                ("rag_embeddings_total", ChunkEmbedding, None),
+                ("alert_evaluations_total", AlertEvaluation, None),
+                (
+                    "alert_unavailable_total",
+                    AlertEvaluation,
+                    AlertEvaluation.status == "ALERT_EVALUATION_UNAVAILABLE",
+                ),
+                ("alert_events_total", AlertEvent, None),
+                ("daily_briefs_total", DailyBrief, None),
+                ("optimizer_runs_total", OptimizerRun, None),
+                (
+                    "optimizer_unavailable_total",
+                    OptimizerRun,
+                    OptimizerRun.result["status"].astext != "AVAILABLE",
+                ),
                 ("ml_training_jobs_total", MLTrainingRun, None),
                 ("risk_snapshots_total", RiskSnapshot, None),
                 (
@@ -241,6 +277,24 @@ async def metrics() -> PlainTextResponse:
                 .select_from(FundamentalFact)
                 .where(FundamentalFact.validation_status == "REJECTED")
             )
+            recommendation_counts = (
+                await db.execute(
+                    select(
+                        func.count(Recommendation.id),
+                        func.count(Recommendation.id).filter(
+                            Recommendation.category.in_(["INSUFFICIENT_DATA", "INELIGIBLE"])
+                        ),
+                        func.sum(
+                            func.jsonb_array_length(Recommendation.eligibility["missing_inputs"])
+                            + func.jsonb_array_length(Recommendation.eligibility["violations"])
+                        ),
+                    )
+                )
+            ).one()
+            for name, number in zip(
+                ("evaluations", "abstentions", "gate_failures"), recommendation_counts, strict=True
+            ):
+                lines.append(f"private_iip_recommendation_{name}_total {number or 0}")
             news_duplicates = await db.scalar(
                 select(func.count())
                 .select_from(NewsArticle)
@@ -259,6 +313,18 @@ async def metrics() -> PlainTextResponse:
     lines.append(f"private_iip_valuation_failures_total {_valuation_failures}")
     valkey = make_valkey_client()
     try:
+        heartbeat = await valkey.get("intelligence:last-dispatch")
+        if heartbeat:
+            dispatch = json.loads(heartbeat)
+            lines.append(
+                "private_iip_intelligence_scheduler_timestamp_seconds "
+                f"{float(dispatch['completed_at'])}"
+            )
+            lines.append(
+                f"private_iip_intelligence_scheduler_last_failures {int(dispatch['failed'])}"
+            )
+        else:
+            lines.append("private_iip_intelligence_scheduler_timestamp_seconds 0")
         depth = await cast(Awaitable[int], valkey.llen("celery"))
         lines.extend(["private_iip_queue_ready 1", f"private_iip_queue_depth {depth}"])
     except Exception:
@@ -274,4 +340,5 @@ async def metrics() -> PlainTextResponse:
             )
         except (OSError, ValueError, KeyError, TypeError):
             lines.append("private_iip_backup_success 0")
+    lines.extend(intelligence_exposition())
     return PlainTextResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")

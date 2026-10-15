@@ -41,6 +41,7 @@ def code_manifest() -> dict[str, Any]:
         "git_commit": get_settings().code_commit,
         "code_hash": digest({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}),
         "dependencies": Path("requirements.lock").read_text(),
+        "supporting_dependencies": Path("requirements-assistant.lock").read_text(),
         "random_seed": None,
         "code_snapshot_contract": "PROCESS_FIRST_BUILD; restart after code changes",
     }

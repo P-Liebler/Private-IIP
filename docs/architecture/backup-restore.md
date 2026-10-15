@@ -23,3 +23,14 @@ The PostgreSQL dump includes ML registry/jobs/reviews, immutable predictions and
 `--model-id` plus `--expected-artifact-hash` verifies the internal model bytes, associated pinned dataset, MLflow run metadata and tracked artifact copy. `--prediction-history-hash` verifies exact immutable prediction/outcome history. `--risk-history-hash` verifies exact risk/scenario/what-if records, parent/content hashes, pinned canonical payloads and raw response SHA-256. Generate checkpoints with `scripts.p7_restore_checkpoint <model_uuid>` and `scripts.p8_restore_checkpoint <portfolio_uuid>` before creating the backup. Use an explicit disposable fixture account via the existing restore-password environment contract.
 
 A successful local isolated restore includes the exact CHF 10'180 ledger valuation. It does not establish an independent production backup mount, actual host schedule or recovery of private CA/TOTP secrets. Those production gates remain open.
+
+## P9
+
+PostgreSQL includes immutable investment-profile versions, recommendation rules, strategy backtests/reviews and every recommendation including abstentions. `scripts.p9_restore_checkpoint <portfolio_uuid>` calculates the owned history hash and verifies exact recommendation replay. Pass it as `--recommendation-history-hash` to the isolated restore verifier. It compares complete profile/rule/review/backtest/recommendation contents, not merely row counts. Continue verifying the P7/P8 histories, pinned raw bytes and exact P4 value alongside it.
+
+
+## P10: private intelligence recovery
+
+Migration 0016 adds private chats/tool-call evidence, document rights/metadata/chunks/pgvector embeddings, alert versions/evaluations/events, notifications, daily-brief configuration/history, optimizer runs and calendar-event versions. PostgreSQL backups contain exact vectors and their model versions; MinIO backups contain byte-identical original PDFs and calendar JSON. `python -m scripts.p10_checkpoint PORTFOLIO_UUID` verifies raw/chunk hashes and computes `intelligence_history_hash` over all owned P10 metadata and exact stored vectors. Pass it to `ops/restore_verify.py --intelligence-history-hash HASH` together with the existing P6/P7/P8/P9 checks. The isolated verifier requires restored documents, embeddings, alert evaluations and briefs; it never downloads an LLM.
+
+Ollama weights are optional reproducible runtime assets in `ollama_data`; they are outside the financial-data backup. Re-pull and verify the recorded full digest before using existing embeddings. A different embedding version requires an explicit additive reindex, never silent vector replacement. Source rights remain gates after recovery. Chat deletion/retention changes the active database; existing backup retention remains a separate operator obligation. Freeze background dispatch and user writes when capturing a cross-service acceptance checkpoint; resume them after the backup.

@@ -358,56 +358,7 @@ class PortfolioRiskService:
                 if instrument is None or not instrument.exchange:
                     continue
                 try:
-                    prices = [
-                        p
-                        for p in await market.load(instrument.id)
-                        if market.calendar.is_session(instrument.exchange, cast(date, p["date"]))
-                        and market.calendar.session_close(
-                            instrument.exchange, cast(date, p["date"])
-                        )
-                        <= cutoff
-                    ][-20:]
-                    expected = (
-                        market.calendar.sessions_between(
-                            instrument.exchange,
-                            cast(date, prices[0]["date"]),
-                            cast(date, prices[-1]["date"]),
-                        )
-                        if prices
-                        else []
-                    )
-                    actions, proof = (
-                        await self._actions(
-                            market,
-                            instrument.id,
-                            cast(date, prices[0]["date"]),
-                            cast(date, prices[-1]["date"]),
-                            cutoff,
-                        )
-                        if prices
-                        else ([], None)
-                    )
-                    valid = (
-                        len(prices) == 20
-                        and [p["date"] for p in prices] == expected
-                        and proof is not None
-                        and not any(a["type"] == "SPLIT" for a in actions)
-                        and all(
-                            p.get("volume") is not None and Decimal(str(p["volume"])) > 0
-                            for p in prices
-                        )
-                    )
-                    liquidity_evidence[position_id] = {
-                        "average_volume": str(
-                            sum((Decimal(str(p["volume"])) for p in prices), Decimal(0)) / 20
-                        )
-                        if valid
-                        else None,
-                        "observations": len(prices),
-                        "price_version_ids": [str(p["id"]) for p in prices],
-                        "coverage_id": proof,
-                        "quality": "EXACT_20_CLOSED_SESSIONS_SAME_SHARE_UNIT",
-                    }
+                    liquidity_evidence[position_id] = await market.liquidity(instrument)
                 except (ValueError, AppError):
                     liquidity_evidence[position_id] = {
                         "average_volume": None,

@@ -23,7 +23,14 @@ def _key(kind: str, identifier: str) -> str:
 
 
 class RateLimiter:
-    async def _check(self, kind: str, identifier: str) -> None:
+    async def _check(
+        self,
+        kind: str,
+        identifier: str,
+        *,
+        window_seconds: int | None = None,
+        maximum: int | None = None,
+    ) -> None:
         settings = get_settings()
         client = make_valkey_client()
         try:
@@ -33,7 +40,7 @@ class RateLimiter:
                     _INCREMENT_WITH_EXPIRY,
                     1,
                     _key(kind, identifier),
-                    str(settings.auth_login_window_seconds),
+                    str(window_seconds or settings.auth_login_window_seconds),
                 ),
             )
             count, ttl = int(raw[0]), int(raw[1])
@@ -43,8 +50,11 @@ class RateLimiter:
             ) from error
         finally:
             await client.aclose()
-        if count > settings.auth_login_max_attempts:
+        if count > (maximum or settings.auth_login_max_attempts):
             raise AppError(429, "RATE_LIMITED", "Too many attempts", retry_after=max(ttl, 1))
+
+    async def check_work(self, kind: str, identifier: str, maximum: int = 6) -> None:
+        await self._check("work:" + kind, identifier, window_seconds=60, maximum=maximum)
 
     async def _clear(self, kind: str, identifier: str) -> None:
         client = make_valkey_client()

@@ -56,6 +56,17 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: str = "http://mlflow:5000"
     mlflow_tracking_username: str = ""
     mlflow_tracking_password: SecretStr | None = None
+    ollama_base_url: str = "http://ollama:11434"
+    ollama_chat_model: str = Field(default="qwen3:0.6b", pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    ollama_embedding_model: str = Field(
+        default="embeddinggemma:300m", pattern=r"^[A-Za-z0-9._:-]{1,100}$"
+    )
+    assistant_timeout_seconds: int = Field(default=60, ge=5, le=120)
+    assistant_context_tokens: int = Field(default=4096, ge=1024, le=8192)
+    assistant_output_tokens: int = Field(default=384, ge=64, le=1024)
+    assistant_chat_retention_days: int = Field(default=30, ge=1, le=365)
+    assistant_test_mode: bool = False
+    data_operator_usernames: list[str] = Field(default_factory=list)
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod
@@ -69,6 +80,14 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def reject_insecure_production_settings(self) -> Settings:
+        if self.ollama_base_url not in {
+            "http://ollama:11434",
+            "http://127.0.0.1:11434",
+            "http://localhost:11434",
+        }:
+            raise ValueError("Ollama must use the configured private local runtime")
+        if self.assistant_test_mode and self.app_env != "test":
+            raise ValueError("Assistant stub is restricted to APP_ENV=test")
         for origin in (self.frontend_origin, self.api_public_origin):
             parsed = urlparse(origin)
             if (

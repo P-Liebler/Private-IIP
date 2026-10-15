@@ -89,9 +89,30 @@ async def main() -> None:
                         "scenario_definitions",
                         "scenario_runs",
                         "what_if_runs",
+                        "investment_profile_versions",
+                        "recommendation_rule_versions",
+                        "recommendations",
+                        "recommendation_backtests",
+                        "recommendation_strategy_reviews",
+                        "assistant_conversations",
+                        "assistant_messages",
+                        "assistant_tool_calls",
+                        "document_rights_reviews",
+                        "research_documents",
+                        "document_chunks",
+                        "chunk_embeddings",
+                        "alert_rules",
+                        "alert_rule_versions",
+                        "alert_evaluations",
+                        "alert_events",
+                        "notifications",
+                        "daily_brief_configs",
+                        "daily_briefs",
+                        "optimizer_runs",
+                        "financial_event_versions",
                     ],
                 )
-                assert revision == "0014_portfolio_risk" and tables == 50
+                assert revision == "0016_local_intelligence" and tables == 71
                 print(f"Fresh migration verified: {revision}; {tables} required tables")
             finally:
                 await disposable.close()

@@ -1,5 +1,23 @@
 # Implementation status
 
+## P10 technisch abgenommen — V3+ nicht freigegeben (2026-10-15)
+
+**P10 FUNCTIONAL — DATA/SOURCE GATED; V3+ NOT RELEASED.** Lokaler optionaler Ollama-Assistent mit zehn Read-only-Tools, beleggebundener Ausgabe, privaten PDF-Originalen/RAG, Alerts/Notifications, strukturiertem Daily Brief ohne LLM, P8-basiertem Simulations-Optimizer und Financial Time Machine. P9 wurde vorher separat abgenommen; reale Recommendations bleiben gesperrt.
+
+Nachweise: 195 Backendtests, 13 Browserfälle im Standalone-Produktionsbuild, Ruff/Format/Mypy, Frontend lint/typecheck/build, driftfreie und frische Migration 0016 mit 71 Tabellen. Echter lokaler Modell-/Embeddingtest sowie Ollama-/MLflow-/MinIO-Ausfallprüfungen bestanden. Isolierter Restore 2026-10-15 14:16:58–14:18:37 UTC bestanden: P6/P7/P8/P9 und private P10-Metadaten, Originale, Chunks, exakte Embeddings, Kalenderkorrekturen, Alert-/Brief-/Optimizerhistorien sowie CHF 10'180. [P10-Abnahme](P10_ACCEPTANCE_REPORT.md).
+
+Der Restore deckte eine strikte Modelldependency-Abweichung durch neue Supportpakete auf. Numerische Core-Locks bleiben nun bytegetreu erhalten; Assistentenpakete werden separat mit --no-deps gepinnt. Keine Modellgates oder historischen Artefakte geändert. Kein Push, kein Release, Remote-CI für diese Änderungen nicht verifiziert. Bisherige reale Daten-, Quellen-, Modell-, Strategie-, Homelab/VPN-, CA- und Backup-Betriebsgates bleiben offen.
+
+## P9-Abnahme abgeschlossen — P10 beginnt (2026-10-15)
+
+Ausgangspunkt `main`, `1294080ba0042706d4df99f37f39646aea736673`, sauber. Baseline erneut 155 Backend-Tests. GitHub-Lauf `38561223407` für den Ausgangscommit wurde vom Nutzer bestätigt; neue Änderungen wurden nicht gepusht. **REMOTE CI NOT VERIFIED FOR THIS CHANGE.**
+
+**P9 FUNCTIONAL — RECOMMENDATIONS GATED; V3 NOT VALIDATED.** Versionierte private Profile, harte Eligibility, feste reproduzierbare Rubrik/Ranking, P4/P5/P7/P8-Kontext, reine Hypothesen, append-only Bewertungen und historische Strategieverträge mit separatem Operator-Review. Fehlende reale Produktionsprognosen und Strategieevidenz bleiben sperrend. [Separate P9-Abnahme](P9_ACCEPTANCE_REPORT.md).
+
+Verifiziert: 173 vollständige Backend-Regressionsfälle, danach 12 P6/P9-Fälle einschließlich eines zusätzlichen Anfangszustands-Goldens (174 Fälle im Bestand); elf Browserfälle, Ruff/Format/Mypy, Frontend lint/typecheck/build, Compose, driftfreie und frische Migration 0015 mit 55 Tabellen. MLflow-Ausfall bestanden. Isolierter Restore am 2026-10-15 einschließlich P9-Profil-/Regel-/Recommendation-Replay und P7/P8-Historien, Raw-/Modell-Hashes sowie exakt CHF 10'180 bestanden. P4-Zielinstallationsgates bleiben offen.
+
+P10 wurde anschließend separat umgesetzt und technisch abgenommen; siehe aktueller Stand oben.
+
 ## P7/P8-Auftrag — technisch abgeschlossen (2026-10-14)
 
 Start: `main`, `552e96b106903422d4d07a5e4eb5ba1e56873878`; lokal und remote identisch. Ausgangsverzeichnis sauber. Baseline erneut: 113 Backend-/6 Browser-Tests. Der Commit-Workflow-Lookup lieferte keine Runs; neue Änderungen wurden nicht gepusht, Remote-CI bleibt unbestätigt.
@@ -27,6 +45,8 @@ Reale historische Risiko-/PIT-Daten sind weiterhin unvollständig. **V2.5 NOT RE
 | Point-in-Time and Backtesting | P6 | FUNCTIONAL WITH HISTORICAL DATA LIMITATIONS | Evidence reviews, strict/reconstructed modes, historical membership, offline calendars, feature/dataset versions and content manifests, targets, purging/embargo, baselines, cost/execution contracts, private APIs/UI and monitoring. Real historical completeness is not inferred from synthetic tests or late imports. |
 | Machine Learning and Forecasts | P7 | FUNCTIONAL — MODELS SHADOW / DATA LIMITED | PIT readiness/composition, six local CPU estimators, chronological training/calibration/evaluation, fixed operator promotion gates, private MLflow, immutable forecasts/outcomes, model APIs/UI and restore. V2 not validated. |
 | Risk and Scenario Intelligence | P8 | FUNCTIONAL — RISK DATA LIMITED | Ledger TWR, validated risk statistics, exposures, versioned Health, seven scenarios, immutable hypothetical trades/snapshots, owned APIs/UI, monitoring and verified recovery. V2.5 target deployment not released. |
+| Structured Recommendations | P9 | FUNCTIONAL — RECOMMENDATIONS GATED | Private profile/rule versions, hard eligibility, deterministic ranking, P8 previews, immutable history, historical P6 strategy replay and separate promotion. V3 not validated. |
+| Local Assistant and Intelligence | P10 | FUNCTIONAL — DATA/SOURCE GATED | Evidence-only local chat, private RAG, alerts/briefs, constrained simulations, historical archives and verified isolated recovery. V3+ not released. |
 
 ## P3 contracts and limits
 

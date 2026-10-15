@@ -45,8 +45,10 @@ class DatasetInput(StrictModel):
 
     @model_validator(mode="after")
     def ordered(self) -> "DatasetInput":
-        if self.start > self.end or (self.end - self.start).days > 730:
-            raise ValueError("Select ordered range up to two years")
+        if self.start > self.end or (self.end - self.start).days > 1826:
+            raise ValueError(
+                "Select ordered range up to five years; configured session cap still applies"
+            )
         return self
 
 

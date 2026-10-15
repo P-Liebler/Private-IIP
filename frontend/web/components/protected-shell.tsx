@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { type User } from "@/lib/api";
+import { api, type User } from "@/lib/api";
 import { logout as endSession } from "@/lib/auth";
 
 export function ProtectedShell({ user, children }: { user: User; children: ReactNode }) {
   const queryClient = useQueryClient();
+  const notifications = useQuery({ queryKey: ["notifications", user.id], queryFn: () => api<{ unread_count: number }>("/notifications"), refetchInterval: 60000 });
   const [error, setError] = useState("");
   async function logout() {
     try {
@@ -31,6 +32,13 @@ export function ProtectedShell({ user, children }: { user: User; children: React
           <Link href="/news" className="hover:text-emerald-400">News</Link>
           <Link href="/backtests" className="hover:text-emerald-400">Backtests</Link>
           <Link href="/models" className="hover:text-emerald-400">Modelle</Link>
+          <Link href="/recommendations" className="hover:text-emerald-400">Recommendations</Link>
+          <Link href="/assistant" className="hover:text-emerald-400">Assistent</Link>
+          <Link href="/documents" className="hover:text-emerald-400">Dokumente</Link>
+          <Link href="/alerts" className="hover:text-emerald-400">Alerts {notifications.data ? `(${notifications.data.unread_count})` : ""}</Link>
+          <Link href="/daily-brief" className="hover:text-emerald-400">Daily Brief</Link>
+          <Link href="/optimizer" className="hover:text-emerald-400">Optimizer</Link>
+          <Link href="/time-machine" className="hover:text-emerald-400">Time Machine</Link>
           <Link href="/imports" className="hover:text-emerald-400">CSV-Import</Link>
           <Link href="/data-quality" className="hover:text-emerald-400">Datenqualität</Link>
           <Link href="/settings/data-sources" className="hover:text-emerald-400">Datenquellen</Link>

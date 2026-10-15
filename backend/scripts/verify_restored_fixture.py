@@ -100,6 +100,25 @@ async def main() -> None:
                 == expected_predictions
             )
             print("P7 restored prediction/outcome history: exact content hash verified")
+        expected_intelligence = os.environ.get("RESTORE_TEST_INTELLIGENCE_HISTORY_HASH")
+        if expected_intelligence:
+            from app.assistant.audit import intelligence_checkpoint
+
+            checkpoint = await intelligence_checkpoint(db, user.id)
+            assert checkpoint["intelligence_history_hash"] == expected_intelligence
+            assert checkpoint["document_count"] and checkpoint["embedding_count"]
+            assert checkpoint["brief_count"] and checkpoint["alert_evaluation_count"]
+            assert checkpoint["calendar_version_count"] >= 2 and checkpoint["alert_event_count"]
+            assert checkpoint["optimizer_count"] and checkpoint["message_count"]
+            print("P10 restored private metadata, raw PDFs, chunks and exact embeddings verified")
+        expected_recommendations = os.environ.get("RESTORE_TEST_RECOMMENDATION_HISTORY_HASH")
+        if expected_recommendations:
+            from app.recommendations.audit import recommendation_checkpoint
+
+            checkpoint = await recommendation_checkpoint(db, user.id)
+            assert checkpoint["recommendation_history_hash"] == expected_recommendations
+            assert checkpoint["recommendation_count"] and checkpoint["profile_count"]
+            print("P9 restored profiles, rules, reviews and recommendations: exact replay verified")
         expected_risk_history = os.environ.get("RESTORE_TEST_RISK_HISTORY_HASH")
         if expected_risk_history:
             checkpoint = await history_checkpoint(db, user.id, portfolio_id, verify=True)

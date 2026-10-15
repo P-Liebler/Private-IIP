@@ -1,0 +1,9 @@
+# Investmentprofil (P9)
+
+Private `investment_profile_versions` sind append-only. PATCH erwartet die gelesene `expected_version_id`; konkurrierende Änderungen erhalten 409. Ein User-Lock serialisiert Profiländerungen. Bewertungen referenzieren die konkrete Version. Ein noch nicht gespeichertes Profil liefert unbestätigte Defaults; eine Bewertung darf diese konservative Version speichern, bestätigt sie aber niemals automatisch.
+
+`confirmed` ist ein hartes Gate. Die Basiswährung muss zur P4-NAV passen. Horizont ist der vorhandene P7-Vertrag mit 30 oder 90 Börsensitzungen. Gewichte, Cashreserve und einseitiger Turnover sind Anteile der vollständigen positiven NAV. Der maximale neue Betrag und die fixe Commission sind in Profil-Basiswährung angegeben. Spread und Slippage sind einseitige Notional-Basispunkte im P8-Preview. Mindestliquidität ist durchschnittliches Stückvolumen über exakt 20 belegte geschlossene Sitzungen mit unveränderter Share Unit; kein Liquiditätsversprechen für einen realen Auftrag.
+
+Harte Grenzen: Einzelposition, Sektor, Land, fremde Netto-Handelswährung einschließlich negativem Cash, Jahresvolatilität, Cashreserve, Betrag, Turnover und Ausschlüsse. Fehlende Klassifikationen verhindern die Prüfung. Wirtschaftliche Umsatzwährungen werden nicht aus Handelswährungen erfunden. `risk_tolerance` und `preferred_universe` sind weiche Präferenzen; sie überschreiben keine Grenze. Ein bevorzugtes Universe ist kein impliziter Auftrag zur Aufnahme aller Instrumente. Kandidaten werden ausdrücklich aus eigenem Bestand, eigener Watchlist, eigenem Universe oder vorhandenen Instrument-IDs ausgewählt.
+
+GET `/api/v1/investment-profile` gibt Einheiten und Klassifikation mit aus. PATCH speichert einen vollständigen validierten Parametersatz. Browser-Sitzungen bleiben in HttpOnly-Cookies; Profil- und Recommendation-Daten werden nicht in Browser Storage geschrieben.

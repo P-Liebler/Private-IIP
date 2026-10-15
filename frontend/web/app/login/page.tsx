@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSession, login, sessionQueryKey, verifyTotp } from "@/lib/auth";
 
+const subscribe = () => () => {};
+
 export default function LoginPage() {
+  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -54,15 +57,15 @@ export default function LoginPage() {
         ) : (
           <>
             <label className="block text-sm">Benutzername
-              <input autoComplete="username" required value={username} onChange={(event) => setUsername(event.target.value)} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 p-3" />
+              <input disabled={!hydrated || busy} autoComplete="username" required value={username} onChange={(event) => setUsername(event.target.value)} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 p-3" />
             </label>
             <label className="block text-sm">Passwort
-              <input type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 p-3" />
+              <input disabled={!hydrated || busy} type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 p-3" />
             </label>
           </>
         )}
         {error && <p role="alert" className="text-sm text-rose-400">{error}</p>}
-        <button disabled={busy} className="w-full rounded-md bg-emerald-500 p-3 font-semibold text-zinc-950 disabled:opacity-50">{busy ? "Bitte warten…" : challenge ? "Code prüfen" : "Anmelden"}</button>
+        <button disabled={!hydrated || busy} className="w-full rounded-md bg-emerald-500 p-3 font-semibold text-zinc-950 disabled:opacity-50">{busy ? "Bitte warten…" : challenge ? "Code prüfen" : "Anmelden"}</button>
       </form>
     </main>
   );

@@ -16,10 +16,14 @@ def run_backtest(
     config: BacktestInput,
     compare: bool = True,
     signal_scores: dict[tuple[str, str], Decimal] | None = None,
+    initial_state: dict[str, Any] | None = None,
+    execution_plans: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Pure simulation from a pinned dataset. Decision rows never see fill data."""
-    cash = config.initial_capital
-    positions: dict[str, Decimal] = {}
+    cash = D(initial_state["cash"]) if initial_state else config.initial_capital
+    positions: dict[str, Decimal] = (
+        {k: D(v) for k, v in initial_state["positions"].items()} if initial_state else {}
+    )
     pending: list[dict[str, Any]] = []
     fills = []
     orders = []
@@ -46,6 +50,38 @@ def run_backtest(
             "equity": [],
             "metrics": metrics([], cash, D(0), D(0), 0, config.risk_free_annual),
         }
+    if initial_state is not None:
+        first = sessions[0]
+        opening_value = cash
+        initial_issues = []
+        for iid, quantity in positions.items():
+            bar = market[first].get(iid)
+            if not bar or bar.get("close") is None or bar.get("fx") is None:
+                initial_issues.append("INITIAL_STATE_VALUATION_UNAVAILABLE")
+            else:
+                opening_value += quantity * D(bar["close"]) * D(bar["fx"])
+            for action in dataset["actions"].get(iid, []):
+                if action["date"] == first or (
+                    action["type"] == "DIVIDEND"
+                    and action["date"] < first
+                    and (not action.get("payment_date") or action["payment_date"] >= first)
+                ):
+                    initial_issues.append("INITIAL_STATE_ACTION_ENTITLEMENT_UNAVAILABLE")
+        if abs(opening_value - config.initial_capital) > D(".00000001"):
+            initial_issues.append("INITIAL_STATE_VALUATION_MISMATCH")
+        if initial_issues:
+            return {
+                "status": "REJECTED",
+                "data_context": configuration.get("data_context", "USER_ARCHIVE"),
+                "warnings": sorted(set(initial_issues)),
+                "signals": [],
+                "orders": [],
+                "fills": [],
+                "equity": [],
+                "metrics": metrics(
+                    [], config.initial_capital, D(0), D(0), 0, config.risk_free_annual
+                ),
+            }
     for index, day in enumerate(sessions):
         bars = market.get(day, {})
         common_cutoff = max(
@@ -194,7 +230,9 @@ def run_backtest(
             }
         )
         rows = [r for r in features if r["date"] == day and r["eligible"]]
-        if index % config.rebalance_sessions != 0 or incomplete:
+        if incomplete or (execution_plans is not None and day not in execution_plans):
+            continue
+        if execution_plans is None and index % config.rebalance_sessions != 0:
             continue
         if config.strategy == "BENCHMARK_ONLY":
             chosen = [benchmark_id] if benchmark_id in bars else []
@@ -218,7 +256,7 @@ def run_backtest(
                 chosen = ranking(rows, config.strategy, config.top_n)
         day_rows = [r for r in features if r["date"] == day]
         legitimate_exit = config.strategy == "EQUAL_WEIGHT" and not day_rows and bool(positions)
-        if not chosen and not legitimate_exit:
+        if not chosen and not legitimate_exit and execution_plans is None:
             warnings.append("BASELINE_UNAVAILABLE")
             continue
         weight = min(config.max_position_weight, D(1) / len(chosen)) if chosen else D(0)
@@ -230,6 +268,16 @@ def run_backtest(
                 warnings.append("SIGNAL_PRICE_OR_FX_UNAVAILABLE")
                 continue
             targets[iid] = value * weight / (D(bar["close"]) * D(bar["fx"]))
+        plan = execution_plans.get(day) if execution_plans is not None else None
+        if plan:
+            # Historical portfolio/risk evidence must describe the simulated pre-trade state.
+            expected = {k: D(v) for k, v in plan["before_positions"].items() if D(v) != 0}
+            actual = {k: v for k, v in positions.items() if v != 0}
+            if expected != actual or abs(cash - D(plan["before_cash"])) > D(".00000001"):
+                incomplete = True
+                warnings.append("HISTORICAL_PORTFOLIO_CONTEXT_DIVERGED")
+                continue
+            targets = {k: D(v) for k, v in plan["targets"].items()}
         for iid in sorted(set(positions) | set(targets)):
             bar = bars.get(iid)
             if not bar:
@@ -247,6 +295,16 @@ def run_backtest(
                 "execution_price_timestamp": None,
                 "price_input_version_id": bar["id"],
             }
+            if plan:
+                signal["signal_generated_at"] = plan["signal_generated_at"]
+                signal["information_cutoff_at"] = plan["information_cutoff_at"]
+                if (
+                    not common_cutoff
+                    <= datetime.fromisoformat(plan["signal_generated_at"])
+                    < datetime.fromisoformat(bar["next_open_timestamp"])
+                ):
+                    warnings.append("ARCHIVED_SIGNAL_EXECUTION_UNAVAILABLE")
+                    continue
             signals.append(signal)
             order = {
                 **signal,
@@ -293,7 +351,7 @@ def run_backtest(
         config.risk_free_annual,
         benchmark_curve,
     )
-    if not fills:
+    if not fills and initial_state is None:
         for name in (
             "Total Return",
             "CAGR",

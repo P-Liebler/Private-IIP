@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
 COPY backend/requirements.txt /app/requirements.txt
 COPY backend/requirements.lock /app/requirements.lock
 RUN pip install --no-cache-dir -r requirements.lock
+COPY backend/requirements-assistant.txt /app/requirements-assistant.txt
+COPY backend/requirements-assistant.lock /app/requirements-assistant.lock
+RUN pip install --no-cache-dir --no-deps -r requirements-assistant.lock && pip check
 COPY backend/ /app/
 
 FROM base AS dev

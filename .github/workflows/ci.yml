@@ -33,11 +33,13 @@ jobs:
           docker compose exec -T api ruff format --check .
           docker compose exec -T api mypy app
           docker compose exec -T api pytest -q
+          docker compose exec -T api python -m scripts.verify_fresh_migration
       - name: Frontend checks
         run: |
-          docker compose exec -T web npm run lint
-          docker compose exec -T web npm run typecheck
-          docker compose exec -T web npm run build
+          docker compose stop web
+          docker compose run --rm --no-deps web npm run lint
+          docker compose run --rm --no-deps web npm run typecheck
+          docker compose run --rm --no-deps web npm run build
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -64,7 +66,10 @@ jobs:
           export E2E_P6_UNIVERSE_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["universe_id"])')
           export E2E_P6_UNVERIFIED_UNIVERSE_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["unverified_universe_id"])')
           export E2E_P6_BENCHMARK_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["benchmark_id"])')
-          docker compose restart web
+          # Optional assistant uses a deterministic, explicit test-only runtime.
+          APP_ENV=test ASSISTANT_TEST_MODE=true docker compose up -d --no-deps api
+          docker compose exec -T -e E2E_USERNAME -e E2E_RESEARCH_INSTRUMENT_ID api python -m scripts.create_p10_fixture > "$RUNNER_TEMP/p10-fixture.json"
+          docker compose -f docker-compose.yml -f ops/docker-compose.e2e.yml up -d --no-deps web
           # Docker creates bind-mount mountpoints as root on Linux. Install the
           # browser runner in a runner-owned directory, never in that mountpoint.
           runner_dir=$(mktemp -d "$RUNNER_TEMP/iip-browser.XXXXXX")

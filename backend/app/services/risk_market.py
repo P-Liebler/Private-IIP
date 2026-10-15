@@ -194,3 +194,53 @@ class RiskMarket:
             "returns_policy": "P6_RAW_EXPLICIT_ACTIONS_REINVESTED_BASE_FX",
             "local_availability": "KNOWN_AT_AND_OBSERVED_AT_LE_AS_OF",
         }
+
+    async def liquidity(self, instrument: Instrument) -> dict[str, Any]:
+        if not instrument.exchange:
+            return {"average_volume": None, "observations": 0, "reason": "CALENDAR_UNAVAILABLE"}
+        prices = [
+            p
+            for p in await self.load(instrument.id)
+            if self.calendar.is_session(instrument.exchange, cast(date, p["date"]))
+            and self.calendar.session_close(instrument.exchange, cast(date, p["date"]))
+            <= self.cutoff
+        ][-20:]
+        expected = (
+            self.calendar.sessions_between(
+                instrument.exchange,
+                cast(date, prices[0]["date"]),
+                cast(date, prices[-1]["date"]),
+            )
+            if prices
+            else []
+        )
+        actions, proof = (
+            await FeatureSnapshotService(self.db).actions(
+                instrument.id,
+                cast(date, prices[0]["date"]),
+                cast(date, prices[-1]["date"]),
+                self.cutoff,
+                "STRICT_PIT",
+            )
+            if prices
+            else ([], None)
+        )
+        if proof:
+            self.versions["coverage"].add(proof)
+            self.versions["action"].update(a["id"] for a in actions)
+        valid = (
+            len(prices) == 20
+            and [p["date"] for p in prices] == expected
+            and proof is not None
+            and not any(a["type"] == "SPLIT" for a in actions)
+            and all(p.get("volume") is not None and Decimal(str(p["volume"])) > 0 for p in prices)
+        )
+        return {
+            "average_volume": str(sum((Decimal(str(p["volume"])) for p in prices), Decimal(0)) / 20)
+            if valid
+            else None,
+            "observations": len(prices),
+            "price_version_ids": [str(p["id"]) for p in prices],
+            "coverage_id": proof,
+            "quality": "EXACT_20_CLOSED_SESSIONS_SAME_SHARE_UNIT",
+        }

@@ -1,0 +1,15 @@
+# Run browser acceptance against the compiled application, without dev recompilation.
+# Build /app/.next in the shared web_next volume before starting this override.
+services:
+  web:
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p .next/standalone/public .next/standalone/.next/static &&
+        cp -R public/. .next/standalone/public/ &&
+        cp -R .next/static/. .next/standalone/.next/static/ &&
+        exec node .next/standalone/server.js
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0

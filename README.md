@@ -1,5 +1,23 @@
 # Private Investment Intelligence Platform
 
+## P10 – lokaler Assistent und Intelligence
+
+`/assistant`, `/documents`, `/alerts`, `/daily-brief`, `/optimizer` und `/time-machine` sind implementiert. Der Assistent erklärt belegte quantitative Ergebnisse mit privaten Read-only-Tools und echten Quellen. Alerts und Daily Briefs funktionieren ohne LLM. Optimizer bleibt Simulation; historische Archive und spätere Rekonstruktion sind getrennt. **V3+ NOT RELEASED**; reale Prognose-, Strategie-, Quellen- und Zielinstallationsgates bleiben offen.
+
+Ollama ist optional: `docker compose --profile llm up -d ollama`, danach Modelle ausdrücklich mit `docker compose exec -T ollama ollama pull qwen3:0.6b` und `docker compose exec -T ollama ollama pull embeddinggemma:300m` laden. Keine Pflicht-API-Kosten; lokale Hardware und Betrieb bleiben notwendig. `DATA_OPERATOR_USERNAMES` ist eine explizite JSON-Allowlist für Dokumentrechte/Kalenderimporte. Quellen beginnen UNKNOWN/deaktiviert und benötigen die getrennte bestehende Source-CLI-Prüfung und Aktivierung; keine Beispiele sind eine Freigabe.
+
+Dokumente brauchen Quellenrechte und einen konkreten SHA-/Speicher-/Indexierungsnachweis. Ohne Inhaltsrechte ist nur freigegebene Metadatenablage möglich. Keine OCR oder automatische Übernahme von PDF-Tabellen als Finanzfakten. Keine Geheimnisse in Chat oder Dokumente eingeben. Chatlöschung/Retention ersetzt keine Backup-Aufbewahrung.
+
+Core-Modellpins bleiben unverändert. Zusätzliche PDF-/Vektor-Pakete werden separat aus `backend/requirements-assistant.lock` mit `--no-deps` installiert; der Modelllader prüft alte numerische Pins unverändert. [ADR-022](docs/decisions/ADR-022-preserve-model-dependency-pins.md).
+
+Nachweise und Grenzen: [P10-Abnahme](docs/P10_ACCEPTANCE_REPORT.md), [Assistent](docs/architecture/local-assistant.md), [RAG](docs/architecture/rag.md), [Sicherheit](docs/architecture/assistant-security.md), [Alerts](docs/architecture/alerts.md), [Daily Brief](docs/architecture/daily-brief.md), [Optimizer](docs/architecture/portfolio-optimizer.md), [Time Machine](docs/architecture/time-machine.md).
+
+## P9 Recommendations — technisch abgenommen, fachlich gesperrt
+
+`/recommendations` bietet versionierte private Investmentprofile, Bestands-/Kandidatenbewertung und unveränderliche Historie. Harte Daten-, Risiko-, Forecast- und Strategie-Gates stehen vor jedem Score. Ohne validierte Produktionsprognosen und reale Strategieabnahme bleibt **NO VALIDATED INVESTMENT RECOMMENDATIONS** sichtbar. Bewertungen und P8-Hypothesen schreiben keine Transaktionen.
+
+Verträge: [Recommendations](docs/architecture/recommendations.md), [Präferenzen](docs/architecture/investment-preferences.md), [Strategie-Backtesting](docs/architecture/recommendation-backtesting.md). **V3 NOT VALIDATED.** [P9-Abnahme](docs/P9_ACCEPTANCE_REPORT.md): 173 Backend-Regressionsfälle plus gezielte Ergänzung, elf Browserfälle und isolierter Restore bestanden. P10 folgt mit eigener technischer Abnahme und unveränderten fachlichen Gates.
+
 ## P7 ML — technische Abnahme abgeschlossen
 
 `/models` zeigt Trainingsläufe, versionierte Modellbewertungen und Datenbereitschaft. Die Instrumentseite zeigt Forecast-Status und unveränderliche Prognosehistorie. Fehlende Freigabe bleibt **NO RELIABLE FORECAST**. Synthetische Simulationen sind ausschließlich technische Tests und begründen kein V2-Prognoseprodukt.

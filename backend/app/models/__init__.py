@@ -1,3 +1,21 @@
+from app.models.assistant import (
+    AlertEvaluation,
+    AlertEvent,
+    AlertRule,
+    AlertRuleVersion,
+    AssistantConversation,
+    AssistantMessage,
+    AssistantToolCall,
+    ChunkEmbedding,
+    DailyBrief,
+    DailyBriefConfig,
+    DocumentChunk,
+    DocumentRightsReview,
+    FinancialEventVersion,
+    Notification,
+    OptimizerRun,
+    ResearchDocument,
+)
 from app.models.core import AuditEvent, SessionRecord, User
 from app.models.market_data import (
     CorporateAction,
@@ -39,6 +57,13 @@ from app.models.portfolio import (
     PositionSnapshot,
     Transaction,
 )
+from app.models.recommendations import (
+    InvestmentProfileVersion,
+    Recommendation,
+    RecommendationBacktest,
+    RecommendationRuleVersion,
+    RecommendationStrategyReview,
+)
 from app.models.research import (
     AnalystEstimate,
     Filing,
@@ -53,6 +78,27 @@ from app.models.research import (
 from app.models.risk import RiskSnapshot, ScenarioDefinition, ScenarioRun, WhatIfRun
 
 __all__ = [
+    "FinancialEventVersion",
+    "AssistantConversation",
+    "AssistantMessage",
+    "AssistantToolCall",
+    "DocumentRightsReview",
+    "ResearchDocument",
+    "DocumentChunk",
+    "ChunkEmbedding",
+    "AlertRule",
+    "AlertRuleVersion",
+    "AlertEvaluation",
+    "AlertEvent",
+    "Notification",
+    "DailyBriefConfig",
+    "DailyBrief",
+    "OptimizerRun",
+    "InvestmentProfileVersion",
+    "Recommendation",
+    "RecommendationBacktest",
+    "RecommendationRuleVersion",
+    "RecommendationStrategyReview",
     "RiskSnapshot",
     "ScenarioDefinition",
     "ScenarioRun",

@@ -36,8 +36,34 @@ x-backend-environment: &backend-environment
   MLFLOW_TRACKING_URI: http://mlflow:5000
   MLFLOW_TRACKING_USERNAME: ${MLFLOW_TRACKING_USERNAME:-}
   MLFLOW_TRACKING_PASSWORD: ${MLFLOW_TRACKING_PASSWORD:-}
+  DATA_OPERATOR_USERNAMES: ${DATA_OPERATOR_USERNAMES:-[]}
+  OLLAMA_BASE_URL: http://ollama:11434
+  OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3:0.6b}
+  OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-embeddinggemma:300m}
+  ASSISTANT_TIMEOUT_SECONDS: ${ASSISTANT_TIMEOUT_SECONDS:-60}
+  ASSISTANT_CHAT_RETENTION_DAYS: ${ASSISTANT_CHAT_RETENTION_DAYS:-30}
 
 services:
+  ollama:
+    profiles: [llm]
+    image: ollama/ollama:0.40.4@sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_NO_CLOUD: "true"
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_KEEP_ALIVE: 2m
+    volumes: [ollama_data:/root/.ollama]
+    mem_limit: 3g
+    cpus: 2.0
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks: [platform]
   mlflow:
     profiles: [ml]
     build: {context: ., dockerfile: ops/mlflow/Dockerfile}
@@ -273,6 +299,7 @@ networks:
   platform: {}
 
 volumes:
+  ollama_data:
   postgres_data: {}
   valkey_data: {}
   minio_data: {}
