@@ -65,6 +65,9 @@ FIELDS = {
         "payment_date",
         "currency",
         "new_ticker",
+        "ratio_numerator",
+        "ratio_denominator",
+        "source_reference",
     },
     "fx": {"date", "base_currency", "quote_currency", "rate"},
 }
@@ -103,12 +106,21 @@ class ParsedRow:
 
 
 class MarketImportService:
-    def __init__(self, db: AsyncSession, raw: RawIngestionService | None = None) -> None:
+    def __init__(
+        self,
+        db: AsyncSession,
+        raw: RawIngestionService | None = None,
+        *,
+        parser_version: str = PARSER_VERSION,
+    ) -> None:
         self.db = db
         self.raw = raw or RawIngestionService(db)
         self.actor_user_id: UUID | None = None
+        self.parser_version = parser_version
 
-    async def preview(self, kind: str, data: bytes, filename: str) -> dict[str, object]:
+    async def preview(
+        self, kind: str, data: bytes, filename: str, actor_user_id: UUID | None = None
+    ) -> dict[str, object]:
         self._kind(kind)
         source = await SourceService(self.db).get("MANUAL_CSV")
         SourceGate.require_enabled(source, "manual_upload")
@@ -120,7 +132,10 @@ class MarketImportService:
             source_slug=source.slug,
             resource_type=f"manual_{kind}_csv",
             content_type="text/csv",
-            request_metadata={"filename": filename},
+            request_metadata={
+                "filename": filename,
+                **({"user_id": str(actor_user_id)} if actor_user_id else {}),
+            },
         )
         rows, errors, mapping = await self._parse(kind, data, None)
         return self._summary(raw.id, rows, errors, mapping)
@@ -141,6 +156,10 @@ class MarketImportService:
         source = await SourceService(self.db).get("MANUAL_CSV")
         SourceGate.require_enabled(source, "manual_upload")
         raw = await self.raw.get(raw_id)
+        if raw.request_metadata.get("user_id") and raw.request_metadata["user_id"] != str(
+            actor_user_id
+        ):
+            raise AppError(404, "RAW_NOT_FOUND", "Private upload required")
         if raw.resource_type != f"manual_{kind}_csv" or raw.source_id != source.id:
             raise AppError(
                 422, "IMPORT_RAW_MISMATCH", "Raw object does not match import type and source"
@@ -469,7 +488,7 @@ class MarketImportService:
             else "WARNING"
             if warnings
             else "VALID",
-            parser_version=PARSER_VERSION,
+            parser_version=self.parser_version,
             validation_version=VALIDATION_VERSION,
             reconciliation_version=RECONCILIATION_VERSION,
             replaces_version_id=previous.id
@@ -631,7 +650,7 @@ class MarketImportService:
             validation_status="VALID",
             quality_score=score,
             quality_components=components,
-            parser_version=PARSER_VERSION,
+            parser_version=self.parser_version,
             validation_version=VALIDATION_VERSION,
             replaces_version_id=previous.id if previous else None,
         )
@@ -746,7 +765,7 @@ class MarketImportService:
             else "VALID",
             quality_score=score,
             quality_components=components,
-            parser_version=PARSER_VERSION,
+            parser_version=self.parser_version,
             validation_version=VALIDATION_VERSION,
             replaces_version_id=previous.id
             if previous and resolution in {"ACCEPTED", "MANUAL_OVERRIDE"}

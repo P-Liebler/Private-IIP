@@ -12,6 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import require_user
+from app.assistant.documents import require_data_operator
 from app.core.errors import AppError
 from app.db.session import get_session
 from app.models import (
@@ -295,6 +296,7 @@ class SecRequest(BaseModel):
 
 @router.post("/research/collect/sec")
 async def collect_sec(payload: SecRequest, db: DB, _context: Auth) -> dict[str, object]:
+    require_data_operator(_context.user)
     result = await SecCollector(db).collect(payload.instrument_id, payload.cik)
     await ResearchService(db).materialize(payload.instrument_id)
     return result
@@ -302,6 +304,7 @@ async def collect_sec(payload: SecRequest, db: DB, _context: Auth) -> dict[str, 
 
 @router.post("/research/filings/{filing_id}/download")
 async def download_filing(filing_id: UUID, db: DB, _context: Auth) -> dict[str, Any]:
+    require_data_operator(_context.user)
     return view(await SecCollector(db).download_filing(filing_id))
 
 

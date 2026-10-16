@@ -121,6 +121,20 @@ class FundamentalService:
             if existing_raw:
                 unchanged += 1
                 continue
+            same_response = await self.db.scalar(
+                select(FundamentalFact.id)
+                .join(RawIngestion, RawIngestion.id == FundamentalFact.raw_ingestion_id)
+                .where(
+                    RawIngestion.source_id == raw.source_id,
+                    RawIngestion.sha256 == raw.sha256,
+                    FundamentalFact.row_key == key,
+                    FundamentalFact.parser_version == parser,
+                )
+                .limit(1)
+            )
+            if same_response:
+                unchanged += 1
+                continue
             previous = (
                 await self.db.scalars(
                     select(FundamentalFact)

@@ -97,13 +97,32 @@ def test_raw_database_failure_writes_no_object() -> None:
 
 
 @pytest.mark.integration
-def test_shared_provider_rate_limit() -> None:
+def test_shared_provider_rate_limit(isolated_provider_limits) -> None:
     async def run() -> None:
         source = DataSource(slug=f"TEST_{uuid4().hex}", rate_limit_per_minute=1)
         await check_provider_rate(source)
         with pytest.raises(AppError) as exc:
             await check_provider_rate(source)
         assert exc.value.code == "SOURCE_RATE_LIMITED" and exc.value.retry_after is not None
+
+    asyncio.run(run())
+
+
+@pytest.mark.integration
+def test_provider_daily_budget_is_shared_across_sources(isolated_provider_limits, monkeypatch):
+    monkeypatch.setattr(get_settings(), "max_daily_provider_requests", 2)
+
+    async def run():
+        for _ in range(2):
+            await check_provider_rate(
+                DataSource(slug=f"TEST_{uuid4().hex}", rate_limit_per_minute=10)
+            )
+        with pytest.raises(AppError) as error:
+            await check_provider_rate(
+                DataSource(slug=f"TEST_{uuid4().hex}", rate_limit_per_minute=10)
+            )
+        assert error.value.code == "SOURCE_RATE_LIMITED"
+        assert error.value.retry_after is not None
 
     asyncio.run(run())
 
@@ -527,7 +546,10 @@ def test_openfigi_gate_and_mocked_responses(monkeypatch: pytest.MonkeyPatch) -> 
             client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
             try:
                 provider = OpenFigiProvider(
-                    db, client=client, raw_service=RawIngestionService(db, storage)
+                    db,
+                    client=client,
+                    raw_service=RawIngestionService(db, storage),
+                    limiter=AsyncMock(),
                 )
                 with pytest.raises(AppError) as exc:
                     await provider.map_identifier(kind="ISIN", value="US0378331005")
@@ -640,13 +662,14 @@ def test_openfigi_gate_and_mocked_responses(monkeypatch: pytest.MonkeyPatch) -> 
                 with pytest.raises(AppError) as exc:
                     await provider.map_identifier(kind="ISIN", value="US0378331005")
                 assert exc.value.code == "SOURCE_NOT_APPROVED"
-                assert len(calls) == 7
+                # Four single responses and three bounded three-attempt failures.
+                assert len(calls) == 4 + 3 * 3
                 source.enabled = True
                 source.next_review_at = datetime.now(UTC) - timedelta(seconds=1)
                 await db.commit()
                 with pytest.raises(AppError) as exc:
                     await provider.map_identifier(kind="ISIN", value="US0378331005")
-                assert exc.value.code == "SOURCE_NOT_APPROVED" and len(calls) == 7
+                assert exc.value.code == "SOURCE_NOT_APPROVED" and len(calls) == 4 + 3 * 3
             finally:
                 await client.aclose()
                 await db.rollback()

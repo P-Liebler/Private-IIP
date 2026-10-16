@@ -8,6 +8,7 @@ import ipaddress
 import socket
 from datetime import UTC, datetime
 from io import StringIO
+from typing import Literal
 from urllib.parse import urlsplit
 from uuid import UUID
 
@@ -16,9 +17,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
+from app.providers.http import fetch_response
 from app.schemas.research import FactInput
 from app.services.fundamentals import FundamentalService
-from app.services.provider_rate_limit import check_provider_rate
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
 
@@ -30,6 +31,9 @@ class ReportContract(BaseModel):
     approved_host: str
     parser_version: str = "company-ir-explicit-csv-v1"
     mapping: dict[str, str] = Field(default_factory=dict)
+    accounting_basis: Literal["IFRS", "SWISS_GAAP_FER", "US_GAAP", "UNVERIFIED"] = "UNVERIFIED"
+    document_reference: str = Field(default="", max_length=300)
+    reviewed: bool = False
 
 
 async def validate_public_endpoint(url: str, approved_host: str) -> str:
@@ -64,6 +68,11 @@ def parse_report_csv(data: bytes, contract: ReportContract) -> list[FactInput]:
         if values.get("instrument_id") not in {None, str(contract.instrument_id)}:
             raise ValueError("Report identity mismatch")
         values["instrument_id"] = str(contract.instrument_id)
+        if contract.accounting_basis != "UNVERIFIED":
+            values["availability_evidence"] = (
+                f"{contract.accounting_basis}; {contract.document_reference}; "
+                + str(values.get("availability_evidence", ""))
+            )
         rows.append(FactInput.model_validate(values))
     if not rows:
         raise ValueError("Empty financial report")
@@ -82,54 +91,43 @@ class CompanyIRCollector:
     async def collect(self, contract: ReportContract) -> dict[str, int]:
         source = await SourceService(self.db).get(contract.source_slug)
         SourceGate.require_enabled(source, "fundamentals")
+        if (
+            not contract.reviewed
+            or contract.accounting_basis == "UNVERIFIED"
+            or not contract.document_reference
+        ):
+            raise AppError(
+                409,
+                "REPORT_CONTRACT_REVIEW_REQUIRED",
+                "Accounting basis and company-specific report contract require review",
+            )
         # Scope records the exact host. Caller-supplied approved_host cannot confer rights.
         if f"host={contract.approved_host}" not in (source.scope or "").split():
             raise AppError(403, "SOURCE_SCOPE_MISMATCH", "Report host not approved")
-        path = await validate_public_endpoint(contract.url, contract.approved_host)
-        await check_provider_rate(source)
-        own = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=20, follow_redirects=False)
+        await validate_public_endpoint(contract.url, contract.approved_host)
+        raw = await fetch_response(
+            self.db,
+            self.raw,
+            source,
+            use="fundamentals",
+            url=contract.url,
+            allowed_host=contract.approved_host,
+            resource="company_ir",
+            client=self.client,
+            instrument_id=contract.instrument_id,
+            content_types=("text/csv", "application/csv"),
+            metadata={"parser_version": contract.parser_version},
+        )
         try:
-            requested = datetime.now(UTC)
-            try:
-                response = await client.get(contract.url)
-            except httpx.TransportError:
-                await self.raw.record_failure(
-                    source_id=source.id,
-                    resource_type="company_ir",
-                    requested_at=requested,
-                    error_code="REPORT_NETWORK_ERROR",
-                    request_metadata={"endpoint": path, "method": "GET"},
-                )
-                raise AppError(
-                    503, "REPORT_NETWORK_ERROR", "Official report request failed"
-                ) from None
-            raw = await self.raw.store(
-                data=response.content,
-                source_id=source.id,
-                source_slug=source.slug,
-                resource_type="company_ir",
-                instrument_id=contract.instrument_id,
-                http_status=response.status_code,
-                requested_at=requested,
-                content_type=response.headers.get("content-type", "application/octet-stream"),
-                request_metadata={"endpoint": path, "method": "GET"},
+            facts = parse_report_csv(await self.raw.get_verified(raw.id), contract)
+            result = await FundamentalService(self.db, self.raw).persist(
+                facts, raw, parser=contract.parser_version
             )
-            if response.status_code != 200:
-                raise AppError(503, "REPORT_HTTP_ERROR", "Official report unavailable")
-            try:
-                facts = parse_report_csv(await self.raw.get_verified(raw.id), contract)
-                result = await FundamentalService(self.db, self.raw).persist(
-                    facts, raw, parser=contract.parser_version
-                )
-                source.last_success = datetime.now(UTC)
-                await self.db.commit()
-                return result
-            except (ValueError, UnicodeDecodeError):
-                await self.db.rollback()
-                raise AppError(
-                    422, "REPORT_INVALID", "Report failed explicit mapping/validation"
-                ) from None
-        finally:
-            if own:
-                await client.aclose()
+            source.last_success = datetime.now(UTC)
+            await self.db.commit()
+            return result
+        except (ValueError, UnicodeDecodeError):
+            await self.db.rollback()
+            raise AppError(
+                422, "REPORT_INVALID", "Report failed explicit mapping/validation"
+            ) from None

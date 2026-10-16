@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import require_user
+from app.assistant.documents import require_data_operator
 from app.core.errors import AppError
 from app.db.session import get_session
 from app.providers.ecb_fx import EcbFxCollector
@@ -51,7 +52,7 @@ async def preview_market(
         if len(data) > 5_000_000:
             raise AppError(413, "CSV_SIZE_INVALID", "CSV exceeds 5 MB")
     try:
-        return await MarketImportService(db).preview(kind, bytes(data), filename)
+        return await MarketImportService(db).preview(kind, bytes(data), filename, _context.user.id)
     except ValueError as error:
         raise AppError(422, "CSV_METADATA_INVALID", str(error)) from error
 
@@ -167,6 +168,7 @@ async def collect_ecb_fx(
     db: Annotated[AsyncSession, Depends(get_session)],
     _context: Annotated[AuthContext, Depends(require_user)],
 ) -> dict[str, object]:
+    require_data_operator(_context.user)
     return await EcbFxCollector(db).collect(payload.start, payload.end)
 
 

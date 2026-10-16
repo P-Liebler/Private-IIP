@@ -23,6 +23,7 @@ export type DataSource = {
   checked_at: string | null; scope: string | null; allowed_uses: string[];
   next_review_at: string | null; rate_limit_per_minute: number | null;
   last_success: string | null; last_failure: string | null;
+  gate_reason: string | null;
 };
 export type CsvPreview = {
   raw_ingestion_id: string; detected_columns: string[];

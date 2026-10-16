@@ -1,5 +1,13 @@
 # Private Investment Intelligence Platform
 
+## PR1 – Real Financial Data Readiness
+
+`/data-operations` bietet begrenzte Importvorschauen, persistente Aufträge und deren Fortschritt. Die Instrumentenseite zeigt Kurs-, FX-, Action-, Fundamental- und PIT-Abdeckung. Quellenrechte können konfigurierte `DATA_OPERATOR_USERNAMES` unter `/settings/data-sources` mit Beleg prüfen; die anschließende Aktivierung bleibt ein eigener Operator-Schritt. Ein technischer Collector erteilt keine Nutzungsrechte.
+
+`DATA_COLLECTION_ENABLED=false` bleibt Standard. Optionale `DATA_COLLECTION_SCHEDULES` enthalten explizite Operator-/Request-Verträge; API, Worker und Scheduler müssen dieselbe Konfiguration erhalten. `ALPHA_VANTAGE_API_KEY` ist optional und ersetzt keine Quellenfreigabe. `FRED_API_KEY` ist für eine spätere Integration vorgesehen; PR1 enthält keinen FRED-Collector. Keys gehören ausschließlich in die lokale Secret-Konfiguration.
+
+[Betrieb und Grenzen](docs/architecture/data-operations.md), [Quellenrechte](docs/data/SOURCE_RIGHTS_MATRIX.md), [Providerstatus](docs/data/PROVIDER_INVENTORY.md), [historische Daten](docs/data/HISTORICAL_DATA_POLICY.md), [PR1-Abnahme](docs/PR1_ACCEPTANCE_REPORT.md). Reale historische Abdeckung bleibt unvollständig, Modelle SHADOW, Empfehlungen gesperrt und die Zielinstallation nicht freigegeben. PR2 wurde nicht begonnen.
+
 ## P10 – lokaler Assistent und Intelligence
 
 `/assistant`, `/documents`, `/alerts`, `/daily-brief`, `/optimizer` und `/time-machine` sind implementiert. Der Assistent erklärt belegte quantitative Ergebnisse mit privaten Read-only-Tools und echten Quellen. Alerts und Daily Briefs funktionieren ohne LLM. Optimizer bleibt Simulation; historische Archive und spätere Rekonstruktion sind getrennt. **V3+ NOT RELEASED**; reale Prognose-, Strategie-, Quellen- und Zielinstallationsgates bleiben offen.
@@ -60,7 +68,7 @@ CSV-Fundamentals: Upload, Spaltenmapping, Vorschau und ausdrückliche Bestätigu
 
 Die V1-Produktion bleibt wegen der offenen Homelab-/VPN-, CA-, Backup- und Schlüssel-Recovery-Bedingungen nicht freigegeben. P5 erweitert die lokale Research-Funktionalität; die P6-Grundlage steht im vorherigen Abschnitt.
 
-Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. P5 research, P6 PIT/backtesting, P7 guarded local ML and P8 risk/scenarios are implemented with explicit data and deployment limits. Recommendations and the assistant remain later phases.
+Self-hosted investment research and portfolio platform, built in phases toward the architecture in [MASTER_DEVELOPMENT_PLAN.md](MASTER_DEVELOPMENT_PLAN.md). P1 raw ingestion, P2 instrument identity/source gates and P3 market-data foundation are implemented. P4 adds portfolio accounting, a V1 UI, monitoring and backup/restore tooling. Check [implementation status](docs/IMPLEMENTATION_STATUS.md) before treating a deployment as production ready. P5 research, P6 PIT/backtesting, P7 guarded local ML, P8 risk/scenarios, P9 gated recommendations and P10 evidence-only assistance are technically implemented with explicit data and deployment limits. PR1 extends controlled collection and coverage; real forecast/strategy validation remains separate.
 
 ## Current architecture
 

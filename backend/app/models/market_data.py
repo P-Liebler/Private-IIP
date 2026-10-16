@@ -107,6 +107,7 @@ class CorporateActionVersion(Base):
     cash_amount: Mapped[Decimal | None] = mapped_column(Numeric(24, 8))
     currency: Mapped[str | None] = mapped_column(String(3))
     new_ticker: Mapped[str | None] = mapped_column(String(40))
+    event_details: Mapped[dict[str, object] | None] = mapped_column(JSONB)
     source_id: Mapped[UUID] = mapped_column(ForeignKey("data_sources.id"), nullable=False)
     raw_ingestion_id: Mapped[UUID] = mapped_column(ForeignKey("raw_ingestions.id"), nullable=False)
     row_number: Mapped[int] = mapped_column(Integer, nullable=False)

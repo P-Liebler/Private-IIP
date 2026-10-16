@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import require_user
+from app.assistant.documents import require_data_operator
 from app.core.errors import AppError
 from app.db.session import get_session
 from app.providers.openfigi import MappingService, OpenFigiProvider
@@ -119,6 +120,7 @@ async def request_mapping(
     _context: Annotated[AuthContext, Depends(require_user)],
 ) -> dict[str, object]:
     instrument, _ = await InstrumentService(db).get(instrument_id)
+    require_data_operator(_context.user)
     result = await OpenFigiProvider(db).map_identifier(
         kind=payload.type,
         value=payload.value,

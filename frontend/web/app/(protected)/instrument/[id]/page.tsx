@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DataCoverage } from "@/components/data-coverage";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getInstrument, getSources } from "@/lib/api/market-foundation";
@@ -48,6 +49,7 @@ export default function InstrumentPage() {
       <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6"><h2 className="text-xl font-semibold">Kennungshistorie</h2>{detail.data.identifiers.length === 0 ? <p className="mt-3 text-zinc-400">Keine Kennungen hinterlegt.</p> : <ul className="mt-4 space-y-3">{detail.data.identifiers.map((item) => <li key={item.id} className="rounded border border-zinc-700 p-3"><strong>{item.type}: {item.value}</strong><p className="text-sm text-zinc-400">Gültig ab {item.valid_from} bis {item.valid_to ?? "heute/offen"} · Beobachtet {new Date(item.observed_at).toLocaleString("de-CH")}</p><p className="break-all text-xs text-zinc-500">Quelle: {item.source_id ?? "manuell"} · Rohdaten: {item.raw_ingestion_id ?? "keine"}</p></li>)}</ul>}</section>
       <ResearchDetail instrumentId={params.id} />
       <ForecastPanel instrumentId={params.id} />
+      <DataCoverage instrumentId={params.id} />
     </>}
   </main>;
 }

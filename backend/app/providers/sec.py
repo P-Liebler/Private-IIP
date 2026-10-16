@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
-import random
 import re
 from collections.abc import Awaitable, Callable
 from datetime import UTC, date, datetime
@@ -255,66 +253,28 @@ class SecCollector:
             raise AppError(
                 422, "SEC_ENDPOINT_INVALID", "Only verified official SEC endpoints allowed"
             )
-        own = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=20, follow_redirects=False)
-        try:
-            for attempt in range(3):
-                # Gate and limit rechecked before EVERY request, including retry.
-                await self.db.refresh(source)
-                SourceGate.require_enabled(source, use)
-                await self.limiter(source)
-                requested = datetime.now(UTC)
-                try:
-                    response = await client.get(
-                        ("https://www.sec.gov" if archive else settings.sec_base_url) + path,
-                        headers={
-                            "User-Agent": f"{settings.sec_user_agent} {settings.sec_contact_email}",
-                            "Accept": "application/json",
-                        },
-                    )
-                except httpx.TransportError:
-                    await self.raw.record_failure(
-                        source_id=source.id,
-                        resource_type="sec_response",
-                        requested_at=requested,
-                        error_code="SEC_NETWORK_ERROR",
-                        request_metadata={"endpoint": path, "method": "GET"},
-                    )
-                    if attempt == 2:
-                        raise AppError(503, "SEC_NETWORK_ERROR", "SEC transport failed") from None
-                else:
-                    raw = await self.raw.store(
-                        data=response.content,
-                        source_id=source.id,
-                        source_slug=source.slug,
-                        resource_type="sec_response",
-                        instrument_id=instrument_id,
-                        requested_at=requested,
-                        http_status=response.status_code,
-                        content_type=response.headers.get(
-                            "content-type", "application/octet-stream"
-                        ),
-                        request_metadata={"endpoint": path, "method": "GET"},
-                    )
-                    if response.status_code == 200:
-                        return raw
-                    if response.status_code not in {429, 500, 502, 503, 504} or attempt == 2:
-                        raise AppError(503, "SEC_HTTP_ERROR", "SEC response unavailable")
-                    retry_after = response.headers.get("retry-after", "")
-                    if retry_after.isdigit() and int(retry_after) > 30:
-                        raise AppError(
-                            429,
-                            "SEC_RETRY_LATER",
-                            "SEC requested a later retry",
-                            retry_after=int(retry_after),
-                        )
-                    if retry_after.isdigit():
-                        await asyncio.sleep(int(retry_after))
-                await asyncio.sleep(2**attempt + random.uniform(0, 0.5))
-            raise AppError(503, "SEC_UNAVAILABLE", "SEC unavailable")
-        finally:
-            if own:
-                await client.aclose()
+        from app.providers.http import fetch_response
+
+        return await fetch_response(
+            self.db,
+            self.raw,
+            source,
+            use=use,
+            url=("https://www.sec.gov" if archive else settings.sec_base_url) + path,
+            allowed_host="www.sec.gov" if archive else "data.sec.gov",
+            resource="sec_response",
+            client=self.client,
+            instrument_id=instrument_id,
+            limiter=self.limiter,
+            headers={
+                "User-Agent": f"{settings.sec_user_agent} {settings.sec_contact_email}",
+                "Accept": "text/html" if archive else "application/json",
+            },
+            metadata={"parser_version": "sec-companyfacts-v1"},
+            content_types=("text/html", "application/xhtml+xml", "application/pdf", "text/plain")
+            if archive
+            else ("application/json",),
+        )
 
     async def download_filing(self, filing_id: UUID) -> Filing:
         filing = await self.db.get(Filing, filing_id)
@@ -369,6 +329,11 @@ class SecCollector:
         if not re.fullmatch(r"\d{1,10}", cik):
             raise AppError(422, "CIK_INVALID", "CIK must be numeric")
         cik = cik.zfill(10)
+        instrument = await self.db.get(Instrument, instrument_id)
+        if instrument is None or instrument.country != "US" or not instrument.ticker:
+            raise AppError(
+                409, "SEC_IDENTITY_REVIEW", "Reviewed US instrument required before collection"
+            )
         submissions_raw = await self.fetch(f"/submissions/CIK{cik}.json", instrument_id)
         instrument = await self.db.get(Instrument, instrument_id)
         try:

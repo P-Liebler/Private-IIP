@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse, Response
 
 from app.api.assistant import router as assistant_router
 from app.api.auth import router as auth_router
+from app.api.data_operations import router as data_operations_router
 from app.api.forecasts import router as forecasts_router
 from app.api.health import router as health_router
 from app.api.imports import router as imports_router
@@ -42,6 +43,7 @@ REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title="Investment Intelligence API", version="0.1.0", debug=settings.app_debug)
+    app.include_router(data_operations_router)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],

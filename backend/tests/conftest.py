@@ -1,6 +1,9 @@
 """Provide non-secret defaults when tests run outside Docker Compose."""
 
 import os
+from uuid import uuid4
+
+import pytest
 
 
 def pytest_configure() -> None:
@@ -13,3 +16,29 @@ def pytest_configure() -> None:
     }
     for name, value in defaults.items():
         os.environ.setdefault(name, value)
+
+
+@pytest.fixture
+def isolated_provider_limits(monkeypatch):
+    """Use real Valkey/Lua with fresh keys; never reset an operational budget."""
+    from app.core.valkey import make_valkey_client
+
+    prefix = f"pytest:provider:{uuid4().hex}:"
+
+    def factory():
+        client = make_valkey_client()
+        original = client.eval
+
+        async def evaluate(script, numkeys, *values):
+            return await original(
+                script,
+                numkeys,
+                *(prefix + str(v) for v in values[:numkeys]),
+                *values[numkeys:],
+            )
+
+        client.eval = evaluate
+        return client
+
+    monkeypatch.setattr("app.services.provider_rate_limit.make_valkey_client", factory)
+    monkeypatch.setattr("app.providers.sec.make_valkey_client", factory)

@@ -93,6 +93,13 @@ class ActionCoverageReview(Base):
     raw_ingestion_id: Mapped[UUID] = mapped_column(ForeignKey("raw_ingestions.id"), nullable=False)
     reviewer_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     action_version_ids: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
+    action_types: Mapped[list[str]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=lambda: ["SPLIT", "DIVIDEND"],
+        server_default='["SPLIT", "DIVIDEND"]',
+    )
+    coverage_evidence: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     rationale: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -153,6 +160,10 @@ class MacroObservation(Base):
     observation_date: Mapped[date] = mapped_column(Date, nullable=False)
     value: Mapped[str] = mapped_column(String(80), nullable=False)
     unit: Mapped[str] = mapped_column(String(30), nullable=False)
+    frequency: Mapped[str | None] = mapped_column(String(10))
+    provider_series: Mapped[str | None] = mapped_column(String(100))
+    release_date: Mapped[date | None] = mapped_column(Date)
+    revision_type: Mapped[str | None] = mapped_column(String(40))
     known_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     source_id: Mapped[UUID] = mapped_column(ForeignKey("data_sources.id"), nullable=False)

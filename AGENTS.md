@@ -45,3 +45,7 @@ P1 raw ingestion, P2 identity/source gates and P3 market-data foundation are imp
 - Keep numerical model pins in requirements.lock unchanged unless intentionally migrating the model runtime. Install supporting document/vector pins from requirements-assistant.lock with --no-deps and pip check; never weaken model artifact dependency checks or rewrite archived model manifests.
 - Alerts and briefs must work without an LLM, distinguish unavailable from false/zero, and persist restart-safe deduplication. Optimizer runs never change the ledger. Time Machine never backdates a model or prediction.
 - Run browser acceptance against a completed standalone build using ops/docker-compose.e2e.yml; stop the development server before building its shared output. Reset ASSISTANT_TEST_MODE after controlled tests.
+
+- PR1 collector requests recheck source rights on every attempt, pin public DNS connections and archive exact bounded response bytes before parsing. Recurring collection defaults off; technical provider support never grants usage rights.
+- Preserve versioned P6 row-hash contracts across schema additions. Legacy hashes may exclude only known migration-default additions; never rewrite old manifests or weaken model dependency gates.
+- Monthly SNB macro/reference observations never substitute daily portfolio FX. Coverage and source failures remain explicit; PR1 does not authorize PR2 model/strategy validation or promotion.

@@ -122,6 +122,8 @@ class FeatureSnapshotService:
         ids = sorted(str(r.id) for r in chosen.values())
         proof = None
         for candidate in reviews:
+            if not {"SPLIT", "DIVIDEND"} <= set(candidate.action_types):
+                continue
             reviewed = []
             missing = False
             for value in candidate.action_version_ids:

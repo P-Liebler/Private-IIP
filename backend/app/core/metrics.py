@@ -42,6 +42,7 @@ from app.models import (
     ScenarioRun,
     WhatIfRun,
 )
+from app.services.collection_audit import collection_metrics
 
 router = APIRouter()
 _request_count: Counter[tuple[str, str, int]] = Counter()
@@ -247,6 +248,7 @@ async def metrics() -> PlainTextResponse:
                     f"private_iip_execution_unavailable_total {no_fill or 0}",
                 ]
             )
+            lines.extend(await collection_metrics(db))
             failed = await db.scalar(
                 select(func.count())
                 .select_from(RawIngestion)

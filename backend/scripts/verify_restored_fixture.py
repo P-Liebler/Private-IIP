@@ -31,6 +31,14 @@ async def main() -> None:
     raw_id = UUID(os.environ["RESTORE_TEST_RAW_ID"])
     expected = Decimal(os.environ["RESTORE_TEST_VALUE"])
     async with get_session_factory()() as db:
+        from app.services.collection_audit import collection_checkpoint
+
+        expected_collections = os.environ.get("RESTORE_TEST_COLLECTIONS_HISTORY_HASH")
+        if expected_collections:
+            checkpoint = await collection_checkpoint(db)
+            assert checkpoint["collections_history_hash"] == expected_collections, (
+                "Collector/source/canonical checkpoint mismatch"
+            )
         revision = await db.scalar(text("SELECT version_num FROM alembic_version"))
         expected_head = (
             os.environ.get("RESTORE_EXPECTED_REVISION")

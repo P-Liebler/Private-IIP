@@ -17,6 +17,12 @@ from app.models.assistant import (
     ResearchDocument,
 )
 from app.models.core import AuditEvent, SessionRecord, User
+from app.models.data_operations import (
+    CollectorJob,
+    DataCoverageSnapshot,
+    ProviderSyncState,
+    SourceReviewEvidence,
+)
 from app.models.market_data import (
     CorporateAction,
     CorporateActionVersion,
@@ -78,6 +84,10 @@ from app.models.research import (
 from app.models.risk import RiskSnapshot, ScenarioDefinition, ScenarioRun, WhatIfRun
 
 __all__ = [
+    "CollectorJob",
+    "DataCoverageSnapshot",
+    "ProviderSyncState",
+    "SourceReviewEvidence",
     "FinancialEventVersion",
     "AssistantConversation",
     "AssistantMessage",

@@ -33,6 +33,7 @@ export default function DataQualityPage() {
       {portfolios.isError && <p role="alert">{portfolios.error.message}</p>}
       {portfolios.data?.map((portfolio, index) => <article key={portfolio.id}><Link className="text-emerald-400 underline" href={`/portfolios/${portfolio.id}`}>{portfolio.name}</Link><p>{valuations[index].isPending ? "Wird geprüft…" : valuations[index].data?.status ?? "DATA_UNAVAILABLE"}</p>{valuations[index].isError && <p role="alert">{valuations[index].error.message}</p>}<ul className="text-sm text-amber-400">{valuations[index].data?.issues.map((issue, item) => <li key={item}>{issue.code} · {issue.currency}{issue.instrument_id && <Link href={`/instrument/${issue.instrument_id}`} className="ml-2 underline">Instrument / Quelle prüfen</Link>}</li>)}</ul></article>)}
     </section>
+    <Link href="/data-operations" className="text-emerald-400 underline">Datenversorgung, Backfills und historische Abdeckung</Link>
     <ResearchQualityPanel />
     <DatasetQualityPanel />
     {data && <>

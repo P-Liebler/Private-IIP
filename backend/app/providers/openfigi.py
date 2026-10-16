@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -73,10 +74,12 @@ class OpenFigiProvider:
         *,
         client: httpx.AsyncClient | None = None,
         raw_service: RawIngestionService | None = None,
+        limiter: Callable[[DataSource], Awaitable[None]] = check_provider_rate,
     ) -> None:
         self.db = db
         self.client = client
         self.raw_service = raw_service or RawIngestionService(db)
+        self.limiter = limiter
 
     async def map_identifier(
         self,
@@ -84,6 +87,9 @@ class OpenFigiProvider:
         kind: str,
         value: str,
         exchange: str | None = None,
+        mic: str | None = None,
+        currency: str | None = None,
+        include_unlisted: bool = False,
     ) -> MappingResult:
         if kind not in _ID_TYPES:
             raise AppError(422, "INVALID_IDENTIFIER", "Unsupported identifier type")
@@ -93,82 +99,54 @@ class OpenFigiProvider:
             raise AppError(422, "INVALID_IDENTIFIER", str(error)) from error
         source = await SourceService(self.db).get("OPENFIGI")
         SourceGate.require_enabled(source, "mapping")  # Must precede client use and HTTP.
-        await check_provider_rate(source)
-        body: dict[str, str] = {"idType": _ID_TYPES[kind], "idValue": normalized}
+        body: dict[str, str | bool] = {"idType": _ID_TYPES[kind], "idValue": normalized}
         if exchange:
             body["exchCode"] = exchange.strip().upper()
+        if mic and exchange:
+            raise AppError(422, "MAPPING_FILTER_INVALID", "MIC and exchange are mutually exclusive")
+        if mic:
+            body["micCode"] = mic.strip().upper()
+        if currency:
+            body["currency"] = currency.strip().upper()
+        if include_unlisted:
+            body["includeUnlistedEquities"] = True
         settings = get_settings()
+        if settings.openfigi_base_url != "https://api.openfigi.com":
+            raise AppError(422, "SOURCE_ORIGIN_INVALID", "Official OpenFIGI origin required")
         headers = {"Content-Type": "application/json"}
         if settings.openfigi_api_key:
             headers["X-OPENFIGI-APIKEY"] = settings.openfigi_api_key.get_secret_value()
-        requested_at = datetime.now(UTC)
         metadata: dict[str, str | int] = {
             "endpoint": "/v3/mapping",
             "method": "POST",
             "identifier_type": kind,
             "identifier_value": normalized,
         }
-        own_client = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=10.0)
+        from app.providers.http import fetch_response
+
+        raw = await fetch_response(
+            self.db,
+            self.raw_service,
+            source,
+            use="mapping",
+            url="https://api.openfigi.com/v3/mapping",
+            allowed_host="api.openfigi.com",
+            resource="openfigi_mapping",
+            client=self.client,
+            method="POST",
+            json_body=[body],
+            limiter=self.limiter,
+            headers=headers,
+            metadata=metadata,
+        )
         try:
-            try:
-                response = await client.post(
-                    f"{settings.openfigi_base_url.rstrip('/')}/v3/mapping",
-                    json=[body],
-                    headers=headers,
-                )
-            except httpx.TimeoutException as error:
-                await self.raw_service.record_failure(
-                    source_id=source.id,
-                    resource_type="openfigi_mapping",
-                    requested_at=requested_at,
-                    error_code="SOURCE_TIMEOUT",
-                    request_metadata=metadata,
-                )
-                await self._failure(source)
-                raise AppError(503, "SOURCE_TIMEOUT", "OpenFIGI request timed out") from error
-            except httpx.RequestError as error:
-                await self.raw_service.record_failure(
-                    source_id=source.id,
-                    resource_type="openfigi_mapping",
-                    requested_at=requested_at,
-                    error_code="SOURCE_UNAVAILABLE",
-                    request_metadata=metadata,
-                )
-                await self._failure(source)
-                raise AppError(503, "SOURCE_UNAVAILABLE", "OpenFIGI unavailable") from error
-            raw = await self.raw_service.store(
-                data=response.content,
-                source_id=source.id,
-                source_slug=source.slug,
-                resource_type="openfigi_mapping",
-                requested_at=requested_at,
-                http_status=response.status_code,
-                content_type=response.headers.get("Content-Type", "application/json"),
-                request_metadata=metadata,
-            )
-            if response.status_code == 429:
-                await self._failure(source)
-                raise AppError(429, "SOURCE_RATE_LIMITED", "OpenFIGI rate limited the request")
-            if response.status_code >= 500:
-                await self._failure(source)
-                raise AppError(503, "SOURCE_UNAVAILABLE", "OpenFIGI unavailable")
-            if response.status_code != 200:
-                await self._failure(source)
-                raise AppError(
-                    502, "SOURCE_RESPONSE_INVALID", "OpenFIGI rejected the mapping request"
-                )
-            try:
-                result = parse_mapping_response(response.content, raw.id)
-            except AppError:
-                await self._failure(source)
-                raise
-            source.last_success = datetime.now(UTC)
-            await self.db.commit()
-            return result
-        finally:
-            if own_client:
-                await client.aclose()
+            result = parse_mapping_response(await self.raw_service.get_verified(raw.id), raw.id)
+        except AppError:
+            await self._failure(source)
+            raise
+        source.last_success = datetime.now(UTC)
+        await self.db.commit()
+        return result
 
     async def _failure(self, source: DataSource) -> None:
         source.last_failure = datetime.now(UTC)

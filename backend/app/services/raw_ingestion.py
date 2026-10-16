@@ -14,6 +14,15 @@ from app.models import RawIngestion
 
 logger = logging.getLogger(__name__)
 _METADATA_KEYS = {
+    "source_review_at",
+    "etag",
+    "last_modified",
+    "retry_after",
+    "range_start",
+    "range_end",
+    "series",
+    "parser_version",
+    "request_key",
     "endpoint",
     "method",
     "identifier_type",

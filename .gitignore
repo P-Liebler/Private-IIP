@@ -18,6 +18,8 @@ coverage/
 *.sqlite3
 *.tsbuildinfo
 data/
+!docs/data/
+!docs/data/**
 minio-data/
 postgres-data/
 valkey-data/

@@ -124,10 +124,24 @@ def validate_fx(row: dict[str, str | None]) -> dict[str, object]:
 
 def validate_action(row: dict[str, str | None], instrument_currency: str) -> dict[str, object]:
     kind = (row.get("action_type") or "").strip().upper()
+    original_kind = kind
+    if kind == "SPECIAL_DIVIDEND":
+        kind = "DIVIDEND"
     if kind not in ACTION_TYPES:
         raise ValueError("Corporate-Action-Typ ungültig")
     amount_value = row.get("cash_amount") or row.get("value")
     ratio_value = row.get("ratio") or row.get("value")
+    numerator = number(row.get("ratio_numerator"), positive=True)
+    denominator = number(row.get("ratio_denominator"), positive=True)
+    if (numerator is None) != (denominator is None):
+        raise ValueError("Split requires both ratio numerator and denominator")
+    if numerator is not None and denominator is not None:
+        if kind not in {"SPLIT", "REVERSE_SPLIT"}:
+            raise ValueError("Ratio components require a split event")
+        computed = numerator / denominator
+        if ratio_value and number(ratio_value, positive=True) != computed:
+            raise ValueError("Conflicting split ratios")
+        ratio_value = str(computed)
     value = number(
         amount_value if kind == "DIVIDEND" else ratio_value,
         positive=True,
@@ -173,6 +187,20 @@ def validate_action(row: dict[str, str | None], instrument_currency: str) -> dic
         "cash_amount": value if kind == "DIVIDEND" else None,
         "currency": quote,
         "new_ticker": ticker,
+        **(
+            {
+                "event_details": {
+                    "classification": original_kind,
+                    "ratio_numerator": str(numerator) if numerator is not None else None,
+                    "ratio_denominator": str(denominator) if denominator is not None else None,
+                    "source_reference": row.get("source_reference"),
+                }
+            }
+            if original_kind == "SPECIAL_DIVIDEND"
+            or numerator is not None
+            or row.get("source_reference")
+            else {}
+        ),
     }
 
 

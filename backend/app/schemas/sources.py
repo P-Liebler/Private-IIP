@@ -5,7 +5,9 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.core.errors import AppError
 from app.models import DataSource
+from app.services.sources import SourceGate
 
 
 class DataSourceResponse(BaseModel):
@@ -25,9 +27,15 @@ class DataSourceResponse(BaseModel):
     rate_limit_per_minute: int | None
     last_success: datetime | None
     last_failure: datetime | None
+    gate_reason: str | None
 
     @classmethod
     def from_record(cls, source: DataSource) -> DataSourceResponse:
+        reason = None
+        try:
+            SourceGate.require_enabled(source, next(iter(source.allowed_uses), ""))
+        except AppError as error:
+            reason = error.code
         return cls(
             id=source.id,
             name=source.name,
@@ -45,4 +53,5 @@ class DataSourceResponse(BaseModel):
             rate_limit_per_minute=source.rate_limit_per_minute,
             last_success=source.last_success,
             last_failure=source.last_failure,
+            gate_reason=reason,
         )

@@ -11,7 +11,7 @@ celery_app = Celery(
     "investment_intelligence",
     broker=settings.valkey_url,
     backend=settings.valkey_url,
-    include=["app.jobs.tasks", "app.jobs.ml", "app.jobs.intelligence"],
+    include=["app.jobs.tasks", "app.jobs.ml", "app.jobs.intelligence", "app.jobs.collection"],
 )
 celery_app.conf.update(
     task_serializer="json",
@@ -21,6 +21,7 @@ celery_app.conf.update(
     enable_utc=True,
     task_track_started=True,
     beat_schedule={
+        "bounded-data-collection": {"task": "data.collect_pending", "schedule": 60.0},
         "local-intelligence-dispatch": {"task": "intelligence.dispatch", "schedule": 60.0},
         "private-chat-retention": {"task": "assistant.cleanup_chats", "schedule": 3600.0},
         "cleanup-expired-sessions": {

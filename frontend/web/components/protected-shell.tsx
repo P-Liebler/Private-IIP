@@ -40,6 +40,7 @@ export function ProtectedShell({ user, children }: { user: User; children: React
           <Link href="/optimizer" className="hover:text-emerald-400">Optimizer</Link>
           <Link href="/time-machine" className="hover:text-emerald-400">Time Machine</Link>
           <Link href="/imports" className="hover:text-emerald-400">CSV-Import</Link>
+          <Link href="/data-operations" className="hover:text-emerald-400">Datenversorgung</Link>
           <Link href="/data-quality" className="hover:text-emerald-400">Datenqualität</Link>
           <Link href="/settings/data-sources" className="hover:text-emerald-400">Datenquellen</Link>
           <Link href="/settings" className="hover:text-emerald-400">Einstellungen</Link>

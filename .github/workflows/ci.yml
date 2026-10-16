@@ -67,7 +67,7 @@ jobs:
           export E2E_P6_UNVERIFIED_UNIVERSE_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["unverified_universe_id"])')
           export E2E_P6_BENCHMARK_ID=$(python3 -c 'import json,os; from pathlib import Path; print(json.loads(Path(os.environ["RUNNER_TEMP"], "p6-fixture.json").read_text())["benchmark_id"])')
           # Optional assistant uses a deterministic, explicit test-only runtime.
-          APP_ENV=test ASSISTANT_TEST_MODE=true docker compose up -d --no-deps api
+          APP_ENV=test ASSISTANT_TEST_MODE=true DATA_OPERATOR_USERNAMES="[\"$E2E_USERNAME\"]" docker compose up -d --no-deps --wait api worker scheduler
           docker compose exec -T -e E2E_USERNAME -e E2E_RESEARCH_INSTRUMENT_ID api python -m scripts.create_p10_fixture > "$RUNNER_TEMP/p10-fixture.json"
           docker compose -f docker-compose.yml -f ops/docker-compose.e2e.yml up -d --no-deps web
           # Docker creates bind-mount mountpoints as root on Linux. Install the

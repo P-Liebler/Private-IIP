@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models import DataSource
+from app.models import DataSource, SourceReviewEvidence
 from app.services.audit import audit_service
 
 
@@ -59,6 +60,7 @@ class SourceService:
         decision_by: str,
         next_review_at: datetime | None,
         rate_limit_per_minute: int | None = None,
+        actor_user_id: UUID | None = None,
     ) -> DataSource:
         if status not in {"APPROVED", "BLOCKED", "UNKNOWN"}:
             raise ValueError("Invalid gate status")
@@ -84,9 +86,26 @@ class SourceService:
         source.decision_by = decision_by
         source.next_review_at = next_review_at
         source.rate_limit_per_minute = rate_limit_per_minute
+        self.db.add(
+            SourceReviewEvidence(
+                source_id=source.id,
+                decision={
+                    "status": status,
+                    "terms_url": terms_url,
+                    "scope": scope,
+                    "allowed_uses": list(allowed_uses),
+                    "decision_note": decision_note,
+                    "decision_by": decision_by,
+                    "checked_at": source.checked_at.isoformat(),
+                    "next_review_at": next_review_at.isoformat() if next_review_at else None,
+                    "rate_limit_per_minute": rate_limit_per_minute,
+                },
+            )
+        )
         audit_service.record(
             self.db,
             event="source.reviewed",
+            actor_user_id=actor_user_id,
             resource="data_source",
             resource_id=str(source.id),
             metadata={"slug": source.slug, "gate_status": status, "decision_by": decision_by},
@@ -94,7 +113,7 @@ class SourceService:
         await self.db.commit()
         return source
 
-    async def enable(self, slug: str) -> DataSource:
+    async def enable(self, slug: str, *, actor_user_id: UUID | None = None) -> DataSource:
         source = await self.get(slug, lock=True)
         # Check the approval in the same transaction as enabling.
         source.enabled = True
@@ -106,6 +125,7 @@ class SourceService:
         audit_service.record(
             self.db,
             event="source.enabled",
+            actor_user_id=actor_user_id,
             resource="data_source",
             resource_id=str(source.id),
             metadata={"slug": source.slug},
@@ -113,12 +133,13 @@ class SourceService:
         await self.db.commit()
         return source
 
-    async def disable(self, slug: str) -> DataSource:
+    async def disable(self, slug: str, *, actor_user_id: UUID | None = None) -> DataSource:
         source = await self.get(slug, lock=True)
         source.enabled = False
         audit_service.record(
             self.db,
             event="source.disabled",
+            actor_user_id=actor_user_id,
             resource="data_source",
             resource_id=str(source.id),
             metadata={"slug": source.slug},

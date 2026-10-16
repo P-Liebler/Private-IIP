@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
 from app.providers.company_ir import validate_public_endpoint
+from app.providers.http import fetch_response
 from app.services.news import NewsInput, NewsService
-from app.services.provider_rate_limit import check_provider_rate
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
 
@@ -59,42 +59,22 @@ class RssCollector:
         SourceGate.require_enabled(source, "news")
         if f"host={approved_host}" not in (source.scope or "").split():
             raise AppError(403, "SOURCE_SCOPE_MISMATCH", "RSS host not approved")
-        path = await validate_public_endpoint(url, approved_host)
-        await check_provider_rate(source)
-        own = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=20, follow_redirects=False)
+        await validate_public_endpoint(url, approved_host)
+        raw = await fetch_response(
+            self.db,
+            self.raw,
+            source,
+            use="news_feed_archive",
+            url=url,
+            allowed_host=approved_host,
+            resource="news_rss",
+            client=self.client,
+            content_types=("application/rss+xml", "application/xml", "text/xml"),
+        )
         try:
-            requested = datetime.now(UTC)
-            try:
-                response = await client.get(url)
-            except httpx.TransportError:
-                await self.raw.record_failure(
-                    source_id=source.id,
-                    resource_type="news_rss",
-                    requested_at=requested,
-                    error_code="NEWS_NETWORK_ERROR",
-                    request_metadata={"endpoint": path, "method": "GET"},
-                )
-                raise AppError(503, "NEWS_NETWORK_ERROR", "RSS request failed") from None
-            raw = await self.raw.store(
-                data=response.content,
-                source_id=source.id,
-                source_slug=source.slug,
-                resource_type="news_rss",
-                http_status=response.status_code,
-                requested_at=requested,
-                content_type=response.headers.get("content-type", "application/xml"),
-                request_metadata={"endpoint": path, "method": "GET"},
-            )
-            if response.status_code != 200:
-                raise AppError(503, "NEWS_HTTP_ERROR", "RSS feed unavailable")
-            try:
-                items = parse_rss(await self.raw.get_verified(raw.id))
-                source.last_success = datetime.now(UTC)
-                return await NewsService(self.db).persist(items, raw)
-            except (ValueError, ET.ParseError):
-                await self.db.rollback()
-                raise AppError(422, "NEWS_PARSE_FAILED", "Invalid RSS response") from None
-        finally:
-            if own:
-                await client.aclose()
+            items = parse_rss(await self.raw.get_verified(raw.id))
+            source.last_success = datetime.now(UTC)
+            return await NewsService(self.db).persist(items, raw)
+        except (ValueError, ET.ParseError):
+            await self.db.rollback()
+            raise AppError(422, "NEWS_PARSE_FAILED", "Invalid RSS response") from None

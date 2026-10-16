@@ -6,13 +6,10 @@ from io import StringIO
 from typing import cast
 
 import httpx
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.services.market_import import MarketImportService, ParsedRow
 from app.services.market_validation import validate_fx
-from app.services.provider_rate_limit import check_provider_rate
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
 
@@ -68,6 +65,8 @@ def parse_ecb_csv(data: bytes) -> list[dict[str, object]]:
 
 
 class EcbFxCollector:
+    parser_version = "ecb-exr-csv-v2"
+
     def __init__(
         self,
         db: AsyncSession,
@@ -75,118 +74,57 @@ class EcbFxCollector:
         client: httpx.AsyncClient | None = None,
         raw_service: RawIngestionService | None = None,
     ) -> None:
-        self.db = db
-        self.client = client
+        self.db, self.client = db, client
         self.raw_service = raw_service or RawIngestionService(db)
 
     async def collect(self, start: date, end: date) -> dict[str, object]:
+        from app.providers.http import fetch_response
+        from app.services.fundamentals import digest
+        from app.services.provider_canonical import (
+            conditional_headers,
+            no_new_data,
+            persist_fx,
+            save_sync,
+            sync_state,
+        )
+
         if start > end or (end - start).days > 31 or end > datetime.now(UTC).date():
             raise AppError(422, "DATE_RANGE_INVALID", "ECB range must be at most 32 past days")
         source = await SourceService(self.db).get("ECB")
         SourceGate.require_enabled(source, "fx_rates")
-        await check_provider_rate(source)
-        requested = datetime.now(UTC)
-        metadata: dict[str, str | int] = {"endpoint": ECB_PATH, "method": "GET"}
-        own_client = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=10.0)
-        try:
-            try:
-                response = await client.get(
-                    ECB_ORIGIN + ECB_PATH,
-                    params={
-                        "startPeriod": start.isoformat(),
-                        "endPeriod": end.isoformat(),
-                        "format": "csvdata",
-                    },
-                    headers={"Accept": "text/csv"},
-                )
-            except httpx.TimeoutException as error:
-                await self.raw_service.record_failure(
-                    source_id=source.id,
-                    resource_type="ecb_fx",
-                    requested_at=requested,
-                    error_code="SOURCE_TIMEOUT",
-                    request_metadata=metadata,
-                )
-                source.last_failure = datetime.now(UTC)
-                source.failure_count += 1
-                await self.db.commit()
-                raise AppError(503, "SOURCE_TIMEOUT", "ECB request timed out") from error
-            except httpx.RequestError as error:
-                await self.raw_service.record_failure(
-                    source_id=source.id,
-                    resource_type="ecb_fx",
-                    requested_at=requested,
-                    error_code="SOURCE_UNAVAILABLE",
-                    request_metadata=metadata,
-                )
-                source.last_failure = datetime.now(UTC)
-                source.failure_count += 1
-                await self.db.commit()
-                raise AppError(503, "SOURCE_UNAVAILABLE", "ECB unavailable") from error
-            raw = await self.raw_service.store(
-                data=response.content,
-                source_id=source.id,
-                source_slug=source.slug,
-                resource_type="ecb_fx",
-                requested_at=requested,
-                http_status=response.status_code,
-                content_type=response.headers.get("Content-Type", "text/csv"),
-                request_metadata=metadata,
-            )
-            if response.status_code not in {200, 204}:
-                source.last_failure = datetime.now(UTC)
-                source.failure_count += 1
-                await self.db.commit()
-            if response.status_code == 429:
-                raise AppError(429, "SOURCE_RATE_LIMITED", "ECB rate limited the request")
-            if response.status_code >= 500:
-                raise AppError(503, "SOURCE_UNAVAILABLE", "ECB unavailable")
-            if response.status_code not in {200, 204}:
-                raise AppError(502, "SOURCE_RESPONSE_INVALID", "ECB rejected the request")
-            if response.status_code == 204:
-                return {
-                    "status": "UNAVAILABLE",
-                    "reason": "NO_OBSERVATIONS",
-                    "raw_ingestion_id": raw.id,
-                }
-            try:
-                observations = parse_ecb_csv(await self.raw_service.get_verified(raw.id))
-            except AppError:
-                source.last_failure = datetime.now(UTC)
-                source.failure_count += 1
-                await self.db.commit()
-                raise
-            if not observations:
-                return {
-                    "status": "UNAVAILABLE",
-                    "reason": "NO_OBSERVATIONS",
-                    "raw_ingestion_id": raw.id,
-                }
-            result = {
-                "inserted": 0,
-                "corrected": 0,
-                "observed_only": 0,
-                "unchanged": 0,
-                "quarantined": 0,
-                "warning_rows": 0,
-                "rejected_rows": 0,
-                "new_versions": 0,
-            }
-            service = MarketImportService(self.db, self.raw_service)
-            try:
-                await self.db.execute(text("LOCK TABLE fx_rates IN SHARE ROW EXCLUSIVE MODE"))
-                for line, item in enumerate(observations, 2):
-                    row = ParsedRow(line, {}, item, None, [], [])
-                    await service._fx(
-                        row, raw.id, source.id, source.priority, raw.received_at, "REJECT", result
-                    )
-                source.last_success = datetime.now(UTC)
-                await self.db.commit()
-            except Exception:
-                await self.db.rollback()
-                raise
-            return {"status": "AVAILABLE", "raw_ingestion_id": raw.id, **result}
-        finally:
-            if own_client:
-                await client.aclose()
+        key = digest((ECB_PATH, start, end, self.parser_version))
+        state = await sync_state(self.db, source, key)
+        raw = await fetch_response(
+            self.db,
+            self.raw_service,
+            source,
+            use="fx_rates",
+            url=ECB_ORIGIN + ECB_PATH,
+            allowed_host="data-api.ecb.europa.eu",
+            resource="ecb_fx",
+            client=self.client,
+            params={
+                "startPeriod": start.isoformat(),
+                "endPeriod": end.isoformat(),
+                "format": "csvdata",
+                "includeHistory": "false",
+            },
+            headers={"Accept": "text/csv", **conditional_headers(state)},
+            content_types=("text/csv", "application/vnd.sdmx.data+csv"),
+            metadata={
+                "range_start": start.isoformat(),
+                "range_end": end.isoformat(),
+                "parser_version": self.parser_version,
+                "request_key": key,
+            },
+        )
+        if raw.http_status in {204, 304}:
+            return await no_new_data(self.db, source, state, raw)
+        if state and state.content_hash == raw.sha256:
+            return await no_new_data(self.db, source, state, raw)
+        observations = parse_ecb_csv(await self.raw_service.get_verified(raw.id))
+        if any(not start <= cast(date, row["rate_date"]) <= end for row in observations):
+            raise AppError(502, "SOURCE_RESPONSE_INVALID", "ECB returned dates outside request")
+        result = await persist_fx(self.db, raw, source, observations, self.parser_version)
+        await save_sync(self.db, source, key, raw, self.parser_version, result)
+        return result

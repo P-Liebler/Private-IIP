@@ -101,7 +101,7 @@ def test_sec_archives_every_response_before_parse(scenario: str) -> None:
             try:
                 with (
                     patch.object(SourceService, "get", lookup),
-                    patch("app.providers.sec.asyncio.sleep", new=AsyncMock()),
+                    patch("app.providers.http.asyncio.sleep", new=AsyncMock()),
                 ):
                     async with httpx.AsyncClient(
                         transport=httpx.MockTransport(transport)
@@ -170,7 +170,7 @@ def test_sec_archives_every_response_before_parse(scenario: str) -> None:
 
 
 @pytest.mark.integration
-def test_sec_rate_is_global_across_concurrent_workers() -> None:
+def test_sec_rate_is_global_across_concurrent_workers(isolated_provider_limits) -> None:
     async def run() -> None:
         await asyncio.sleep(1.05)
         sources = [

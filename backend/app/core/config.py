@@ -67,13 +67,18 @@ class Settings(BaseSettings):
     assistant_chat_retention_days: int = Field(default=30, ge=1, le=365)
     assistant_test_mode: bool = False
     data_operator_usernames: list[str] = Field(default_factory=list)
+    data_collection_enabled: bool = False
+    data_collection_schedules: str = "[]"
+    max_daily_provider_requests: int = Field(default=100, ge=1, le=10000)
+    fred_api_key: SecretStr | None = None
+    alpha_vantage_api_key: SecretStr | None = None
 
     @field_validator("totp_encryption_key", mode="before")
     @classmethod
     def empty_key_is_unconfigured(cls, value: object) -> object:
         return None if value == "" else value
 
-    @field_validator("openfigi_api_key", mode="before")
+    @field_validator("openfigi_api_key", "fred_api_key", "alpha_vantage_api_key", mode="before")
     @classmethod
     def empty_openfigi_key_is_unconfigured(cls, value: object) -> object:
         return None if value == "" else value

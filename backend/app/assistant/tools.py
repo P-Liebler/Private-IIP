@@ -341,6 +341,40 @@ class ToolRegistry:
                 )
             ]
         if name == "getDataQuality":
+            if iid and not pid:
+                from app.services.data_coverage import DataCoverageService
+
+                instrument = await self.db.get(Instrument, iid)
+                if not instrument or instrument.created_at > cutoff:
+                    return unavailable("INSTRUMENT_NOT_AVAILABLE_AT_CUTOFF")
+                coverage = await DataCoverageService(self.db, self.user_id).inspect(
+                    iid, cutoff.date() - timedelta(days=45), cutoff.date(), cutoff
+                )
+                return [
+                    evidence(
+                        "Historische Datenqualität",
+                        {
+                            "state": coverage["state"],
+                            "reasons": coverage["reasons"],
+                            "last_successful_update": coverage["last_successful_update"],
+                            "corporate_action_coverage": coverage["corporate_action_coverage"][
+                                "status"
+                            ],
+                            "missing_sessions": coverage["price_coverage"]["missing_sessions"],
+                            "fx": coverage["FX_coverage"],
+                            "forecast_and_strategy_gates_unchanged": True,
+                        },
+                        "VERIFIED_FACT",
+                        cutoff,
+                        [
+                            {
+                                "entity_type": "instrument",
+                                "id": str(iid),
+                                "url": f"/instrument/{iid}",
+                            }
+                        ],
+                    )
+                ]
             if pid:
                 value = await self.value(pid, cutoff)
                 return [

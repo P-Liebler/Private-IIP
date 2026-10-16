@@ -1,5 +1,15 @@
 # Implementation status
 
+## PR1 technisch abgenommen – reale Datenfreigaben bleiben offen (2026-10-16)
+
+**PR1 COLLECTORS FUNCTIONAL · SOURCE APPROVAL PARTIAL · REAL DATA COVERAGE PARTIAL · V2 FORECASTS NOT VALIDATED · V3 RECOMMENDATIONS GATED · V3+ PRODUCTION NOT RELEASED.** Ausgangspunkt: `4ded0e61efdd071ed06596c616f51f9ccb5475f0`, sauber, 195 Backendtests. PR1 ergänzt abgesicherte gemeinsame HTTP-/Raw-Verarbeitung, Quellenrechtsbelege, persistente private Backfills/Sync/Coverage, monatliche SNB-Verträge, optionale kompakte OHLCV und explizite IR-Prüfung sowie Data Operations UI. Kein reales externes Source-Gate wurde freigegeben oder aktiviert.
+
+Abnahme: **232 Backendtests**, **15 verschiedene Browserfälle**, Ruff/Format/Mypy (186 Dateien), Frontend lint/typecheck/Standalone-Build, Compose-Build/-Konfigurationen, Alembic ohne Drift, frische Migration auf **0018_provider_evidence / 75 Tabellen**, pip check, Celery und MinIO bestanden. Gefundene UI-Mapping-Verdrahtung und nicht isolierte synthetische Testbudgets wurden korrigiert; produktive Limits blieben unverändert.
+
+Isolierter Restore am 2026-10-16 10:33:33–10:34:34 UTC bestanden: **246 Raw-Objekte**, P6-Dataset, P7-Modell/MLflow/Prediction-, P8-, P9- und P10-Historien einschließlich exakter Embeddings, neuer Collections-Checkpoint und exakt **CHF 10'180**. Alte P6-Hashverträge sind explizit versioniert; numerische/Assistant-Locks und archivierte Modellmanifeste unverändert. Die 212 Hauptabschnitte des Masterplans bleiben erhalten. [PR1-Abnahme mit 27 Berichtspunkten](PR1_ACCEPTANCE_REPORT.md), [Providerstatus](data/PROVIDER_INVENTORY.md), [Datenbetrieb](architecture/data-operations.md).
+
+Keine produktiven Live-Smokes ohne echte Quellenfreigabe; Dokumentationsproben sind kein Produktimport. Historische Daten-/Action-/FX-/Membership-Lücken, Quellen-/Modell-/Strategie- und Zielinstallationsgates bleiben offen. Kein Push/Release; **REMOTE CI NOT VERIFIED FOR THIS CHANGE**. Testmodus ist zurückgesetzt, wiederkehrende Collection bleibt aus. **PR1 endet hier; PR2 wurde nicht begonnen.** Die folgenden P0–P10-Einträge dokumentieren den früheren Abnahmestand.
+
 ## P10 technisch abgenommen — V3+ nicht freigegeben (2026-10-15)
 
 **P10 FUNCTIONAL — DATA/SOURCE GATED; V3+ NOT RELEASED.** Lokaler optionaler Ollama-Assistent mit zehn Read-only-Tools, beleggebundener Ausgabe, privaten PDF-Originalen/RAG, Alerts/Notifications, strukturiertem Daily Brief ohne LLM, P8-basiertem Simulations-Optimizer und Financial Time Machine. P9 wurde vorher separat abgenommen; reale Recommendations bleiben gesperrt.
@@ -39,7 +49,7 @@ Reale historische Risiko-/PIT-Daten sind weiterhin unvollständig. **V2.5 NOT RE
 | Phase 2 — authentication | P1 subset | DONE | Private Argon2id login, sessions, TOTP, settings and audit. |
 | P1 raw-ingestion closure | P1 | DONE | Immutable raw objects, hash verification and provenance. |
 | Phase 3 — Instrument Master | P2 | DONE | Stable instruments, identifier history, source gate, gated OpenFIGI mapping and CSV preview. |
-| Phase 4 — Market Data Foundation | P3 | DONE WITH GATED SOURCES | Manual CSV preview/commit, canonical and versioned prices/actions/FX, validation, reconciliation, quarantine, PIT queries, indicative return, FX derivation, ECB connector, data-quality and UI. SNB daily format remains unverified; its connector fails closed. |
+| Phase 4 — Market Data Foundation | P3 | DONE WITH GATED SOURCES | Manual CSV preview/commit, canonical and versioned prices/actions/FX, validation, reconciliation, quarantine, PIT queries, indicative return, FX derivation, ECB connector, data-quality and UI. PR1 adds verified monthly SNB macro contracts; daily SNB FX remains unavailable. |
 | Portfolio and production access | P4 | FUNCTIONAL — PRODUCTION GATE OPEN | Owned portfolios/accounts, preserved transaction ledger, Decimal WAC, corporate-action application, P3 valuation/FX, returns, snapshots with provenance, transaction CSV, portfolio UI, Caddy/private TLS, monitoring and verified isolated recovery. Target homelab/VPN client trust and an independent production backup mount still require deployment acceptance. |
 | Fundamentals and Research | P5 | FUNCTIONAL WITH GATED SOURCES | Versioned fundamentals/filings, metrics, valuation, research, news and estimates; no automatic source activation. |
 | Point-in-Time and Backtesting | P6 | FUNCTIONAL WITH HISTORICAL DATA LIMITATIONS | Evidence reviews, strict/reconstructed modes, historical membership, offline calendars, feature/dataset versions and content manifests, targets, purging/embargo, baselines, cost/execution contracts, private APIs/UI and monitoring. Real historical completeness is not inferred from synthetic tests or late imports. |

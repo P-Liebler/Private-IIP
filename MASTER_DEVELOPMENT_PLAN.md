@@ -5347,3 +5347,17 @@ Insufficient reliable data
 ```
 
 als eine überzeugend aussehende, aber falsche Antwort zu produzieren.
+
+---
+
+## PR1-Umsetzungsnachtrag – Real Financial Data Readiness (2026-10-16)
+
+Dieser Nachtrag konkretisiert den Datenbetrieb der bestehenden P0–P10-Roadmap; die 212 Hauptabschnitte und ihre Abhängigkeiten bleiben bestehen. Voraussetzung ist die technische P10-Abnahme. Quellenrechte, tatsächliche historische Datenqualität, P7-/P9-Validierung und Zielinstallation werden getrennt bewertet.
+
+PR1 ergänzt gemeinsame begrenzte HTTP-/Raw-Verarbeitung, append-only Rechtebelege, private persistente Backfills, Sync-/Coverage-Zustände, den verifizierten monatlichen SNB-Vertrag, optionale kompakte Aktienkurse sowie menschlich geprüfte IR-Belege. Raw-Originale gehen jedem Parser voraus. Ein freier Zugang oder persönlicher Key ersetzt keine Rechteentscheidung. Yahoo bleibt priorisiert unter Freigabevorbehalt und gesperrt; eine zulässige manuelle Quelle bleibt der nutzbare Ersatzweg.
+
+Vor jedem externen Request einschließlich Retry gelten aktuelles approved/enabled/in-scope Gate, öffentliche Host-/DNS-Bindung und Quoten. Wiederkehrende Collection bleibt standardmäßig deaktiviert. SNB-Monatsreferenzen ersetzen keine tägliche FX. Fehlende Historie, Actions, Membership, Open-Preise oder damalige Verfügbarkeit bleiben fehlend. Neu beobachtete Daten werden nicht rückdatiert; neue Evidenz schreibt keine alten Archive um.
+
+Abnahme verlangt Offline-Vertragstests, P0–P10-Regression, Browserabläufe, vorhandene und frische Alembic-Migration sowie isolierten Restore einschließlich neuer Datenbetriebshistorien. Produktive Live-Smokes benötigen eine wirkliche Operatorfreigabe; bei deren Fehlen ist SOURCE_NOT_APPROVED mit dokumentierter Alternative zulässig. Technisch funktionale Collector begründen keine echten Prognosen oder Empfehlungen.
+
+Konkrete Verträge: [Data Operations](docs/architecture/data-operations.md), [Quellenrechte](docs/data/SOURCE_RIGHTS_MATRIX.md), [historische Policy](docs/data/HISTORICAL_DATA_POLICY.md), [PR1-Abnahme](docs/PR1_ACCEPTANCE_REPORT.md). Danach endet dieser Auftrag. PR2 – Real Historical Validation & ML/Recommendation Acceptance erfordert einen eigenen Auftrag und tatsächliche Daten; keine automatische Modell-/Strategie-Promotion oder Produktionsfreigabe.

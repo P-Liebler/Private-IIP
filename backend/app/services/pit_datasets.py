@@ -32,6 +32,7 @@ from app.services.pit_evidence import ENTITIES, EvidenceService
 from app.services.pit_features import FeatureSnapshotService, json_value
 from app.services.pit_universe import UniverseService
 from app.services.raw_ingestion import RawIngestionService
+from app.services.version_hashing import version_payload
 
 
 @lru_cache(maxsize=1)
@@ -424,10 +425,12 @@ class DatasetBuilder:
             "quality_policy": "hard-gates-before-scores-v1",
         }
         version_hashes: dict[str, dict[str, str]] = {}
+        version_fields: dict[str, list[str]] = {}
         for kind, version_ids in pinned.items():
             if not version_ids:
                 continue
             model = ENTITIES[kind]
+            version_fields[kind] = [column.name for column in model.__table__.columns]
             versions = (
                 await self.db.scalars(
                     select(model)
@@ -436,19 +439,14 @@ class DatasetBuilder:
                 )
             ).all()
             version_hashes[kind] = {
-                str(version.id): digest(
-                    json_value(
-                        {
-                            column.name: getattr(version, column.name)
-                            for column in version.__table__.columns
-                        }
-                    )
-                )
+                str(version.id): digest(version_payload(version, kind, version_fields[kind]))
                 for version in versions
             }
             if len(versions) != len(version_ids):
                 raise AppError(409, "PINNED_VERSION_MISSING", "Input disappeared during build")
         manifest["version_hashes"] = version_hashes
+        manifest["version_hash_schema"] = "row-fields-v2"
+        manifest["version_fields"] = version_fields
         configuration = config.model_dump(mode="json")
         universe = await UniverseService(self.db).owned(config.universe_id, user_id)
         configuration["data_context"] = (
@@ -690,11 +688,15 @@ class DatasetBuilder:
                         "PINNED_VERSION_HASH_MISSING",
                         "Legacy artifact lacks pinned content evidence",
                     )
-                content = digest(
-                    json_value(
-                        {column.name: getattr(row, column.name) for column in row.__table__.columns}
+                schema = dataset.manifest.get("version_hash_schema")
+                if schema not in {None, "row-fields-v2"}:
+                    raise AppError(
+                        409, "PINNED_VERSION_SCHEMA_CHANGED", "Unknown archive hash schema"
                     )
-                )
+                fields = dataset.manifest.get("version_fields", {}).get(kind)
+                if schema == "row-fields-v2" and fields is None:
+                    raise AppError(409, "PINNED_VERSION_SCHEMA_CHANGED", "Pinned field set missing")
+                content = digest(version_payload(row, kind, fields))
                 if content != expected:
                     raise AppError(409, "PINNED_VERSION_CHANGED", f"Pinned {kind} content changed")
                 if hasattr(row, "raw_ingestion_id"):
