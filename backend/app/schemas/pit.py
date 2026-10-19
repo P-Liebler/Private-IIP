@@ -64,6 +64,7 @@ class BacktestInput(StrictModel):
     commission: Decimal = Field(default=Decimal("1"), ge=0, le=1000, allow_inf_nan=False)
     spread_bps: Decimal = Field(default=Decimal("5"), ge=0, le=1000, allow_inf_nan=False)
     slippage_bps: Decimal = Field(default=Decimal("5"), ge=0, le=1000, allow_inf_nan=False)
+    fx_cost_bps: Decimal = Field(default=Decimal("0"), ge=0, le=1000, allow_inf_nan=False)
     zero_cost_comparison: bool = False
     rebalance_sessions: int = Field(default=20, ge=1, le=252)
     top_n: int = Field(default=10, ge=1, le=100)

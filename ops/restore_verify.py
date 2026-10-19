@@ -71,6 +71,7 @@ def main() -> int:
     parser.add_argument("--recommendation-history-hash")
     parser.add_argument("--intelligence-history-hash")
     parser.add_argument("--collections-history-hash")
+    parser.add_argument("--validation-history-hash")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
@@ -111,6 +112,7 @@ def main() -> int:
         "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
         "RESTORE_TEST_INTELLIGENCE_HISTORY_HASH": args.intelligence_history_hash or "",
         "RESTORE_TEST_COLLECTIONS_HISTORY_HASH": args.collections_history_hash or "",
+        "RESTORE_TEST_VALIDATION_HISTORY_HASH": args.validation_history_hash or "",
         "RESTORE_TEST_RECOMMENDATION_HISTORY_HASH": args.recommendation_history_hash or "",
     }
     status: dict[str, object] = {

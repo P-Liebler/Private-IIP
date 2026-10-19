@@ -215,4 +215,14 @@ Schedule the backup command daily on the host. Protect configuration and the Fer
 - [Architecture decisions](docs/decisions/)
 - [Repository agent rules](AGENTS.md)
 
-The long-term roadmap is in `MASTER_DEVELOPMENT_PLAN.md`. P5 fundamentals and research begins only after a separate assignment. Production readiness requires the P4 gates and operator verification documented in the implementation status.
+The long-term roadmap is in `MASTER_DEVELOPMENT_PLAN.md`. Production readiness requires the outstanding gates and operator verification documented in the implementation status.
+
+## PR2 historical and forward validation
+
+PR2 follows P0–P10 without renumbering. Data Operations → **Real Data Readiness** checks original evidence, source scopes, coverage and P6/P7 eligibility. **Model comparison**, **Forward Shadow History** and **Strategy evaluation** preserve separate retrospective and actual forward evidence. Missing data remains unavailable; checklist notes never grant source rights or promotion.
+
+**PR2A BLOCKED_BY_SOURCE_APPROVAL · PR2B BLOCKED_BY_REAL_DATA · V2 FORECASTS NOT VALIDATED · V3 RECOMMENDATIONS GATED.** No real pilot, real OOS performance or production recommendation is claimed. Existing source approvals and dependency locks remain unchanged.
+
+Forward automation defaults off (`FORWARD_SHADOW_ENABLED=false`) and additionally requires an explicitly enabled policy and authorized ML operator. Policy schedules can be stopped in the forward view. No autonomous source activation or trading occurs.
+
+See the [PR2 report](docs/PR2_ACCEPTANCE_REPORT.md), [readiness contract](docs/validation/REAL_DATA_READINESS.md), [experiment protocol](docs/validation/ML_EXPERIMENT_PROTOCOL.md), [forward protocol](docs/validation/FORWARD_SHADOW_PROTOCOL.md) and [remaining operator steps](docs/validation/REMAINING_BLOCKERS.md). Final homelab production acceptance remains separate.

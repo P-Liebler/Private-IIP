@@ -1,6 +1,7 @@
 """Pure bounded training kernel shared by API jobs, workers and offline tests."""
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
@@ -28,6 +29,13 @@ def default_complexities() -> list[Literal[1, 2, 3]]:
     return [1, 2, 3]
 
 
+class FinancialCosts(StrictModel):
+    commission: Decimal = Field(default=Decimal("1"), gt=0, le=1000, allow_inf_nan=False)
+    spread_bps: Decimal = Field(default=Decimal("5"), gt=0, le=1000, allow_inf_nan=False)
+    slippage_bps: Decimal = Field(default=Decimal("5"), gt=0, le=1000, allow_inf_nan=False)
+    fx_cost_bps: Decimal = Field(default=Decimal("5"), gt=0, le=1000, allow_inf_nan=False)
+
+
 class TrainingInput(StrictModel):
     dataset_id: UUID
     model_type: ModelType
@@ -37,6 +45,7 @@ class TrainingInput(StrictModel):
     horizon: Literal[30, 90] = 30
     folds: list[FoldWindow] = Field(min_length=1, max_length=5)
     seed: int = Field(default=71, ge=0, le=2**31 - 1)
+    financial_costs: FinancialCosts = Field(default_factory=FinancialCosts)
     search_complexities: list[Literal[1, 2, 3]] = Field(
         default_factory=default_complexities, min_length=1, max_length=3
     )

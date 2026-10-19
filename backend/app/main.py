@@ -29,6 +29,7 @@ from app.api.risk import router as risk_router
 from app.api.settings import router as settings_router
 from app.api.sources import router as sources_router
 from app.api.system_status import router as system_status_router
+from app.api.validation import router as validation_router
 from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, request_id_var
@@ -144,6 +145,7 @@ def create_app() -> FastAPI:
     app.include_router(research_router)
     app.include_router(pit_router)
     app.include_router(ml_router)
+    app.include_router(validation_router)
     app.include_router(forecasts_router)
     app.include_router(risk_router)
     app.include_router(recommendations_router)

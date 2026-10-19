@@ -1,5 +1,15 @@
 # Implementation status
 
+## PR2 technisch abgenommen; reale Validierung gesperrt (2026-10-19)
+
+**PR2A TECHNICAL FUNCTIONAL · BLOCKED_BY_SOURCE_APPROVAL. PR2B TECHNICAL FUNCTIONAL · BLOCKED_BY_REAL_DATA. V2 FORECASTS NOT VALIDATED · V3 RECOMMENDATIONS GATED · V3+ PRODUCTION NOT RELEASED.** Baseline/main `cfa8c51230d42f6a1d3cc0b766a8c2449dd04ec4`, PR1-CI `38889975378` tatsächlich completed/success. PR2 verwendet PR1/P6/P7/P9 und eine append-only Evidenztabelle: Readiness, Rechte-Checklisten, kontrollierter Pilot, Originalnachweise, OOS-Verträge, Kosten-/Regimevergleiche, Forward Shadow/Outcomes und Strategieprüfung. Keine reale Quelle aktiviert, kein reales ML-Modell oder Strategie freigegeben.
+
+Abnahme: **257 Backendtests und 20 Browserfälle**, Ruff/Format (283 Dateien), Mypy (197 App-Dateien), Frontend lint/typecheck/Standalone-Build, Compose/Images, pip check, Celery, MinIO und MLflow-Health bestanden. Alembic ohne Drift, frisch **0019_validation / 76 Tabellen**. Gefundene JSON-Gruppierung, private Jobdeduplizierung, P7-Quality-Payload und Restore-Checkpoint-Verdrahtung korrigiert. Veraltete lokale Testbeobachtungen wurden ausschließlich als neue explizite SYNTHETIC-Versionen ergänzt; Produkt-Stale-/Split-Basis-Gates bleiben unverändert.
+
+Isolierter Restore **19.10.2026, 05:31:39–05:32:55 UTC** bestanden: **290 Raw-Objekte**, unveränderte alte P6-/P7-Hashes, P8/P9/P10-Archive, Quellen-/Collector-Checkpoint, zehn PR2-Belege und exakt **CHF 10'180**. Dependency-Locks und 212 Masterplan-Hauptabschnitte bleiben erhalten. Keine echte OOS-/Forward-/Alpha-Aussage aus technischen Fixtures. Testmodus ist zurückgesetzt; der lokale Stack ist gesund, Collection und Forward sind aus. Änderungen lokal/uncommitted; neue Remote-CI nicht ausgeführt. Danach endet PR2 vor der separaten Homelab-Produktionsabnahme.
+
+[PR2A-Abnahme](PR2A_REAL_DATA_ACCEPTANCE_REPORT.md), [PR2B-Abnahme](PR2B_MODEL_VALIDATION_REPORT.md), [Gesamtbericht](PR2_ACCEPTANCE_REPORT.md), [verbleibende Blocker](validation/REMAINING_BLOCKERS.md). Die folgenden Abschnitte dokumentieren frühere Abnahmestände.
+
 ## PR1 technisch abgenommen – reale Datenfreigaben bleiben offen (2026-10-16)
 
 **PR1 COLLECTORS FUNCTIONAL · SOURCE APPROVAL PARTIAL · REAL DATA COVERAGE PARTIAL · V2 FORECASTS NOT VALIDATED · V3 RECOMMENDATIONS GATED · V3+ PRODUCTION NOT RELEASED.** Ausgangspunkt: `4ded0e61efdd071ed06596c616f51f9ccb5475f0`, sauber, 195 Backendtests. PR1 ergänzt abgesicherte gemeinsame HTTP-/Raw-Verarbeitung, Quellenrechtsbelege, persistente private Backfills/Sync/Coverage, monatliche SNB-Verträge, optionale kompakte OHLCV und explizite IR-Prüfung sowie Data Operations UI. Kein reales externes Source-Gate wurde freigegeben oder aktiviert.

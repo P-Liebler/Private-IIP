@@ -62,6 +62,7 @@ class StrategyBacktestInput(StrictModel):
     commission_base: Decimal = Field(default=Decimal(1), ge=0, le=1000)
     spread_bps: Decimal = Field(default=Decimal(5), gt=0, le=1000)
     slippage_bps: Decimal = Field(default=Decimal(5), gt=0, le=1000)
+    fx_cost_bps: Decimal = Field(default=Decimal(0), ge=0, le=1000)
 
 
 class StrategyReviewInput(StrictModel):

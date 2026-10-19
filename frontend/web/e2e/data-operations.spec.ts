@@ -43,8 +43,16 @@ test("PR1 bounded synthetic CSV job shows provenance and unverified action cover
   await expect(page.getByText(/Original archiviert/)).toBeVisible();
   await page.getByRole("button", { name: "Umfang prüfen" }).click();
   await expect(page.getByText(/höchstens 0 Anfragen/)).toBeVisible();
+  const started = page.waitForResponse(response => response.url().endsWith("/data-operations/jobs") && response.request().method() === "POST");
   await page.getByRole("button", { name: "Geprüften Auftrag starten" }).click();
-  await expect(page.getByRole("article").filter({ hasText: "MANUAL_PRICES" }).first()).toContainText("SUCCESS", { timeout: 90000 });
+  const jobResponse = await started;
+  expect(jobResponse.status()).toBe(201);
+  const job = await jobResponse.json() as { id: string };
+  await expect.poll(async () => {
+    const status = await page.request.get(`${base}/data-operations/jobs/${job.id}`);
+    expect(status.ok()).toBeTruthy();
+    return (await status.json()).status;
+  }, { timeout: 90000 }).toBe("SUCCESS");
   await page.goto(`/instrument/${instrument.id}`);
   await page.getByLabel("Abdeckung ab").fill("2024-01-03");
   await page.getByLabel("Abdeckung bis").fill("2024-01-05");

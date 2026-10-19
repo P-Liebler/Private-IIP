@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     assistant_test_mode: bool = False
     data_operator_usernames: list[str] = Field(default_factory=list)
     data_collection_enabled: bool = False
+    forward_shadow_enabled: bool = False
     data_collection_schedules: str = "[]"
     max_daily_provider_requests: int = Field(default=100, ge=1, le=10000)
     fred_api_key: SecretStr | None = None

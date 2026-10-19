@@ -82,8 +82,10 @@ from app.models.research import (
     WatchlistItem,
 )
 from app.models.risk import RiskSnapshot, ScenarioDefinition, ScenarioRun, WhatIfRun
+from app.models.validation import ValidationRecord
 
 __all__ = [
+    "ValidationRecord",
     "CollectorJob",
     "DataCoverageSnapshot",
     "ProviderSyncState",

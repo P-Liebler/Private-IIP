@@ -114,9 +114,10 @@ async def main() -> None:
                         "provider_sync_states",
                         "source_review_evidence",
                         "data_coverage_snapshots",
+                        "validation_records",
                     ],
                 )
-                assert revision == "0018_provider_evidence" and tables == 75
+                assert revision == "0019_validation" and tables == 76
                 print(f"Fresh migration verified: {revision}; {tables} required tables")
             finally:
                 await disposable.close()

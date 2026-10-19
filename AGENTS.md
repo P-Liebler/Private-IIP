@@ -49,3 +49,7 @@ P1 raw ingestion, P2 identity/source gates and P3 market-data foundation are imp
 - PR1 collector requests recheck source rights on every attempt, pin public DNS connections and archive exact bounded response bytes before parsing. Recurring collection defaults off; technical provider support never grants usage rights.
 - Preserve versioned P6 row-hash contracts across schema additions. Legacy hashes may exclude only known migration-default additions; never rewrite old manifests or weaken model dependency gates.
 - Monthly SNB macro/reference observations never substitute daily portfolio FX. Coverage and source failures remain explicit; PR1 does not authorize PR2 model/strategy validation or promotion.
+
+- PR2 validation reuses PR1/P6/P7/P9 and appends evidence records. Source approval, real-data readiness, technical success and financial validation are separate states. Never relabel synthetic originals as real or reconstructed data as locally archived history.
+- Pre-register untouched OOS windows, parameters, costs and code before PR2 evaluation. Do not retune from final test results or reuse reserved windows. Forward SHADOW begins at actual generation time, remains experimental and cannot authorize P9 recommendations.
+- Forward scheduling defaults off and requires explicit global and policy opt-in. Restore verification includes validation records and existing source/collector checkpoints. PR2 does not close final homelab production gates.

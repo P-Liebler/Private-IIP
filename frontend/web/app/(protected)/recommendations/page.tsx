@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { ValidationLinks } from "@/components/validation-workbench";
 
 type Profile = { id: string | null; status: string; preferences: Record<string, unknown>; units: Record<string, string>; classification: Record<string, string[]> };
 type Portfolio = { id: string; name: string };
@@ -56,7 +57,7 @@ export default function RecommendationsPage() {
       setMessage(`${r.length} Bewertungen gespeichert. Keine Transaktion ausgeführt.`);
     } catch (e) { setError(String(e)); } finally { setBusy(false); }
   }
-  return <main className="space-y-6 py-8">
+  return <main className="space-y-6 py-8"><ValidationLinks />
     <h1 className="text-2xl font-semibold">Recommendations</h1>
     {(strategy !== "PRODUCTION" || !selected?.eligibility.permitted) && <section className="rounded border border-amber-600 p-4"><h2 className="font-semibold">NO VALIDATED INVESTMENT RECOMMENDATIONS</h2><p>Erforderlich: validierte Produktionsprognosen und belegte historische Strategieabnahme.</p><p>Risikoanalysen sind unabhängig davon verfügbar. Abstentions sind keine Anlageeinschätzung.</p></section>}
     {error && <p role="alert" className="text-rose-400">{error}</p>}{message && <p role="status">{message}</p>}

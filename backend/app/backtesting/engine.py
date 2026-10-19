@@ -8,7 +8,7 @@ from app.backtesting.validation import validate_execution
 from app.schemas.pit import BacktestInput
 
 D = Decimal
-ENGINE_VERSION = "long-only-v1"
+ENGINE_VERSION = "long-only-v2-explicit-fx-costs"
 
 
 def run_backtest(
@@ -159,8 +159,17 @@ def run_backtest(
                 continue
             assert price is not None
             sign = D(1) if order["side"] == "BUY" else D(-1)
+            if config.fx_cost_bps and "base_currency" not in configuration:
+                order["status"] = "NO_FILL"
+                warnings.append("FX_COST_BASE_CURRENCY_UNAVAILABLE")
+                continue
             adjustment = config.spread_bps / 20000 + config.slippage_bps / 10000
-            adjusted = price * (1 + sign * adjustment) * D(fill_rate)
+            fx_adjustment = (
+                config.fx_cost_bps / 10000
+                if config.fx_cost_bps and bar["currency"] != configuration["base_currency"]
+                else D(0)
+            )
+            adjusted = price * (1 + sign * (adjustment + fx_adjustment)) * D(fill_rate)
             qty = D(order["quantity"])
             if order["side"] == "BUY":
                 qty = min(qty, max(D(0), (cash - config.commission) / adjusted))
@@ -176,13 +185,14 @@ def run_backtest(
                 warnings.append("INSUFFICIENT_CASH_FOR_COMMISSION")
                 continue
             implicit = qty * price * D(fill_rate) * adjustment
+            fx_cost = qty * price * D(fill_rate) * fx_adjustment
             if order["side"] == "BUY":
                 cash -= amount + config.commission
                 positions[iid] = positions.get(iid, D(0)) + qty
             else:
                 cash += amount - config.commission
                 positions[iid] -= qty
-            costs += config.commission + implicit
+            costs += config.commission + implicit + fx_cost
             traded += qty * price * D(fill_rate)
             order["status"] = "FILLED" if qty == D(order["quantity"]) else "PARTIAL_FILL"
             fills.append(
@@ -197,6 +207,7 @@ def run_backtest(
                     "fx": conversion["provenance"],
                     "commission": str(config.commission),
                     "spread_slippage_cost": str(implicit),
+                    "fx_cost": str(fx_cost),
                 }
             )
         value = cash

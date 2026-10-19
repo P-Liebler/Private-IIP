@@ -7,7 +7,9 @@ from app.backtesting.engine import run_backtest
 from app.schemas.pit import BacktestInput
 
 
-def financial_evaluation(dataset: Any, evaluation: dict[str, Any], horizon: int) -> dict[str, Any]:
+def financial_evaluation(
+    dataset: Any, evaluation: dict[str, Any], horizon: int, costs: dict[str, Any] | None = None
+) -> dict[str, Any]:
     results = []
     for fold in evaluation["folds"]:
         start, end = fold["window"]["test_start"][:10], fold["window"]["final_end"][:10]
@@ -21,6 +23,15 @@ def financial_evaluation(dataset: Any, evaluation: dict[str, Any], horizon: int)
                 iid: [a for a in actions if start <= a["date"] <= end]
                 for iid, actions in dataset.manifest["actions"].items()
             },
+            "quality": {
+                "total_observations": sum(start <= r["date"] <= end for r in dataset.rows),
+                "valid_observations": sum(
+                    start <= r["date"] <= end and r["eligible"] for r in dataset.rows
+                ),
+                "excluded_observations": sum(
+                    start <= r["date"] <= end and not r["eligible"] for r in dataset.rows
+                ),
+            },
         }
         scores = {
             (
@@ -29,12 +40,19 @@ def financial_evaluation(dataset: Any, evaluation: dict[str, Any], horizon: int)
             ): Decimal(str(p["prediction"]))
             for p in fold["oos_predictions"]
         }
-        config = BacktestInput(dataset_id=dataset.id, rebalance_sessions=horizon)
+        config = BacktestInput(dataset_id=dataset.id, rebalance_sessions=horizon, **(costs or {}))
         model = run_backtest(pinned, config, signal_scores=scores)
         baselines = {
             strategy: run_backtest(pinned, config.model_copy(update={"strategy": strategy}))
             for strategy in ("BENCHMARK_ONLY", "EQUAL_WEIGHT", "MOMENTUM", "QUALITY_VALUE")
         }
+        baselines["NO_CHANGE"] = run_backtest(
+            pinned,
+            config,
+            compare=False,
+            execution_plans={},
+            initial_state={"cash": str(config.initial_capital), "positions": {}},
+        )
         results.append(
             {
                 "window": fold["window"],
@@ -58,4 +76,4 @@ def financial_evaluation(dataset: Any, evaluation: dict[str, Any], horizon: int)
         )
         for r in results
     )
-    return {"contract": "p7-p6-oos-cost-comparison-v1", "folds": results, "passed": passed}
+    return {"contract": "p7-p6-oos-cost-comparison-v2-fx", "folds": results, "passed": passed}

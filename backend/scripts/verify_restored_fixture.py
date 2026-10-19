@@ -31,6 +31,15 @@ async def main() -> None:
     raw_id = UUID(os.environ["RESTORE_TEST_RAW_ID"])
     expected = Decimal(os.environ["RESTORE_TEST_VALUE"])
     async with get_session_factory()() as db:
+        from app.services.validation_audit import validation_checkpoint
+
+        expected_validation = os.environ.get("RESTORE_TEST_VALIDATION_HISTORY_HASH")
+        if expected_validation:
+            checkpoint = await validation_checkpoint(db)
+            assert checkpoint["validation_history_hash"] == expected_validation, (
+                "PR2 validation evidence/links checkpoint mismatch"
+            )
+            print(f"PR2 restored validation evidence: {checkpoint['records']} records verified")
         from app.services.collection_audit import collection_checkpoint
 
         expected_collections = os.environ.get("RESTORE_TEST_COLLECTIONS_HISTORY_HASH")

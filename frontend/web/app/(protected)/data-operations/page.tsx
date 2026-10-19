@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { ValidationLinks } from "@/components/validation-workbench";
 import { getSources, searchInstruments } from "@/lib/api/market-foundation";
 import { DataCoverage } from "@/components/data-coverage";
 
@@ -51,7 +52,7 @@ export default function DataOperationsPage() {
     try { await api(`/data-operations/jobs/${id}/${action}`, { method: "POST" }); await operations.refetch(); }
     catch (caught) { setError(caught instanceof Error ? caught.message : "Aktion fehlgeschlagen"); }
   }
-  return <main className="space-y-6 py-10">
+  return <main className="space-y-6 py-10"><ValidationLinks />
     <header><h1 className="text-3xl font-semibold">Datenversorgung</h1><p className="mt-2 text-zinc-400">Begrenzte historische Importe, dauerhafte Aufträge und belegte Datenqualität.</p></header>
     <p>Automatischer Zeitplan: {operations.data?.scheduling_enabled ? "Aktiv, nur freigegebene Verträge" : "Deaktiviert"}. Globales Tagesbudget: {operations.data?.daily_request_limit ?? "Unbekannt"} Provider-Anfragen.</p>
     <p className="text-amber-300">Forecasts NOT_VALIDATED · Recommendations GATED · Production NOT_RELEASED</p>

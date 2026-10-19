@@ -42,11 +42,13 @@ class DataCoverageService:
         cutoff: datetime | None = None,
         *,
         save: bool = False,
+        base_currency: str = "CHF",
     ) -> dict[str, Any]:
         now = datetime.now(UTC)
         cutoff = cutoff or now
         if (
-            cutoff.tzinfo is None
+            base_currency not in {"CHF", "USD", "EUR"}
+            or cutoff.tzinfo is None
             or cutoff > now
             or start > end
             or (end - start).days > 1826
@@ -272,7 +274,7 @@ class DataCoverageService:
         async def fx_for(day: date, at: datetime) -> dict[str, Any]:
             try:
                 converted: dict[str, Any] = json_value(
-                    await query.fx(instrument.currency, "CHF", day, at)
+                    await query.fx(instrument.currency, base_currency, day, at)
                 )
                 return converted
             except AppError as error:
@@ -411,9 +413,17 @@ class DataCoverageService:
                 },
                 "FX_coverage": {
                     "base": instrument.currency,
-                    "quote": "CHF",
+                    "quote": base_currency,
                     "missing_sessions": fx_missing,
                     "checked_sessions": len(fx_results),
+                    "observation_ids": sorted(
+                        {
+                            str(leg["id"])
+                            for result in fx_results
+                            if result.get("status") == "AVAILABLE"
+                            for leg in result.get("legs", [])
+                        }
+                    ),
                     "max_carry_days": query.max_fx_carry_days,
                 },
                 "fundamental_coverage": {

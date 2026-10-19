@@ -243,6 +243,7 @@ class RecommendationBacktestingService:
                     # P8/profile uses one-sided spread; P6 expects full spread.
                     spread_bps=request.spread_bps * 2,
                     slippage_bps=request.slippage_bps,
+                    fx_cost_bps=request.fx_cost_bps,
                     rebalance_sessions=1,
                 )
                 strategy = run_backtest(

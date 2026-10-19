@@ -139,7 +139,11 @@ class ModelTrainingService:
                     train_kernel, config, dataset.rows, readiness, exchanges
                 )
                 financial = await asyncio.to_thread(
-                    financial_evaluation, dataset, evaluation, config.horizon
+                    financial_evaluation,
+                    dataset,
+                    evaluation,
+                    config.horizon,
+                    config.financial_costs.model_dump(),
                 )
                 row = await self.db.get(MLTrainingRun, run_id, populate_existing=True)
                 assert row is not None

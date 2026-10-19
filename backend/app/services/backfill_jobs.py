@@ -135,6 +135,7 @@ class BackfillJobService:
                 await self.db.scalars(
                     select(CollectorJob).where(
                         CollectorJob.configuration == configuration,
+                        CollectorJob.user_id == self.user_id,
                         CollectorJob.status.in_(["QUEUED", "RUNNING"]),
                     )
                 )
