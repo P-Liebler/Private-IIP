@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     assistant_chat_retention_days: int = Field(default=30, ge=1, le=365)
     assistant_test_mode: bool = False
     data_operator_usernames: list[str] = Field(default_factory=list)
+    operations_operator_usernames: list[str] = Field(default_factory=list)
     data_collection_enabled: bool = False
     forward_shadow_enabled: bool = False
     data_collection_schedules: str = "[]"
@@ -115,7 +116,7 @@ class Settings(BaseSettings):
             "/v3/mapping"
         ):
             raise ValueError("OPENFIGI_BASE_URL must be an HTTPS service origin")
-        if self.app_env == "production":
+        if self.app_env in {"staging", "production"}:
             if self.app_debug:
                 raise ValueError("APP_DEBUG must be false in production")
             if "dev-only" in self.database_url or "dev-only" in self.minio_secret_key:
@@ -130,6 +131,17 @@ class Settings(BaseSettings):
                 raise ValueError("FRONTEND_ORIGIN must use HTTPS in production")
             if not self.api_public_origin.startswith("https://"):
                 raise ValueError("API_PUBLIC_ORIGIN must use HTTPS in production")
+            for credential in (
+                urlparse(self.database_url).password or "",
+                self.minio_secret_key,
+            ):
+                if len(credential) < 24 or any(
+                    marker in credential.lower()
+                    for marker in ("replace", "changeme", "change-me", "placeholder")
+                ):
+                    raise ValueError(
+                        "Production credentials require unique non-placeholder secrets"
+                    )
         return self
 
 

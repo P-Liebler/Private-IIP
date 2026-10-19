@@ -1,0 +1,18 @@
+[Unit]
+Description=Private IIP daily application backup
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/private-iip/production.env
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/private-iip
+ExecStartPre=/usr/bin/mountpoint --quiet /srv/private-iip-backup
+ExecStartPre=/usr/bin/python3 ops/preflight.py --env-file /etc/private-iip/production.env --mode PRODUCTION
+ExecStart=/usr/bin/python3 ops/backup.py --compose-file docker-compose.prod.yml --env-file /etc/private-iip/production.env --root /srv/private-iip-backup --prune
+UMask=0077
+TimeoutStartSec=2h
+# Docker access grants host administration. Use a dedicated operator-managed account.
+User=private-iip-backup
+

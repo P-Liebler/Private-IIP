@@ -1,12 +1,16 @@
 # Private Investment Intelligence Platform
 
+## PR3 – private Installation und Betrieb
+
+Lokale Vorbereitung mit Produktionspreflight, geschützter Operatoransicht `/system/status`, gehärtetem Compose und Backup-/Restore-/Monitoringwerkzeugen. `OPERATIONS_OPERATOR_USERNAMES` ist eine eigene ausdrückliche JSON-Allowlist. [Deployment Guide](docs/operations/DEPLOYMENT_GUIDE.md), [PR3-Bericht](docs/PR3_ACCEPTANCE_REPORT.md) und [offene Operatornachweise](docs/operations/OPERATOR_ACCEPTANCE_CHECKLIST.md) sind maßgeblich. Zielhost noch nicht verfügbar; lokale Tests ersetzen keine VPN-, Client-CA-, unabhängige Backup- oder Produktionsfreigabe. Aktuelle Image-Sicherheitsbefunde bleiben offen. Finanzsammlung/Forward bleiben aus, Forecasts SHADOW und Empfehlungen GATED.
+
 ## PR1 – Real Financial Data Readiness
 
 `/data-operations` bietet begrenzte Importvorschauen, persistente Aufträge und deren Fortschritt. Die Instrumentenseite zeigt Kurs-, FX-, Action-, Fundamental- und PIT-Abdeckung. Quellenrechte können konfigurierte `DATA_OPERATOR_USERNAMES` unter `/settings/data-sources` mit Beleg prüfen; die anschließende Aktivierung bleibt ein eigener Operator-Schritt. Ein technischer Collector erteilt keine Nutzungsrechte.
 
 `DATA_COLLECTION_ENABLED=false` bleibt Standard. Optionale `DATA_COLLECTION_SCHEDULES` enthalten explizite Operator-/Request-Verträge; API, Worker und Scheduler müssen dieselbe Konfiguration erhalten. `ALPHA_VANTAGE_API_KEY` ist optional und ersetzt keine Quellenfreigabe. `FRED_API_KEY` ist für eine spätere Integration vorgesehen; PR1 enthält keinen FRED-Collector. Keys gehören ausschließlich in die lokale Secret-Konfiguration.
 
-[Betrieb und Grenzen](docs/architecture/data-operations.md), [Quellenrechte](docs/data/SOURCE_RIGHTS_MATRIX.md), [Providerstatus](docs/data/PROVIDER_INVENTORY.md), [historische Daten](docs/data/HISTORICAL_DATA_POLICY.md), [PR1-Abnahme](docs/PR1_ACCEPTANCE_REPORT.md). Reale historische Abdeckung bleibt unvollständig, Modelle SHADOW, Empfehlungen gesperrt und die Zielinstallation nicht freigegeben. PR2 wurde nicht begonnen.
+[Betrieb und Grenzen](docs/architecture/data-operations.md), [Quellenrechte](docs/data/SOURCE_RIGHTS_MATRIX.md), [Providerstatus](docs/data/PROVIDER_INVENTORY.md), [historische Daten](docs/data/HISTORICAL_DATA_POLICY.md), [PR1-Abnahme](docs/PR1_ACCEPTANCE_REPORT.md). Reale historische Abdeckung bleibt unvollständig, Modelle SHADOW, Empfehlungen gesperrt und die Zielinstallation nicht freigegeben. PR2 ist technisch abgenommen; reale Modell-/Strategievalidierung bleibt gesperrt.
 
 ## P10 – lokaler Assistent und Intelligence
 
@@ -42,7 +46,7 @@ Szenarien trennen Positions-, FX-, Beta- und Volatilitätshypothesen. What-if ko
 
 `P8_MAX_INSTRUMENTS=30`, `P8_TIMEOUT_SECONDS=120`; kein MLflow-/ML-Worker-/LLM-Zwang. API-Historien liefern paginierte Zusammenfassungen, Einzelresultate sind user-owned. Formeln: [Risiko](docs/architecture/portfolio-risk.md), [Szenarien](docs/architecture/scenarios.md), [What-if](docs/architecture/what-if.md).
 
-[P8-Abnahme](docs/P8_ACCEPTANCE_REPORT.md): **155 Backend-/10 Browser-Tests**, Head 0014, erfolgreicher isolierter Restore mit Modell-/Forecast-/Risk-/Scenario-/What-if-Historie und exakt CHF 10'180. **P8 FUNCTIONAL — RISK DATA LIMITED; V2.5 NOT RELEASED**. Reale Homelab/VPN-, CA-, Backup- und Schlüssel-Gates bleiben offen. P9/P10 wurden nicht begonnen.
+[P8-Abnahme](docs/P8_ACCEPTANCE_REPORT.md): **155 Backend-/10 Browser-Tests**, Head 0014, erfolgreicher isolierter Restore mit Modell-/Forecast-/Risk-/Scenario-/What-if-Historie und exakt CHF 10'180. **P8 FUNCTIONAL — RISK DATA LIMITED; V2.5 NOT RELEASED**. Reale Homelab/VPN-, CA-, Backup- und Schlüssel-Gates bleiben offen. P9/P10 sind inzwischen technisch implementiert; ihre fachlichen und betrieblichen Gates bleiben offen.
 
 ## P6 Point-in-Time und Backtests
 

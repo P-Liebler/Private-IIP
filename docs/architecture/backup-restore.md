@@ -1,5 +1,7 @@
 # Backup and restore (P4)
 
+PR3 extends these tools with a shared host OS lock across backup/restore/retention, artifact size, a separate last-success status and visible integrity rejection before restore commands. See [backup setup](../operations/BACKUP_SETUP.md), [secret recovery](../operations/SECRET_MANAGEMENT.md) and [disaster recovery](../operations/DISASTER_RECOVERY.md). Linux timer/service files are operator-installed templates; no real schedule or independent destination has been verified.
+
 `ops/backup.py` writes a PostgreSQL custom-format dump and mirrors the immutable MinIO raw bucket to a unique backup set. The manifest records UTC start/end, duration, DB name, success state, file names and SHA-256 of every artifact. `BACKUP_ROOT` is configurable and should be an independent protected mount for production. The script writes its last status to `runtime/backup-status.json`; the authenticated Data Quality page shows it. Schedule the script daily on the host (systemd timer or Windows Task Scheduler). `--prune` keeps the newest seven daily, four weekly and six monthly successful sets. Deletion is confined to direct children of the resolved `BACKUP_ROOT/sets` directory. Keep config and secrets, particularly `TOTP_ENCRYPTION_KEY`, in a separate encrypted backup; they are intentionally absent from application artifacts.
 
 Example, after setting `BACKUP_ROOT` and using the secure production env file:

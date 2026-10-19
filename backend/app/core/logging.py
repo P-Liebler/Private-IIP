@@ -35,7 +35,7 @@ def configure_logging() -> None:
     # FRED credentials may be query parameters. Never emit HTTP URL/debug logs.
     for name in ("httpx", "httpcore"):
         logging.getLogger(name).disabled = True
-    for name in ("uvicorn.access", "uvicorn.error", "celery"):
+    for name in ("uvicorn", "uvicorn.access", "uvicorn.error", "celery"):
         logger = logging.getLogger(name)
         logger.handlers = []
         logger.propagate = True

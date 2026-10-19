@@ -343,4 +343,22 @@ async def metrics() -> PlainTextResponse:
         except (OSError, ValueError, KeyError, TypeError):
             lines.append("private_iip_backup_success 0")
     lines.extend(intelligence_exposition())
+    # Operational checks are independent of financial data and optional model services.
+    from app.api.health import _check_minio, _probe
+    from app.api.system_status import _status, worker_status
+
+    _, minio = await _probe("minio", _check_minio)
+    lines.append(f"private_iip_minio_ready {1 if minio == 'ok' else 0}")
+    worker = await worker_status()
+    lines.append(f"private_iip_worker_online {1 if worker == 'HEALTHY' else 0}")
+    restore = _status("restore-status.json")
+    lines.append(f"private_iip_restore_success {1 if restore['status'] == 'SUCCESS' else 0}")
+    lines.append(f"private_iip_restore_age_seconds {restore.get('age_seconds', 'NaN')}")
+    import shutil
+
+    try:
+        usage = shutil.disk_usage("/app/runtime")
+        lines.append(f"private_iip_backup_disk_free_ratio {usage.free / usage.total}")
+    except OSError:
+        lines.append("private_iip_backup_disk_free_ratio NaN")
     return PlainTextResponse("\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")

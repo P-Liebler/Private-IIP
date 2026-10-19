@@ -6,6 +6,31 @@ groups:
         for: 2m
         labels: { severity: critical }
         annotations: { summary: "Private IIP API is down" }
+      - alert: PrivateIIPMinIOUnavailable
+        expr: private_iip_minio_ready == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "Object storage is unavailable; do not substitute raw data" }
+      - alert: PrivateIIPWorkerUnavailable
+        expr: private_iip_worker_online == 0
+        for: 3m
+        labels: { severity: critical }
+        annotations: { summary: "No Celery worker answers control ping" }
+      - alert: PrivateIIPDispatchStale
+        expr: absent(private_iip_intelligence_scheduler_timestamp_seconds) or time() - private_iip_intelligence_scheduler_timestamp_seconds > 300
+        for: 3m
+        labels: { severity: critical }
+        annotations: { summary: "Scheduled work is not completing; inspect Beat and default queue worker" }
+      - alert: PrivateIIPRestoreOverdue
+        expr: private_iip_restore_success == 0 or private_iip_restore_age_seconds > 2678400
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Restore test missing, failed or older than 31 days" }
+      - alert: PrivateIIPBackupDiskLow
+        expr: private_iip_backup_disk_free_ratio < 0.15
+        for: 5m
+        labels: { severity: critical }
+        annotations: { summary: "Backup filesystem has less than 15 percent free space" }
       - alert: PrivateIIPDatabaseUnavailable
         expr: private_iip_db_ready == 0
         for: 2m

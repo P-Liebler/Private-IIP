@@ -1,0 +1,11 @@
+[Unit]
+Description=Private IIP backup at 03:00 UTC, including missed runs
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 UTC
+Persistent=true
+RandomizedDelaySec=5m
+Unit=private-iip-backup.service
+
+[Install]
+WantedBy=timers.target

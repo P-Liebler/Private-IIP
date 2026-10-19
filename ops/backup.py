@@ -16,6 +16,8 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from operation_lock import acquire
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -46,6 +48,8 @@ def atomic_json(path: Path, payload: dict[str, object]) -> None:
 def prune(root: Path) -> None:
     """Keep newest 7 days, 4 ISO weeks and 6 months, always within this root."""
     sets = (root / "sets").resolve()
+    if sets.parent != root.resolve():
+        raise RuntimeError("Backup sets must remain inside the selected root")
     runs: list[tuple[datetime, Path]] = []
     for item in sets.iterdir():
         if not item.is_dir() or item.resolve().parent != sets:
@@ -91,6 +95,13 @@ def main() -> int:
     args = parser.parse_args()
     root = args.root.resolve()
     root.mkdir(parents=True, exist_ok=True)
+    if (root / "sets").exists() and (root / "sets").resolve().parent != root:
+        raise RuntimeError("Backup sets must remain inside the selected root")
+    try:
+        operation_lock = acquire(root)
+    except RuntimeError:
+        print("Backup not started: operation already active", file=sys.stderr)
+        return 1
     os.environ["BACKUP_ROOT"] = str(root)
     started = datetime.now(UTC)
     run_id = started.strftime("%Y%m%dT%H%M%SZ") + f"-{os.getpid()}"
@@ -146,11 +157,14 @@ def main() -> int:
             f"/backup/sets/{run_id}/raw",
         )
         files = [dump, *sorted((destination / "raw").rglob("*"))]
+        if any(path.is_symlink() or not path.resolve().is_relative_to(destination) for path in files):
+            raise RuntimeError("Backup artifact escaped its set")
         checksums = {
             str(path.relative_to(destination)).replace("\\", "/"): sha256(path)
             for path in files
             if path.is_file()
         }
+        status["size_bytes"] = sum(path.stat().st_size for path in files if path.is_file())
         if "postgres.dump" not in checksums or dump.stat().st_size == 0:
             raise RuntimeError("Backup lacks database artifact")
         completed = datetime.now(UTC)
@@ -172,6 +186,8 @@ def main() -> int:
             root / "runtime" / "backup-status.json",
             {key: value for key, value in status.items() if key != "checksums"},
         )
+        atomic_json(root / "runtime" / "last-successful-backup.json",
+                    {key: value for key, value in status.items() if key != "checksums"})
         if args.prune:
             prune(root)
         print(f"Backup complete: {destination}")
@@ -190,6 +206,8 @@ def main() -> int:
         atomic_json(root / "runtime" / "backup-status.json", status)
         print(f"Backup failed: {type(error).__name__}", file=sys.stderr)
         return 1
+    finally:
+        operation_lock.close()
 
 
 if __name__ == "__main__":

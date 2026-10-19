@@ -20,6 +20,7 @@ celery_app = Celery(
     ],
 )
 celery_app.conf.update(
+    worker_hijack_root_logger=False,
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],

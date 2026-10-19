@@ -1,5 +1,6 @@
 FROM node:24.13.0-alpine AS dependencies
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY frontend/web/package.json frontend/web/package-lock.json ./
 RUN npm ci && sha256sum package-lock.json | cut -d ' ' -f 1 > node_modules/.private-iip-lock
 

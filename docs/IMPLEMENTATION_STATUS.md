@@ -1,5 +1,11 @@
 # Implementation status
 
+## PR3 – lokale Vorbereitung, Zielhost nicht verfügbar (2026-10-19)
+
+**PR3 LOKAL VORBEREITET UND GETESTET; KEINE PRODUKTIONSFREIGABE.** PR3A implementiert/lokal geprüft, Sicherheitsreview wegen konkreter Image-High-/Critical-Befunde offen. PR3B lokale Recovery abgenommen; PR3C lokale Akzeptanz bestanden, Zielhost fehlt ausdrücklich laut Nutzer. **264 Backendtests**, zwölf Hostgoldens, **21 Browserfälle**, Ruff/Format/Mypy, Frontend und bestehende/frische Migration 0019/76 Tabellen bestanden. Separates lokales Staging: HTTPS/Cookie/Golden CHF 10'180, CSP-Hydration-Browserprobe, Prometheus/Grafana, 14 Alertregeln und kontrollierte Containerfaults geprüft. Kein Client-OS-Trustnachweis aus dem temporären CSP-Testpin.
+
+Frisches Backup mit 320 Rohobjekten/2.914.753 Bytes und isolierter Restore **19.10.2026 10:32:03–10:33:48 UTC** bestanden, alte P6-/P7-Hashes und P8/P9/P10/PR1/PR2-Historien unverändert geprüft, Golden exakt CHF 10'180. Kein echtes VPN-/Clienttrust-/NAS-/Tagesjob-/Secret-/CA-Recovery-/Alarmzustellgate geschlossen. Keine Source-/Modell-/Strategiefreigabe; Finanzsammlung/Forward aus. 212 Masterabschnitte und numerische/Assistant-Locks erhalten. Änderungen lokal/uncommitted, keine neue Remote-CI oder Release. [PR3-Bericht](PR3_ACCEPTANCE_REPORT.md), [Operatornachweise](operations/OPERATOR_ACCEPTANCE_CHECKLIST.md).
+
 ## PR2 technisch abgenommen; reale Validierung gesperrt (2026-10-19)
 
 **PR2A TECHNICAL FUNCTIONAL · BLOCKED_BY_SOURCE_APPROVAL. PR2B TECHNICAL FUNCTIONAL · BLOCKED_BY_REAL_DATA. V2 FORECASTS NOT VALIDATED · V3 RECOMMENDATIONS GATED · V3+ PRODUCTION NOT RELEASED.** Baseline/main `cfa8c51230d42f6a1d3cc0b766a8c2449dd04ec4`, PR1-CI `38889975378` tatsächlich completed/success. PR2 verwendet PR1/P6/P7/P9 und eine append-only Evidenztabelle: Readiness, Rechte-Checklisten, kontrollierter Pilot, Originalnachweise, OOS-Verträge, Kosten-/Regimevergleiche, Forward Shadow/Outcomes und Strategieprüfung. Keine reale Quelle aktiviert, kein reales ML-Modell oder Strategie freigegeben.

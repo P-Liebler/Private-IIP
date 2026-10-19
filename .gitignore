@@ -27,3 +27,4 @@ backups/
 playwright-report/
 test-results/
 !.gitkeep
+sa

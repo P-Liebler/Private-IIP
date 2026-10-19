@@ -12,6 +12,8 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from operation_lock import acquire
+
 
 def digest(path: Path) -> str:
     value = hashlib.sha256()
@@ -82,16 +84,33 @@ def main() -> int:
     if not password:
         parser.error("Set RESTORE_TEST_PASSWORD to the explicit fixture user's password")
     root = args.root.resolve()
+    try:
+        operation_lock = acquire(root)
+    except RuntimeError:
+        parser.error("Another backup or restore is active")
     backup = args.backup.resolve()
+    if (root / "sets").resolve().parent != root:
+        operation_lock.close()
+        parser.error("Backup sets must remain inside the selected root")
     if backup.parent != (root / "sets").resolve():
         parser.error("Backup must be a direct child of BACKUP_ROOT/sets")
-    manifest = json.loads((backup / "manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("success") is not True:
-        parser.error("Backup manifest is not successful")
-    for name, expected_hash in manifest["checksums"].items():
-        path = (backup / name).resolve()
-        if not path.is_relative_to(backup) or not path.is_file() or digest(path) != expected_hash:
-            parser.error(f"Backup checksum mismatch: {name}")
+    try:
+        manifest = json.loads((backup / "manifest.json").read_text(encoding="utf-8"))
+        if manifest.get("success") is not True or "postgres.dump" not in manifest["checksums"]:
+            raise ValueError("Incomplete backup")
+        for name, expected_hash in manifest["checksums"].items():
+            path = (backup / name).resolve()
+            if not path.is_relative_to(backup) or not path.is_file() or digest(path) != expected_hash:
+                raise ValueError("Backup integrity failed")
+    except (OSError, ValueError, KeyError, TypeError):
+        stamp = datetime.now(UTC).isoformat()
+        target = root / "runtime" / "restore-status.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps({"success": False, "started_at": stamp, "completed_at": stamp,
+                                      "backup_run_id": backup.name, "error": "BACKUP_INTEGRITY_FAILED"}) + "\n", encoding="utf-8")
+        operation_lock.close()
+        print("Restore rejected: backup integrity failed", file=sys.stderr)
+        return 1
     project = "iip-restore-" + secrets.token_hex(5)
     compose_file = Path(__file__).with_name("docker-compose.restore.yml").resolve()
     environment = {
@@ -204,6 +223,7 @@ def main() -> int:
             command(project, compose_file, environment, "down", "-v", "--remove-orphans")
         except RuntimeError:
             print("Isolated restore cleanup failed; inspect the restore project", file=sys.stderr)
+        operation_lock.close()
 
 
 if __name__ == "__main__":

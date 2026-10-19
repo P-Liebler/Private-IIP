@@ -1,5 +1,7 @@
 # Monitoring (P4)
 
+PR3 adds MinIO readiness, worker-control reachability, restore age/result and backup filesystem space. Additional rules cover these and stale completed scheduled dispatch. `/system/status` requires `OPERATIONS_OPERATOR_USERNAMES`; no ordinary account gains operator access. [Runbook and delivery contract](../operations/MONITORING_RUNBOOK.md): firing rules do not prove delivery, which remains NOT_VERIFIED. Client trust, real target host, independent backups, schedule and secret recovery remain separate evidence.
+
 P9 adds persisted aggregate totals `private_iip_recommendation_evaluations_total`, `private_iip_recommendation_abstentions_total` and `private_iip_recommendation_gate_failures_total`. No user or instrument IDs appear as labels. The private dashboard remains usable when MLflow or a later optional LLM is offline.
 
 The internal-only `/internal/metrics` endpoint exposes HTTP request totals, duration sums, error statuses, DB readiness, failed raw ingestions, quarantined rows, stale instruments, valuation failures and backup status. Caddy blocks this path from the public/VPN site; Prometheus scrapes it on the private Compose network. Route labels are templated paths, avoiding per-user and UUID cardinality. The endpoint contains no credentials or portfolio amounts. Metrics reset on an API process restart; historical series live in Prometheus.

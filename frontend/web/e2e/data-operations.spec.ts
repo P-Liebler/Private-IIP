@@ -54,9 +54,16 @@ test("PR1 bounded synthetic CSV job shows provenance and unverified action cover
     return (await status.json()).status;
   }, { timeout: 90000 }).toBe("SUCCESS");
   await page.goto(`/instrument/${instrument.id}`);
+  const coverage = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return response.ok() && url.pathname.endsWith(`/data-operations/coverage/${instrument.id}`)
+      && url.searchParams.get("start") === "2024-01-03"
+      && url.searchParams.get("end") === "2024-01-05";
+  });
   await page.getByLabel("Abdeckung ab").fill("2024-01-03");
   await page.getByLabel("Abdeckung bis").fill("2024-01-05");
-  await expect(page.getByText("CORPORATE_ACTION_COVERAGE_UNVERIFIED", { exact: true })).toBeVisible();
+  expect((await coverage).ok()).toBeTruthy();
+  await expect(page.getByText("CORPORATE_ACTION_COVERAGE_UNVERIFIED", { exact: true })).toBeVisible({ timeout: 15000 });
   await expect(page.getByText(/0 \/ 1 · fehlend: NO_FILL/)).not.toBeVisible();
   await expect(page.getByText(/1 \/ 1 · fehlend: NO_FILL/)).toBeVisible();
 });

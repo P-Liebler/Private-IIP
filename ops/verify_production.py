@@ -86,7 +86,7 @@ def main() -> int:
         )
         assert dashboard["dashboard"]["panels"]
         print(
-            "Production probe PASSED: verified TLS, security headers, Secure/HttpOnly login, "
+            "Endpoint probe PASSED (not operator/target acceptance): verified TLS, security headers, Secure/HttpOnly login, "
             "valuation, blocked metrics, Prometheus scrape and provisioned Grafana dashboard"
         )
         return 0

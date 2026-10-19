@@ -20,6 +20,10 @@ TEST_PASSWORD = "test-only-restore-password-2"
 
 
 async def main() -> None:
+    from app.core.config import get_settings
+
+    if get_settings().app_env == "production":
+        raise RuntimeError("Synthetic restore fixtures are forbidden in production")
     today = datetime.now(UTC).date()
     username = "restore_" + uuid4().hex[:12]
     ticker = "R" + uuid4().hex[:10].upper()

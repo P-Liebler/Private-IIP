@@ -29,6 +29,7 @@ jobs:
           docker compose exec -T api alembic upgrade head
       - name: Backend checks
         run: |
+          python3 -m unittest discover -s ops/tests -v
           docker compose exec -T api ruff check .
           docker compose exec -T api ruff format --check .
           docker compose exec -T api mypy app
@@ -78,7 +79,11 @@ jobs:
           cd "$runner_dir"
           npm ci
           npx playwright install --with-deps chromium
-          npm run test:e2e -- --workers=1
+          browser_result=0
+          npm run test:e2e -- --workers=1 > e2e.log 2>&1 || browser_result=$?
+          python3 "$GITHUB_WORKSPACE/ops/redact_test_artifacts.py" e2e.log test-results
+          cat e2e.log
+          exit "$browser_result"
       - name: Container logs on failure
         if: failure()
         run: docker compose logs --tail=100
