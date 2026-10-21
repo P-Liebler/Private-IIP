@@ -95,7 +95,12 @@ jobs:
           exit "$browser_result"
       - name: Container logs on failure
         if: failure()
-        run: docker compose logs --tail=100
+        env:
+          E2E_PASSWORD: test-only-restore-password-2
+        run: |
+          docker compose logs --no-color --tail=100 > "$RUNNER_TEMP/container-failure.log" 2>&1
+          python3 ops/redact_test_artifacts.py "$RUNNER_TEMP/container-failure.log"
+          cat "$RUNNER_TEMP/container-failure.log"
       - name: Stop services
         if: always()
         run: docker compose down

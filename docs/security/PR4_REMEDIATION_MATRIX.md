@@ -1,5 +1,12 @@
 # PR4 – Remediation-Matrix
 
+## Aktueller Nachweis vom 21.10.2026
+
+Aktuell priorisiert: P0 Backend certifi-Critical mit verfuegbarem Fix, exakter Modelllock erfordert getrennten Runtimeweg; P0 MinIO 9 Critical und Wartungsentscheidung; P0 PostgreSQL noch 3 Critical (libxml2/zlib/gosu). MLflow pr4-rc4 behebt certifi/Pillow; High- und native/CSP-Reviews offen. Keine genehmigten Exceptions.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Prüfstand: 20.10.2026. **SECURITY_BLOCKED. Keine genehmigten Exceptions.** Exakte Paketversionen, CVEs, Pfade, Advisories und Digestbindungen stehen im [Endinventar](PR4_IMAGE_INVENTORY.json); der [maschinenlesbare Vergleich](PR4_VULNERABILITY_REPORT.json) erhält auch neu gemeldete Befunde. Die Zahlen zählen Paketbefunde pro Image, keine nachgewiesenen Exploits.
 
 | Komponente | Baseline High / Critical | Endbestand High / Critical | Behandlung und verbleibende Entscheidung |

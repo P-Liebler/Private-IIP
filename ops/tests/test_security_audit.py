@@ -14,6 +14,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from security_audit import archive_config_digest, findings, scan_image, validate_scan, validate_sbom, write_new
 from registry_image_audit import verify_binding
+from publish_security_audit import verify_evidence
 
 
 class SecurityAuditTests(unittest.TestCase):
@@ -42,18 +43,59 @@ class SecurityAuditTests(unittest.TestCase):
             source = root / "source"
             source.mkdir()
             digest = "sha256:" + "a" * 64
-            (source / "test.record.json").write_text(json.dumps({"component": "test", "image_id": digest, "config_digest": digest, "image_reference": "synthetic:1", "scan_status": "SCANNED_EXACT_IMAGE"}), encoding="utf-8")
             (source / "test.trivy.json").write_text(json.dumps({"SchemaVersion": 2, "ArtifactType": "container_image", "Metadata": {"ImageID": digest}, "Results": [{}]}), encoding="utf-8")
             original = b'{ "bomFormat": "CycloneDX", "specVersion": "1.7", "components": [{"name":"synthetic", "type":"library"}] }\n'
             (source / "test.cdx.json").write_bytes(original)
+            database = {"UpdatedAt": "2026-10-21T01:00:00Z"}
+            record = {"component": "test", "image_id": digest, "config_digest": digest,
+                      "image_reference": "synthetic:1", "scan_status": "SCANNED_EXACT_IMAGE",
+                      "scanner_database": database,
+                      "scan_sha256": hashlib.sha256((source / "test.trivy.json").read_bytes()).hexdigest(),
+                      "sbom_sha256": hashlib.sha256(original).hexdigest()}
+            (source / "test.record.json").write_text(json.dumps(record), encoding="utf-8")
             metadata = root / "database.json"
-            metadata.write_text("{}")
+            metadata.write_text(json.dumps(database))
             destination = root / "published"
             subprocess.run([sys.executable, str(Path(__file__).resolve().parents[1] / "publish_security_audit.py"), str(source), str(destination), "--database-metadata", str(metadata), "--required", "test"], check=True, capture_output=True)
             published = (destination / "test.cdx.json").read_bytes()
             inventory = json.loads((destination / "inventory.json").read_text(encoding="utf-8"))
             self.assertEqual(published, original)
             self.assertEqual(inventory["images"][0]["sbom_sha256"], hashlib.sha256(published).hexdigest())
+
+    def test_publication_rejects_changed_bytes_database_or_incomplete_scan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            raw, sbom = Path(folder) / "scan.json", Path(folder) / "sbom.json"
+            raw.write_bytes(b"synthetic scan")
+            sbom.write_bytes(b"synthetic sbom")
+            database = {"UpdatedAt": "2026-10-21T01:00:00Z"}
+            record = {"scan_status": "SCANNED_EXACT_IMAGE", "scanner_database": database,
+                      "scan_sha256": hashlib.sha256(raw.read_bytes()).hexdigest(),
+                      "sbom_sha256": hashlib.sha256(sbom.read_bytes()).hexdigest()}
+            verify_evidence(record, raw, sbom, database)
+            with self.assertRaisesRegex(ValueError, "ORIGINAL_SCAN_INCOMPLETE"):
+                verify_evidence(record | {"scan_status": "SCAN_INCOMPLETE"}, raw, sbom, database)
+            with self.assertRaisesRegex(ValueError, "SCANNER_DATABASE_BINDING_MISMATCH"):
+                verify_evidence(record, raw, sbom, {"UpdatedAt": "2026-10-22T01:00:00Z"})
+            raw.write_bytes(b"tampered")
+            with self.assertRaisesRegex(ValueError, "ORIGINAL_EVIDENCE_HASH_MISMATCH"):
+                verify_evidence(record, raw, sbom, database)
+
+    def test_incomplete_publication_has_nonzero_exit_and_no_published_sbom(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / "source"
+            source.mkdir()
+            (source / "test.record.json").write_text('{"component":"test","scan_status":"SCAN_INCOMPLETE"}', encoding="utf-8")
+            metadata = root / "database.json"
+            metadata.write_text('{"UpdatedAt":"2026-10-21T01:00:00Z"}', encoding="utf-8")
+            destination = root / "published"
+            script = Path(__file__).resolve().parents[1] / "publish_security_audit.py"
+            result = subprocess.run([sys.executable, str(script), str(source), str(destination),
+                                     "--database-metadata", str(metadata), "--required", "test"], capture_output=True)
+            self.assertEqual(result.returncode, 2)
+            inventory = json.loads((destination / "inventory.json").read_text(encoding="utf-8"))
+            self.assertEqual(inventory["security_status"], "SCAN_INCOMPLETE")
+            self.assertFalse((destination / "test.cdx.json").exists())
 
     def test_digest_mismatch_and_unsupported_scan_rejected(self):
         value = {"SchemaVersion": 2, "ArtifactType": "container_image", "Metadata": {"ImageID": "sha256:old"}, "Results": [{}]}

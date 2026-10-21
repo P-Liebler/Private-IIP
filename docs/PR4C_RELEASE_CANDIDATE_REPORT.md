@@ -1,5 +1,12 @@
 # PR4C – Release-Candidate-Verifikation
 
+## Aktueller Nachweis vom 21.10.2026
+
+PR4C: neue Regression 266 Backend / 21 Browser / 32 Hosttests; frischer Restore mit 355 Raw-Objekten, CHF 10’180 und unveraenderten Archivvertraegen bestanden. Neuer RC PR4-LOCAL-20261021-01: RC_TESTED / RC_SECURITY_BLOCKED. Zielhost weiter nicht verfuegbar.
+
+[Neue Abnahme und priorisierte Restarbeit](PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand: 20.10.2026. **Lokale Verifikation bestanden; SECURITY_BLOCKED; TARGET_HOST_NOT_VERIFIED.**
 
 Git-Basis: `581a13c415d20ff8594d5ecf97b98226b8b5c74e`; Änderungen lokal und uncommitted. Kein Push, kein Remote-CI-Erfolg und kein Release für PR4 behauptet.

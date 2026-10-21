@@ -1,5 +1,12 @@
 # PR4B – Image-Härtung und Kompatibilität
 
+## Aktueller Nachweis vom 21.10.2026
+
+PR4B: PostgreSQL pr4-rc2 (17.11/pgvector 0.8.6), Backend pr4-rc3 und MLflow pr4-rc4 neu gebaut, exakt gescannt und im lokalen Restore/Staging geprueft. Core-Modelllock unveraendert; separater MLflow-Lock mit certifi 2026.10.19/Pillow 13.0.0. Keine produktive Migration.
+
+[Neue Abnahme und priorisierte Restarbeit](PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand: 20.10.2026. **Lokale Kompatibilität geprüft; SECURITY_BLOCKED.** Kein Produktionsrollout. Die abschließende Restore-Abnahme wird im [PR4C-Bericht](PR4C_RELEASE_CANDIDATE_REPORT.md) separat an den finalen Imagebestand gebunden.
 
 ## Geprüfte Änderungen

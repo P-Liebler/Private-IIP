@@ -47,11 +47,21 @@ def main():
             phase = "artifact-download"
             restored = client.download_artifacts(run.info.run_id, "pr4-probe/probe.txt", folder)
             assert hashlib.sha256(Path(restored).read_bytes()).hexdigest() == digest
+            # Exercise MLflow's real Pillow integration with a harmless RGB image.
+            from PIL import Image
+            phase = "synthetic-image-upload"
+            client.log_image(run.info.run_id, Image.new("RGB", (8, 8), (32, 64, 96)), artifact_file="pr4-probe/image.png")
+            image_file = client.download_artifacts(run.info.run_id, "pr4-probe/image.png", folder)
+            with Image.open(image_file) as image:
+                image.load()
+                assert image.size == (8, 8) and image.mode == "RGB"
+                assert image.getpixel((0, 0)) == (32, 64, 96)
         client.log_param(run.info.run_id, "synthetic_sha256", digest)
         client.set_terminated(run.info.run_id)
         print(json.dumps({"passed": True, "scope": "SYNTHETIC_STAGING_TRACKING_AND_S3",
                           "run_id": run.info.run_id, "artifact_sha256": digest,
-                          "unauthenticated_metadata": "REJECTED", "job_execution": "DISABLED"}))
+                          "unauthenticated_metadata": "REJECTED", "job_execution": "DISABLED",
+                          "synthetic_image_roundtrip": True}))
         return 0
     except Exception as error:
         print(json.dumps({"passed": False, "phase": phase, "error_type": type(error).__name__}))

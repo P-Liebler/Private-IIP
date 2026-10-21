@@ -1,5 +1,12 @@
 # PR4 – S3-Kompatibilitätsprüfung
 
+## Aktueller Nachweis vom 21.10.2026
+
+Fortsetzung am 21.10.: MinIO unveraendert, neuer Scan 123 High / 9 Critical. Vollstaendiger vorbereiteter Ablauf in OBJECT_STORAGE_MIGRATION.md; NOT_AUTHORIZED / NOT_EXECUTED. SDK-Prototyp vom 20.10. nicht als neue Vollmigration ausweisen; TUS-Advisory und vollstaendige TLS-/Metadaten-/Transfer-/Restore-/Rollbackabnahme offen.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Prüfdatum: 20.10.2026. **Kein Speicherwechsel freigegeben.** MinIO bleibt vorläufig der bestehende Speicher; seine offenen Sicherheitsbefunde blockieren die Release-Freigabe.
 
 ## Tatsächlich getesteter Kandidat

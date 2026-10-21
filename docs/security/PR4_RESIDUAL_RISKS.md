@@ -1,5 +1,12 @@
 # PR4 – verbleibende Risiken
 
+## Aktueller Nachweis vom 21.10.2026
+
+Aktuelle Blocker: Backend certifi 1 Critical, MinIO 9, PostgreSQL 3; insgesamt 366 High. MLflow jetzt 0 Critical, keine pauschale Freigabe. Native Ollama-CUDA/cuDNN/GGML/MLX-Abdeckung SCAN_INCOMPLETE_MANUAL_REVIEW; Ollama 0.40.4 bleibt gepruefter Kandidat, 0.40.6 verfuegbar. Core-Runtimemigration, S3-Entscheid und echte Zielhost-Abnahme offen.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand: 20.10.2026. **SECURITY_BLOCKED; keine genehmigten Ausnahmen.** Diese Bewertung ist keine Produktionsfreigabe. Scannerbefunde und technische Laufzeitbelege sind getrennt; ein privates Netz ersetzt keinen Patch.
 
 | Priorität | Risiko | Erforderlicher Abschluss |

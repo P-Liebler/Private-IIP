@@ -1,0 +1,207 @@
+{
+  "recorded_at": "2026-10-21T12:45:02.997280+00:00",
+  "scope": "LOCAL_FIXTURES_AND_LOOPBACK_STAGING_NOT_REAL_FINANCIAL_VALIDATION",
+  "git_commit": "8004ea39eeeb5628bf90cef9c86567a2d3af33ff",
+  "remote_ci": {
+    "run_id": 39242444587,
+    "job_id": 118026254378,
+    "observed_status": "completed/failure",
+    "backend_passed": 264,
+    "browser_passed": 20,
+    "browser_failed": 1,
+    "local_fix": "FIXED_LOCALLY",
+    "new_remote_success": "NOT_VERIFIED",
+    "pushed": false
+  },
+  "backend": {
+    "passed": 266,
+    "warnings": 1,
+    "duration_seconds": 160.55
+  },
+  "browser": {
+    "passed": 21,
+    "skipped": 0,
+    "duration_minutes": 2.5,
+    "focused_passed": 6,
+    "standalone_build": true,
+    "concurrent_backend_integration": false
+  },
+  "host_security": {
+    "passed": 32
+  },
+  "static_checks": {
+    "ruff": "PASS",
+    "format": "PASS_286_FILES",
+    "mypy": "PASS_197_APP_FILES",
+    "frontend_lint": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_standalone_build": "PASS",
+    "local_compose": "PASS",
+    "production_compose": "PASS",
+    "offline_production_preflight": "PASS"
+  },
+  "fresh_migration": {
+    "head": "0019_validation",
+    "required_tables": 76
+  },
+  "dependency_audits": {
+    "core_and_assistant": {
+      "exit_code": 1,
+      "status": "KNOWN_CRITICAL_CERTIFI_OPEN"
+    },
+    "patched_separate_mlflow": {
+      "exit_code": 0,
+      "status": "NO_KNOWN_FINDINGS"
+    },
+    "npm_production": {
+      "exit_code": 0,
+      "status": "NO_KNOWN_FINDINGS"
+    }
+  },
+  "image_package_scans": {
+    "exact_images": 10,
+    "high": 366,
+    "critical": 13,
+    "database_updated_at": "2026-10-21T01:19:53.032404989Z",
+    "sboms_formally_valid": 10,
+    "native_ollama": "SCAN_INCOMPLETE_MANUAL_REVIEW"
+  },
+  "staging": {
+    "healthy_services": 13,
+    "ca_export": "EXITED_SUCCESSFUL_ONE_SHOT",
+    "endpoint": "PASS",
+    "browser": {
+      "passed": true,
+      "csp_errors": 0,
+      "page_errors": 0,
+      "trust_scope": "TEMPORARY_SPKI_NOT_OS_TRUST"
+    },
+    "mlflow": {
+      "authenticated_tracking": "PASS",
+      "strict_private_s3_tls": "PASS",
+      "text_hash_roundtrip": "PASS",
+      "pillow_13_image_roundtrip": "PASS",
+      "unauthenticated_metadata": 401,
+      "job_execution": "DISABLED"
+    },
+    "postgres_read_only_probe": {
+      "vector": "0.8.6",
+      "indexes": 158,
+      "jsonb_ok": true,
+      "postgres": "17.11 (Debian 17.11-1.pgdg12+2)",
+      "numeric_ok": true,
+      "user_triggers": 38,
+      "vector_distance": 0
+    },
+    "faults": "CORE_AND_OPTIONAL_PASS",
+    "stopped_after_tests": true
+  },
+  "normal_local_settings": {
+    "app_env": "local",
+    "assistant_test_mode": false,
+    "data_collection_enabled": false,
+    "forward_shadow_enabled": false
+  },
+  "normal_local_runtime": [
+    {
+      "service": "mlflow",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:8c3ecce36e54d53b084ee23f2dd091edcf9ca1c686f01d947ee6e7c0ce27985d"
+    },
+    {
+      "service": "web",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:eb44a45690bcd926b1269e24f2d434dcea0ccd8df3af58ee39d5c16f08539b86"
+    },
+    {
+      "service": "api",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:ce3e2550614953d7e555fc6350e5e01c783020a4f3c280515fed96513b663e76"
+    },
+    {
+      "service": "scheduler",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:ce3e2550614953d7e555fc6350e5e01c783020a4f3c280515fed96513b663e76"
+    },
+    {
+      "service": "worker",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:ce3e2550614953d7e555fc6350e5e01c783020a4f3c280515fed96513b663e76"
+    },
+    {
+      "service": "ml-worker",
+      "state": "running",
+      "health": null,
+      "image_id": "sha256:ce3e2550614953d7e555fc6350e5e01c783020a4f3c280515fed96513b663e76"
+    },
+    {
+      "service": "ollama",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6"
+    },
+    {
+      "service": "postgres",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f"
+    },
+    {
+      "service": "minio",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9"
+    },
+    {
+      "service": "valkey",
+      "state": "running",
+      "health": "healthy",
+      "image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507"
+    }
+  ],
+  "normal_local_mlworker_healthcheck": "NOT_CONFIGURED",
+  "generated_next_env_restored": true,
+  "preserved_contracts": [
+    "MASTER_212",
+    "CORE_LOCK",
+    "ASSISTANT_LOCK",
+    "FRONTEND_LOCK",
+    "OLD_AUDITS_AND_RC"
+  ],
+  "private_log_sha256": {
+    "pr4r-backend.txt": "ce26e69265ac7612d74cefcc94961455cf03d51def7edc04ed150ea18a6fa519",
+    "pr4r-ruff.txt": "af352a86840ad0af3d37ea0d9197f868363a6dac6b1c2ef5d2722f6b41d2d9af",
+    "pr4r-format.txt": "53244c8a48fbbbf1266ea4f5e3f8962c98e6db67b5ffb0d0f49b3d15bf660621",
+    "pr4r-mypy.txt": "d7a748777968c92f922ecc414ce2501081ddb21fc22b4727c3981f26d68b5522",
+    "pr4r-migration.txt": "e775826b245abb0dc5bc7bdd03eae7c6f7e8a0ae1ac6da2659cccdad8067837c",
+    "pr4r-frontend.txt": "c3e96572571545245d1206b18df48d4dd0e4f17479b36078704564bd3978db74",
+    "pr4r-frontend-final-v3.txt": "a2d2ceae38578b4c182e9d954518c69a6e238581453cb8d80a6f03912e39e8c2",
+    "pr4r-focused.txt": "8839712d2589b784e75db1b61dfb6dfa7f45eba5f054b7392397e82eb9255b00",
+    "pr4r-focused-v3.txt": "28beb472ae34136a626174dd29aece4448cc72c1eb4d17de113c538a92bd6799",
+    "pr4r-browser-v3.txt": "ecf297154c51a91f105d0ad811cefca97ae92485f16e17c63592a429cb9cac1a",
+    "pr4r-host-final-v3.txt": "0eaee7ade854d57c76f75aa2ac6ecc833f6dc15abac4d73a2ffda1d63ae087e7",
+    "pr4r-stage-endpoint.txt": "1cf4d94473c3ff88ab80579de08d6d8c626fdf1fb34b15928dc8cfd9b782961d",
+    "pr4r-stage-browser.txt": "92851091e885e558d69404f82e8e71af277bb1d50a8f1bcef424f333a144b1b2",
+    "pr4r-mlflow-tracking-v2.txt": "ec52ac22059f882a590216489e07924e0dc801e220208e3cea8e7b40689ec70b",
+    "pr4r-preflight-final.txt": "33e69247491aef7111728ff0dea20eb4260b13690d55c8f15f5d42c779694c63",
+    "pr4r-core-dependencies.json": "2b36494041c3e66ca56e14ba6b1cefe61fb81eee9f99fed43df50916af4646a9",
+    "pr4r-mlflow-dependencies-patched.json": "0f83f9b8d3a020e301e275273b81d8f3e87d058f24ec9e455d2ff8d32da3e43e",
+    "pr4r-npm-dependencies.json": "8070cf6fdc98d891beccf4cefd0b064aeec0d2c045953fb935be70dea98bd295"
+  },
+  "retained_failed_attempts": [
+    "pr4r-browser.txt:20/21",
+    "pr4r-focused-v2.txt:wrong UI-ID assertion",
+    "pr4r-host-final.txt:incomplete new test fixture",
+    "pr4r-mlflow-tracking.txt:cold-start URLError"
+  ],
+  "release_status": "RC_SECURITY_BLOCKED",
+  "target_status": "TARGET_HOST_NOT_VERIFIED",
+  "real_data_status": "REAL_DATA_LIMITED",
+  "model_status": "FORECASTS_SHADOW_ONLY",
+  "strategy_status": "RECOMMENDATIONS_GATED"
+}

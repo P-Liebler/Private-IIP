@@ -1,4 +1,7 @@
 # PostgreSQL major and vector extension are retained. Candidate only.
 FROM pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f
 RUN apt-get update && apt-get upgrade -y \
+    # SQLite is pulled in by the interactive GPG utilities, not PostgreSQL.
+    # Removing it also removes those unused tools; gpgv/keyrings remain for apt.
+    && apt-get purge -y libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*

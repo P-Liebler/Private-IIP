@@ -1,0 +1,147 @@
+{
+  "images": [
+    {
+      "component": "caddy",
+      "image_id": "sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4",
+      "operating_system": {
+        "Family": "alpine",
+        "Name": "3.23.6"
+      },
+      "definition": "ops/caddy/Dockerfile.candidate",
+      "definition_sha256": "79031eda4a264e75bca45a46ec74eced09074d5242729f896c7f23bf8b804545",
+      "base_declarations": [
+        "FROM golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build",
+        "FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f"
+      ],
+      "scope": "DECLARED_BUILD_INPUTS_AND_OBSERVED_PACKAGE_OS_NOT_SIGNED_BUILD_ATTESTATION"
+    },
+    {
+      "component": "postgres",
+      "image_id": "sha256:d7fd8e8e3b0c93d2c4d7cac3e1d8cedfc1ad82f414f3483492ab13924f5db2c6",
+      "operating_system": {
+        "Family": "debian",
+        "Name": "12.15"
+      },
+      "definition": "ops/postgres/Dockerfile.candidate",
+      "definition_sha256": "4f9adbf2f07c3a674e0a02c7db7cf39b2384ee977530157d93ee10d088c43d76",
+      "base_declarations": [
+        "FROM pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f"
+      ],
+      "scope": "DECLARED_BUILD_INPUTS_AND_OBSERVED_PACKAGE_OS_NOT_SIGNED_BUILD_ATTESTATION"
+    },
+    {
+      "component": "valkey",
+      "image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "operating_system": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "definition": null,
+      "definition_sha256": null,
+      "base_declarations": [],
+      "scope": "UPSTREAM_IMAGE_PINNED_BASE_PROVENANCE_NOT_INDEPENDENTLY_ATTESTED"
+    },
+    {
+      "component": "minio",
+      "image_id": "sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9",
+      "operating_system": {
+        "Family": "redhat",
+        "Name": "9.6"
+      },
+      "definition": null,
+      "definition_sha256": null,
+      "base_declarations": [],
+      "scope": "UPSTREAM_IMAGE_PINNED_BASE_PROVENANCE_NOT_INDEPENDENTLY_ATTESTED"
+    },
+    {
+      "component": "backend",
+      "image_id": "sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "operating_system": {
+        "Family": "debian",
+        "Name": "13.7"
+      },
+      "definition": "backend/Dockerfile",
+      "definition_sha256": "7a2420b414280cd193c0365d782c2f97ad01724fa33d8b4011dde3f905f72f9b",
+      "base_declarations": [
+        "ARG PYTHON_IMAGE=python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
+        "FROM ${PYTHON_IMAGE} AS base",
+        "FROM base AS dev",
+        "FROM base AS production"
+      ],
+      "scope": "DECLARED_BUILD_INPUTS_AND_OBSERVED_PACKAGE_OS_NOT_SIGNED_BUILD_ATTESTATION"
+    },
+    {
+      "component": "web",
+      "image_id": "sha256:4979e27f92f3bd0f85577f6857e44086ee4bf6aa67a8476507c494ee3d874166",
+      "operating_system": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "definition": "frontend/web/Dockerfile",
+      "definition_sha256": "36e4996e74bc45cd14fb68f09d40659857f77e928457cc109fd441ec63e0fcc2",
+      "base_declarations": [
+        "ARG NODE_IMAGE=node:24.22.0-alpine@sha256:44fce696f38ba8c987c4db89954051000bbd05ffd8d8659ba15ed4a8602e937f",
+        "FROM ${NODE_IMAGE} AS dependencies",
+        "FROM dependencies AS dev",
+        "FROM dependencies AS build",
+        "ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1",
+        "FROM ${NODE_IMAGE} AS production"
+      ],
+      "scope": "DECLARED_BUILD_INPUTS_AND_OBSERVED_PACKAGE_OS_NOT_SIGNED_BUILD_ATTESTATION"
+    },
+    {
+      "component": "prometheus",
+      "image_id": "sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "operating_system": null,
+      "definition": null,
+      "definition_sha256": null,
+      "base_declarations": [],
+      "scope": "UPSTREAM_IMAGE_PINNED_BASE_PROVENANCE_NOT_INDEPENDENTLY_ATTESTED"
+    },
+    {
+      "component": "grafana",
+      "image_id": "sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+      "operating_system": {
+        "Family": "alpine",
+        "Name": "3.24.2"
+      },
+      "definition": null,
+      "definition_sha256": null,
+      "base_declarations": [],
+      "scope": "UPSTREAM_IMAGE_PINNED_BASE_PROVENANCE_NOT_INDEPENDENTLY_ATTESTED"
+    },
+    {
+      "component": "mlflow",
+      "image_id": "sha256:8c3ecce36e54d53b084ee23f2dd091edcf9ca1c686f01d947ee6e7c0ce27985d",
+      "operating_system": {
+        "Family": "debian",
+        "Name": "13.7"
+      },
+      "definition": "ops/mlflow/Dockerfile.security-candidate",
+      "definition_sha256": "8c1a978155781fb12b91d55c5737ef73bb66312fc5a6c50ee0f8f3ce7799a175",
+      "base_declarations": [
+        "FROM private-iip/mlflow:pr4-rc3@sha256:310bd3623dfbdded7cea78dbaf59fb8264835ada39bc3b591fb2b32c69199d7f"
+      ],
+      "scope": "DECLARED_BUILD_INPUTS_AND_OBSERVED_PACKAGE_OS_NOT_SIGNED_BUILD_ATTESTATION",
+      "standalone_definition_sha256": "d866bf3103d54639c207dea343325d3fa035f3aebec45188320ff5a66066ebba",
+      "standalone_base_declarations": [
+        "ARG PYTHON_IMAGE=python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
+        "FROM ${PYTHON_IMAGE}"
+      ],
+      "note": "Final accepted rc4 is controlled layer on exact rc3; standalone rebuild is a different image requiring its own audit."
+    },
+    {
+      "component": "ollama",
+      "image_id": "sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6",
+      "operating_system": {
+        "Family": "ubuntu",
+        "Name": "24.04"
+      },
+      "definition": null,
+      "definition_sha256": null,
+      "base_declarations": [],
+      "scope": "UPSTREAM_IMAGE_PINNED_BASE_PROVENANCE_NOT_INDEPENDENTLY_ATTESTED"
+    }
+  ],
+  "backend_image_unused_mlflow_lock_copy": "Backend runtime/model contracts use requirements.lock and requirements-assistant.lock. Backend rc3 predates final Pillow edit to separate requirements-mlflow.lock; that unused file copy does not establish installed MLflow pins. MLflow rc4 has final separate lock."
+}

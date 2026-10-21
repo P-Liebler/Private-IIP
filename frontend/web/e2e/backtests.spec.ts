@@ -20,12 +20,12 @@ async function build(page: import("@playwright/test").Page, id: string) {
   await page.getByLabel("Benchmark Instrument ID").fill(benchmark!);
   await page.getByLabel("Basiswährung").selectOption("USD");
   await page.getByRole("button", { name: "Dataset bauen", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("Dataset:", { timeout: 60000 });
+  await expect(page.getByRole("status").filter({ hasText: "Dataset:" })).toBeVisible({ timeout: 60000 });
 }
 test("synthetic PIT baseline run has independently expected metrics and fill provenance", async ({ page }) => {
   test.skip(!username || !password || !universe || !benchmark, "Explicit local synthetic P6 fixture required");
   await login(page); await build(page, universe!);
-  await expect(page.getByRole("status")).toContainText("4 gültig, 0 ausgeschlossen");
+  await expect(page.getByRole("status").filter({ hasText: "Dataset:" })).toContainText("4 gültig, 0 ausgeschlossen");
   await page.getByLabel("Startkapital").fill("1000");
   await page.getByLabel("Kommission").fill("1");
   await page.getByLabel("Spread bps").fill("0");
@@ -42,7 +42,7 @@ test("synthetic PIT baseline run has independently expected metrics and fill pro
 test("unverified historical membership cannot pass STRICT_PIT", async ({ page }) => {
   test.skip(!username || !password || !unverified || !benchmark, "Explicit unverified P6 fixture required");
   await login(page); await build(page, unverified!);
-  await expect(page.getByRole("status")).toContainText("0 gültig");
+  await expect(page.getByRole("status").filter({ hasText: "Dataset:" })).toContainText("0 gültig");
   await page.getByRole("button", { name: "Backtest starten" }).click();
   await expect(page.getByRole("heading", { name: "Ergebnis: REJECTED" })).toBeVisible();
   await expect(page.getByRole("alert").filter({ hasText: "HISTORICAL_AVAILABILITY_UNVERIFIED" })).toBeVisible();

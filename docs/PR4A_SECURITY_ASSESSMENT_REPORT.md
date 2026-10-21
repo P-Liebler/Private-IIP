@@ -1,5 +1,12 @@
 # PR4A – Sicherheitsbewertung
 
+## Aktueller Nachweis vom 21.10.2026
+
+PR4A: neuer Vollscan aller zehn Digests, zehn formal gepruefte Original-SBOMs; Trivy-DB 2026-10-21T01:19:53Z. Aktuell 366 High / 13 Critical. Neuer Backend-certifi-Befund offen, MLflow-certifi/Pillow behoben. Native Ollama-Abdeckung bleibt unvollstaendig.
+
+[Neue Abnahme und priorisierte Restarbeit](PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Prüfdatum: 19.–20.10.2026. **PR4A ASSESSMENT COMPLETE; SECURITY_BLOCKED.** Die Bestandsaufnahme ist abgeschlossen. PR4B und PR4C benötigen zusätzlich die Abnahme des geänderten Imagebestands; dies ist keine Release-Freigabe.
 
 ## Ausgangspunkt und CI

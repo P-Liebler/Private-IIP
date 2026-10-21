@@ -1,5 +1,12 @@
 # PR4 – lokale Abnahme und verbleibende Freigabegates
 
+## Aktueller Nachweis vom 21.10.2026
+
+Aktuelle Abnahme: PR3-CI lokal repariert, Remote-Erfolg nicht verifiziert; PR4 lokal getestet, SECURITY_BLOCKED. 266 Backend / 21 Browser / 32 Hosttests, 355 Raw-Objekte im neuen Restore. Keine Produktionsfreigabe.
+
+[Neue Abnahme und priorisierte Restarbeit](PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand: 20.10.2026. **PR4 technisch implementiert und lokal verifiziert. Keine Produktionsfreigabe.**
 
 ## Getrennte Zustände

@@ -1,5 +1,12 @@
 # Private Investment Intelligence Platform
 
+## Aktueller Nachweis vom 21.10.2026
+
+PR4 erneut lokal geprueft am 21.10.: 266 Backend-, 21 Browser- und 32 Hosttests; neuer isolierter Restore mit 355 Raw-Objekten und CHF 10’180. Kandidat PR4-LOCAL-20261021-01 bleibt SECURITY_BLOCKED (13 Critical / 366 High), TARGET_HOST_NOT_VERIFIED. Kein produktiver Release, kein neuer Remote-CI-Pass, keine Finanzfreigabe.
+
+[Neue Abnahme und priorisierte Restarbeit](docs/PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 ## PR4 – Sicherheitsprüfung und Release-Vorbereitung
 
 **Lokal verifiziert; SECURITY_BLOCKED; TARGET_HOST_NOT_VERIFIED.** 264 Backendtests, 21 Browserfälle und 30 Host-/Security-Tests bestanden. Zehn Images/SBOMs geprüft; frischer isolierter Restore mit 342 Raw-Objekten, unveränderten P6-/P7-Verträgen und Golden CHF 10'180 bestanden. Der lokale RC bleibt wegen offener PostgreSQL-/MinIO-Criticals und fehlender Zielhost-Abnahme nicht freigegeben. [Gesamtabnahme](docs/PR4_ACCEPTANCE_REPORT.md), [PR4A](docs/PR4A_SECURITY_ASSESSMENT_REPORT.md), [PR4B](docs/PR4B_REMEDIATION_REPORT.md), [PR4C und Manifest](docs/PR4C_RELEASE_CANDIDATE_REPORT.md), [S3-Entscheid](docs/operations/S3_COMPATIBILITY_REVIEW.md). Die Produktionsausführung verlangt separate Security-/Zielhost-/Operatorfreigaben und geprüfte Digest-Images; siehe [Deployment](docs/operations/DEPLOYMENT_GUIDE.md).

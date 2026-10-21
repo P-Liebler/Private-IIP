@@ -56,8 +56,10 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByRole("button", { name: "Account anlegen", exact: true }).click();
     await expect(page.getByRole("button", { name: "Buchen", exact: true })).toBeEnabled();
     await page.getByLabel("Betrag", { exact: true }).fill("10000");
+    const depositResponse = page.waitForResponse(response => response.url().endsWith(`/portfolios/${cleanupPortfolioId}/transactions`) && response.request().method() === "POST");
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
-    await expect(page.getByRole("listitem").filter({ hasText: "DEPOSIT" })).toBeVisible();
+    expect((await depositResponse).status()).toBe(201);
+    await expect(page.getByRole("listitem").filter({ hasText: "DEPOSIT" })).toBeVisible({ timeout: 30000 });
     await page.getByRole("combobox", { name: "Typ", exact: true }).selectOption("BUY");
     const fixtureInstrument = process.env.E2E_RESEARCH_INSTRUMENT_ID
       ? await (await page.request.get(`${apiBase}/instruments/${process.env.E2E_RESEARCH_INSTRUMENT_ID}`)).json() as {ticker:string}

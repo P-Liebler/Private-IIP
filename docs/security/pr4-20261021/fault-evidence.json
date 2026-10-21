@@ -1,0 +1,373 @@
+{
+  "scope": "LOCAL_SYNTHETIC_STAGING",
+  "core_recovery": {
+    "scope": "LOCAL_SYNTHETIC_STAGING",
+    "started_at": "2026-10-21T12:33:49.425004+00:00",
+    "concurrency": 1,
+    "target_host_verified": false,
+    "untrusted_tls": "REJECTED",
+    "scheduler_restart_seconds": 57.235,
+    "worker_restart_seconds": 20.108,
+    "minio_restart_seconds": 16.377,
+    "postgres_restart_seconds": 11.711,
+    "valkey_restart_seconds": 21.792,
+    "api_warm_restart_seconds": 34.682,
+    "passed": true,
+    "timings": [
+      {
+        "operation": "/api/v1/settings",
+        "http_status": 401,
+        "seconds": 2.1781
+      },
+      {
+        "operation": "/api/v1/auth/login",
+        "http_status": 200,
+        "seconds": 3.0115
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1718
+      },
+      {
+        "operation": "/api/v1/portfolio-dashboard",
+        "http_status": 200,
+        "seconds": 2.4808
+      },
+      {
+        "operation": "/api/v1/instruments/{instrument}",
+        "http_status": 200,
+        "seconds": 2.1367
+      },
+      {
+        "operation": "/api/v1/assistant/status",
+        "http_status": 200,
+        "seconds": 2.4554
+      },
+      {
+        "operation": "/api/v1/notifications",
+        "http_status": 200,
+        "seconds": 2.146
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/risk",
+        "http_status": 200,
+        "seconds": 2.799
+      },
+      {
+        "operation": "/api/v1/auth/logout",
+        "http_status": 403,
+        "seconds": 2.1031
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1355
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.1295
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.2649
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0727
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.0849
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0923
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1807
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0666
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1074
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 503,
+        "seconds": 2.1008
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.0604
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0719
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1126
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 503,
+        "seconds": 2.1036
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.1149
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1851
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 503,
+        "seconds": 2.4851
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0965
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1576
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.081
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0657
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0727
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.047
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0511
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0701
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0485
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 502,
+        "seconds": 2.0782
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.8774
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.6153
+      },
+      {
+        "operation": "/api/v1/auth/logout",
+        "http_status": 204,
+        "seconds": 2.0902
+      },
+      {
+        "operation": "/api/v1/settings",
+        "http_status": 401,
+        "seconds": 2.0765
+      }
+    ],
+    "completed_at": "2026-10-21T12:38:01.792197+00:00"
+  },
+  "optional_recovery": {
+    "scope": "LOCAL_SYNTHETIC_STAGING",
+    "started_at": "2026-10-21T12:38:02.750453+00:00",
+    "concurrency": 1,
+    "target_host_verified": false,
+    "untrusted_tls": "REJECTED",
+    "mlflow_outage": "CORE_REMAINS_AVAILABLE",
+    "ollama_outage": "CORE_REMAINS_AVAILABLE",
+    "passed": true,
+    "timings": [
+      {
+        "operation": "/api/v1/settings",
+        "http_status": 401,
+        "seconds": 2.0498
+      },
+      {
+        "operation": "/api/v1/auth/login",
+        "http_status": 200,
+        "seconds": 2.2642
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.2409
+      },
+      {
+        "operation": "/api/v1/portfolio-dashboard",
+        "http_status": 200,
+        "seconds": 2.1821
+      },
+      {
+        "operation": "/api/v1/instruments/{instrument}",
+        "http_status": 200,
+        "seconds": 2.085
+      },
+      {
+        "operation": "/api/v1/assistant/status",
+        "http_status": 200,
+        "seconds": 2.1132
+      },
+      {
+        "operation": "/api/v1/notifications",
+        "http_status": 200,
+        "seconds": 2.0796
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/risk",
+        "http_status": 200,
+        "seconds": 2.3589
+      },
+      {
+        "operation": "/api/v1/auth/logout",
+        "http_status": 403,
+        "seconds": 2.0627
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1478
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0695
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.0887
+      },
+      {
+        "operation": "/api/v1/instruments/{instrument}",
+        "http_status": 200,
+        "seconds": 2.0931
+      },
+      {
+        "operation": "/api/v1/assistant/status",
+        "http_status": 200,
+        "seconds": 2.1303
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.0873
+      },
+      {
+        "operation": "/api/v1/health/ready",
+        "http_status": 200,
+        "seconds": 2.0607
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.0889
+      },
+      {
+        "operation": "/api/v1/instruments/{instrument}",
+        "http_status": 200,
+        "seconds": 2.0691
+      },
+      {
+        "operation": "/api/v1/assistant/status",
+        "http_status": 200,
+        "seconds": 2.6872
+      },
+      {
+        "operation": "/api/v1/portfolios/{portfolio}/valuation",
+        "http_status": 200,
+        "seconds": 2.1157
+      },
+      {
+        "operation": "/api/v1/auth/logout",
+        "http_status": 204,
+        "seconds": 2.0844
+      },
+      {
+        "operation": "/api/v1/settings",
+        "http_status": 401,
+        "seconds": 2.0396
+      }
+    ],
+    "completed_at": "2026-10-21T12:40:46.245124+00:00"
+  },
+  "invalid_database_credentials": {
+    "result": "READINESS_503_DATABASE_UNAVAILABLE_VALKEY_AND_MINIO_OK",
+    "log_sha256": "3c5baa3960883edea255f48ac0ea9857149e6969e2162d72edd1e2c9df931827"
+  },
+  "model_negative_guards": "Missing bytes FileNotFoundError; mismatched exact dependencies 409 ARTIFACT_DEPENDENCY_MISMATCH; included in 266 passed backend tests",
+  "prior_backup_interruption": {
+    "recorded_date": "2026-10-20",
+    "evidence_reference": "docs/security/PR4_FAULT_EVIDENCE.json",
+    "evidence_sha256": "153d83521038e464f05e063e60ff36694140a9e77dc1d89bbd48ce264375b34d",
+    "evidence": {
+      "controlled_operation": "Killed only isolated backup helper during explicit pre-mirror delay; not a mid-stream byte-copy test",
+      "failed_run": {
+        "completed_at": "2026-10-20T08:42:38.789299+00:00",
+        "completed_timestamp": 1792485758,
+        "database": "investment",
+        "duration_seconds": 32.438535,
+        "error": "RuntimeError",
+        "run_id": "20261020T084206Z-25144",
+        "started_at": "2026-10-20T08:42:06.350764+00:00",
+        "success": false
+      },
+      "last_success_pointer_unchanged": true,
+      "previous_successful_set_checksum_count": 3,
+      "previous_successful_set_all_checksums_verified": true,
+      "failed_set_rejected_as_successful_backup": true
+    },
+    "scope": "Pre-mirror helper termination; not mid-stream migration"
+  },
+  "checksum_error": "Current 32 host tests reject tampered manifest before Docker operations",
+  "target_host_verified": false
+}

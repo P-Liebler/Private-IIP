@@ -1,0 +1,533 @@
+{
+  "recorded_at": "2026-10-21T12:33:39.808697+00:00",
+  "project": "private-iip-pr3-staging",
+  "audit_inventory_sha256": "e0fda6c00a7a11d310bbb5e5e6245e6cc57fbd49d45091d8bbfee1903be19539",
+  "scope": "OBSERVED_RUNTIME_CONFIGURATION_NOT_RELEASE_APPROVAL",
+  "services": [
+    {
+      "service": "ml-worker",
+      "image_reference": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "image_id": "sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "audited_config_digest": "sha256:29dea27969cb393d244c5a7b309e3a87df62cadda50df5420e56fc5552c5d5c9",
+      "configured_user": "appuser",
+      "observed_pid1_uid": 10001,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 2147483648,
+      "nano_cpus": 2000000000,
+      "restart_policy": "on-failure",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/caddy-ca",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "worker",
+      "image_reference": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "image_id": "sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "audited_config_digest": "sha256:29dea27969cb393d244c5a7b309e3a87df62cadda50df5420e56fc5552c5d5c9",
+      "configured_user": "appuser",
+      "observed_pid1_uid": 10001,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 2147483648,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/caddy-ca",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "api",
+      "image_reference": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "image_id": "sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "audited_config_digest": "sha256:29dea27969cb393d244c5a7b309e3a87df62cadda50df5420e56fc5552c5d5c9",
+      "configured_user": "appuser",
+      "observed_pid1_uid": 10001,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 2147483648,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/caddy-ca",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "destination": "/app/runtime",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "mlflow",
+      "image_reference": "private-iip/mlflow@sha256:8c3ecce36e54d53b084ee23f2dd091edcf9ca1c686f01d947ee6e7c0ce27985d",
+      "image_id": "sha256:8c3ecce36e54d53b084ee23f2dd091edcf9ca1c686f01d947ee6e7c0ce27985d",
+      "audited_config_digest": "sha256:264b319fa93e3a1195b4efd23ec26b3fa5c5268a2f477aa9377c37c07a5f87a2",
+      "configured_user": "appuser",
+      "observed_pid1_uid": 10001,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 1073741824,
+      "nano_cpus": 1000000000,
+      "restart_policy": "on-failure",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/caddy-ca",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "scheduler",
+      "image_reference": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "image_id": "sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "audited_config_digest": "sha256:29dea27969cb393d244c5a7b309e3a87df62cadda50df5420e56fc5552c5d5c9",
+      "configured_user": "appuser",
+      "observed_pid1_uid": 10001,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 536870912,
+      "nano_cpus": 1000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/caddy-ca",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "postgres",
+      "image_reference": "private-iip/postgres@sha256:d7fd8e8e3b0c93d2c4d7cac3e1d8cedfc1ad82f414f3483492ab13924f5db2c6",
+      "image_id": "sha256:d7fd8e8e3b0c93d2c4d7cac3e1d8cedfc1ad82f414f3483492ab13924f5db2c6",
+      "audited_config_digest": "sha256:c030d5dd6211705a610cd9dca7d821cea21efad1d93a2a6711320b387817f76d",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": 999,
+      "state": "running",
+      "health": "healthy",
+      "read_only": false,
+      "cap_drop": null,
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 1073741824,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/var/lib/postgresql/data",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": []
+    },
+    {
+      "service": "grafana",
+      "image_reference": "grafana/grafana:12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+      "image_id": "sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185",
+      "audited_config_digest": "sha256:3fdfe88ded312997fbff8b345c3682f2cc4e65a46ee7d17b4317f9bd7b9bf7db",
+      "configured_user": "472",
+      "observed_pid1_uid": 472,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "3001"
+          }
+        ]
+      },
+      "memory_limit_bytes": 536870912,
+      "nano_cpus": 1000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "bind",
+          "destination": "/etc/grafana/provisioning",
+          "writable": false
+        },
+        {
+          "type": "volume",
+          "destination": "/var/lib/grafana",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "destination": "/var/lib/grafana/dashboards",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "prometheus",
+      "image_reference": "prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "image_id": "sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e",
+      "audited_config_digest": "sha256:66416213a3b43651d3521acc3987277b4f97ad0ae29acc581f910ef9bd3959bd",
+      "configured_user": "nobody",
+      "observed_pid1_uid": 65534,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {
+        "9090/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "9090"
+          }
+        ]
+      },
+      "memory_limit_bytes": 536870912,
+      "nano_cpus": 1000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "bind",
+          "destination": "/etc/prometheus/alerts.yml",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "destination": "/etc/prometheus/prometheus.yml",
+          "writable": false
+        },
+        {
+          "type": "volume",
+          "destination": "/prometheus",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "ca-export",
+      "image_reference": "private-iip/caddy:pr4-rc1",
+      "image_id": "sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4",
+      "audited_config_digest": "sha256:92bd19350d5256fc7befb5c1288d843508b656ce5304a33c1198f7211c5c9fc6",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": null,
+      "state": "exited",
+      "health": null,
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "none",
+      "ports": {},
+      "memory_limit_bytes": 33554432,
+      "nano_cpus": 250000000,
+      "restart_policy": "no",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/data",
+          "writable": false
+        },
+        {
+          "type": "volume",
+          "destination": "/trust",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "minio",
+      "image_reference": "coollabsio/minio:RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9",
+      "image_id": "sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9",
+      "audited_config_digest": "sha256:e198a3d710c982c7b1f31dbd43f330204c6cf0527eb04ab906076970c5ec815d",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": 0,
+      "state": "running",
+      "health": "healthy",
+      "read_only": false,
+      "cap_drop": null,
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 1073741824,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/data",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": []
+    },
+    {
+      "service": "web",
+      "image_reference": "private-iip/web@sha256:4979e27f92f3bd0f85577f6857e44086ee4bf6aa67a8476507c494ee3d874166",
+      "image_id": "sha256:4979e27f92f3bd0f85577f6857e44086ee4bf6aa67a8476507c494ee3d874166",
+      "audited_config_digest": "sha256:5720c80a06a4206f0f55c254c96344d94f4bb65c84697b88301bd3efb17cfdc6",
+      "configured_user": "node",
+      "observed_pid1_uid": 1000,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 805306368,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "ollama",
+      "image_reference": "ollama/ollama:0.40.4@sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6",
+      "image_id": "sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6",
+      "audited_config_digest": "sha256:06d4cf34b8d726cc901d3cc663e36ac568b0012acf68ff2d6273fcf793e399d1",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": 0,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 3221225472,
+      "nano_cpus": 2000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/root/.ollama",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    },
+    {
+      "service": "valkey",
+      "image_reference": "valkey/valkey:8.1.10-alpine@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "audited_config_digest": "sha256:09f1cebdbddf5d5c6e7521bd66e488a55bc11c47736572c101d9d0cf628121d0",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": 0,
+      "state": "running",
+      "health": "healthy",
+      "read_only": false,
+      "cap_drop": null,
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {},
+      "memory_limit_bytes": 268435456,
+      "nano_cpus": 1000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/data",
+          "writable": true
+        }
+      ],
+      "tmpfs_destinations": []
+    },
+    {
+      "service": "caddy",
+      "image_reference": "sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4",
+      "image_id": "sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4",
+      "audited_config_digest": "sha256:92bd19350d5256fc7befb5c1288d843508b656ce5304a33c1198f7211c5c9fc6",
+      "configured_user": "root (image default; inspect process privilege separately)",
+      "observed_pid1_uid": 0,
+      "state": "running",
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": null,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "privileged": false,
+      "network_mode": "private-iip-pr3-staging_platform",
+      "ports": {
+        "443/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "443"
+          }
+        ],
+        "80/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "80"
+          }
+        ]
+      },
+      "memory_limit_bytes": 268435456,
+      "nano_cpus": 1000000000,
+      "restart_policy": "unless-stopped",
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/config",
+          "writable": true
+        },
+        {
+          "type": "volume",
+          "destination": "/data",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "destination": "/etc/caddy/Caddyfile",
+          "writable": false
+        }
+      ],
+      "tmpfs_destinations": [
+        "/tmp"
+      ]
+    }
+  ]
+}

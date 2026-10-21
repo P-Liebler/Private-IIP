@@ -129,7 +129,7 @@ services:
   postgres:
     mem_limit: 1g
     cpus: 2
-    image: private-iip/postgres:pr4-rc1
+    image: private-iip/postgres:pr4-rc2
     build: {context: ., dockerfile: ops/postgres/Dockerfile.candidate}
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-investment}

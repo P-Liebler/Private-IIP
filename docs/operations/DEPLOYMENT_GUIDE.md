@@ -1,5 +1,12 @@
 # Private Installation
 
+## Aktueller Nachweis vom 21.10.2026
+
+Aktueller lokaler Kandidat PR4-LOCAL-20261021-01 ist SECURITY_BLOCKED und darf nicht produktiv ausgerollt werden. Vor Installation: Backend-TLS/Legacy-Runtimeweg, MinIO-Entscheid, PostgreSQL-/High-/native-Reviews, frische Scans und getrennte Security-/Zielhost-/Operatorfreigaben. Nur final freigegebene Manifestdigests mit --no-build; keine Uebernahme eines lokalen Teststatus als Freigabe.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand 19.10.2026. Der Operator hat bestätigt: **kein Zielhost verfügbar; lokal vorbereiten**. Windows Docker Desktop ist die lokale Prüfumgebung. Linux/systemd ist eine bereitgestellte Vorlage, kein getesteter Zielbetrieb. Die lokale synthetische Staging-Installation ist keine Produktionsfreigabe.
 
 ## Reihenfolge

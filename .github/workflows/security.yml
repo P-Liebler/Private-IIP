@@ -66,7 +66,7 @@ jobs:
       - name: Critical package gate (not release approval)
         run: python3 ops/security_policy.py "$RUNNER_TEMP/pr4-images/inventory.json" --required api web --critical-only
       - name: Recorded full-release critical gate (does not replace a fresh full scan)
-        run: python3 ops/security_policy.py docs/security/PR4_IMAGE_INVENTORY.json --required caddy postgres valkey minio backend web prometheus grafana mlflow ollama --critical-only
+        run: python3 ops/security_policy.py docs/security/pr4-20261021/inventory-final.json --required caddy postgres valkey minio backend web prometheus grafana mlflow ollama --critical-only
       - name: Full inventory operator audit
         if: ${{ always() && inputs.full_inventory && steps.scanner.outcome == 'success' }}
         run: |

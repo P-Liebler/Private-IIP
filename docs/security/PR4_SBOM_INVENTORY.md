@@ -1,5 +1,12 @@
 # PR4 – SBOM-Inventar
 
+## Aktueller Nachweis vom 21.10.2026
+
+Aktuelle zehn originale CycloneDX-SBOMs liegen unter pr4-20261021/packages; ihre Hashes und formale Schema-Pruefung sind im neuen Inventar gebunden. Alte SBOMs und RC-Nachweise bleiben historische Snapshots. Fehlgeschlagene oder manipulierte Originalscans bleiben SCAN_INCOMPLETE.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand: 20.10.2026. Zehn unveränderte CycloneDX-1.7-SBOM-Dateien des geprüften Endbestands. Offline gegen die offiziellen, lokal versionierten Schemas validiert. Ein SBOM ist ein Paketverzeichnis, keine Security-Freigabe.
 
 | Komponente | Image-/Index-Digest | SBOM und SHA-256 |

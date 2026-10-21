@@ -1,5 +1,18 @@
 # Operator-Abnahmeprotokoll
 
+## Aktueller Nachweis vom 21.10.2026
+
+[ ] Gepatchte Backend-TLS-Runtime mit strengem Legacy-Modellvertrag abgenommen.
+
+[ ] MinIO-Wartungs-/Migrationsentscheidung und PostgreSQL-Criticals behandelt.
+
+[ ] Neue High-/native-/CSP-Reviews, tatsaechlicher Remote-CI-Pass, frische Digests/SBOMs und neuer RC geprueft.
+
+[ ] Zielhost, VPN/CA, unabhaengige Backups, Recovery, Alarmempfang und Hostneustart separat nachgewiesen. Lokaler RC PR4-LOCAL-20261021-01 ist gesperrt.
+
+[Neue Abnahme und priorisierte Restarbeit](../PR4_ACCEPTANCE_20261021.md). Die folgenden Angaben vom 19./20.10. bleiben als historische Nachweise erhalten; sie sind nicht der aktuelle Sicherheitsstand.
+
+
 Stand 19.10.2026: **Zielhost noch nicht verfügbar; lokal vorbereiten**. Dieses Dokument ist ein Evidenzprotokoll, kein UI-Schalter und keine Quellen-/Modellfreigabe.
 
 Jeder Nachweis braucht Verantwortlichen, UTC-Zeit, Host-/Clientkennung ohne Secrets, Code-/Image-/Schema-Version, reproduzierbare Schritte, tatsächliches Ergebnis, geschützten Artefaktverweis und verbleibende Einschränkungen. Bei unbekanntem Ergebnis bleibt NOT_VERIFIED; keine leeren Häkchen als Freigabe interpretieren.

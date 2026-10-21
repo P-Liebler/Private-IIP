@@ -1,0 +1,8 @@
+# Controlled continuation of the certifi-patched PR4 build. The standalone
+# Dockerfile builds the same pinned package versions from scratch; its digest
+# must be scanned separately. No numerical Core lock is changed here.
+FROM private-iip/mlflow:pr4-rc3@sha256:310bd3623dfbdded7cea78dbaf59fb8264835ada39bc3b591fb2b32c69199d7f
+USER root
+COPY backend/requirements-mlflow.lock /app/requirements-mlflow.lock
+RUN pip install --no-cache-dir --no-deps --upgrade pillow==13.0.0 && pip check
+USER appuser
