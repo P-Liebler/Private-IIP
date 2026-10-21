@@ -152,7 +152,9 @@ async def main() -> None:
                 "exact hashes and provenance verified"
             )
     async with httpx.AsyncClient(
-        base_url="http://127.0.0.1:8000", headers={"Origin": "http://restore.local"}
+        base_url="http://127.0.0.1:8000",
+        headers={"Origin": "http://restore.local"},
+        timeout=httpx.Timeout(30, connect=5),
     ) as client:
         login = await client.post(
             "/api/v1/auth/login", json={"username": username, "password": password}

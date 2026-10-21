@@ -1,0 +1,16 @@
+# PR4 maintenance build: same Caddy application, patched Go toolchain and x/net.
+# Production release still requires the separate manifest and operator gates.
+FROM golang:1.27.2-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build
+ENV GOTOOLCHAIN=local CGO_ENABLED=0
+RUN go mod download -json github.com/caddyserver/caddy/v2@v2.11.7 > /tmp/module.json
+RUN cp -a /go/pkg/mod/github.com/caddyserver/caddy/v2@v2.11.7 /src && chmod -R u+w /src
+WORKDIR /src
+RUN go mod edit -require=golang.org/x/net@v0.60.0 \
+    && go mod tidy \
+    && go build -trimpath -ldflags='-s -w -X github.com/caddyserver/caddy/v2.CustomVersion=v2.11.7-pr4.1' -o /out/caddy ./cmd/caddy
+
+FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+RUN apk upgrade --no-cache
+COPY --from=build /out/caddy /usr/bin/caddy
+COPY --from=build /src/go.mod /usr/share/caddy-build/go.mod
+COPY --from=build /src/go.sum /usr/share/caddy-build/go.sum

@@ -30,6 +30,7 @@ test("synthetic PIT baseline run has independently expected metrics and fill pro
   await page.getByLabel("Kommission").fill("1");
   await page.getByLabel("Spread bps").fill("0");
   await page.getByLabel("Slippage bps").fill("0");
+  await expect(page.getByRole("button", { name: "Backtest starten" })).toBeEnabled({ timeout: 45000 });
   await page.getByRole("button", { name: "Backtest starten" }).click();
   await expect(page.getByRole("heading", { name: "Ergebnis: STRICT_PIT_VALID" })).toBeVisible();
   const row = page.getByRole("row").filter({ has: page.getByRole("cell", { name: "Total Return", exact: true }) });

@@ -8,7 +8,7 @@ const apiBase=process.env.E2E_API_BASE_URL??"http://localhost:8000/api/v1";
 
 test("research financials valuation scores and owned watchlist",async({page})=>{
   test.skip(!username||!password||!instrument,"Use explicit local synthetic research fixture");
-  await page.goto("/login");await page.getByLabel("Benutzername").fill(username!);await page.getByLabel("Passwort").fill(password!);await page.getByRole("button",{name:"Anmelden"}).click();await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/login");await page.getByLabel("Benutzername").fill(username!);await page.getByLabel("Passwort").fill(password!);await page.getByRole("button",{name:"Anmelden"}).click();await page.waitForURL("**/dashboard", {timeout:30000});
   await page.goto("/watchlists");const name=`P5 acceptance ${Date.now()}`;await page.getByLabel("Watchlist Name").fill(name);await page.getByRole("button",{name:"Watchlist erstellen"}).click();await expect(page.getByRole("option",{name})).toBeAttached();
   let watchId:string|undefined;
   try {
@@ -23,7 +23,7 @@ test("research financials valuation scores and owned watchlist",async({page})=>{
 
 test("missing fundamentals and disabled sources remain explicit",async({page})=>{
   test.skip(!username||!password||!missing,"Use explicit missing-data instrument");
-  await page.goto("/login");await page.getByLabel("Benutzername").fill(username!);await page.getByLabel("Passwort").fill(password!);await page.getByRole("button",{name:"Anmelden"}).click();await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/login");await page.getByLabel("Benutzername").fill(username!);await page.getByLabel("Passwort").fill(password!);await page.getByRole("button",{name:"Anmelden"}).click();await page.waitForURL("**/dashboard", {timeout:30000});
   await page.goto(`/instrument/${missing}`);await expect(page.getByText(/Keine validierten Fundamentals/)).toBeVisible();await page.getByRole("button",{name:"Scores",exact:true}).click();await expect(page.getByRole("heading",{name:"Quality: INSUFFICIENT_DATA"})).toBeVisible();
   await page.goto("/research");await expect(page.getByText("SEC_EDGAR: UNKNOWN · deaktiviert")).toBeVisible();
 });

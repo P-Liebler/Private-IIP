@@ -19,3 +19,14 @@ Jeder Nachweis braucht Verantwortlichen, UTC-Zeit, Host-/Clientkennung ohne Secr
 | Image-/Dependencyreview | NOT_VERIFIED_FOR_TARGET | Aktuelle Scanbefunde aller verwendeten Digests und dokumentierte Maßnahmen/Restbefunde |
 
 Core-Freigabe erst nach allen Pflichtnachweisen. Unabhängig davon bleiben bis zu tatsächlicher neuer finanzieller Evidenz **REAL_DATA_LIMITED**, **FORECASTS_SHADOW_ONLY**, **RECOMMENDATIONS_GATED**. Quellen-/ML-/Strategieentscheidungen nur über ihre bestehenden geprüften Verträge, keine automatische Promotion aus PR3.
+## PR4 – zusätzliche Release-Gates
+
+- [ ] Vollständiges, frisches Inventar aller tatsächlich bereitgestellten Images, einschliesslich optionaler Dienste und Aliase; Digests stimmen mit dem RC-Manifest überein.
+- [ ] CycloneDX-Schema- und Bytehashprüfung bestanden; Scanner-/DB-Version und native Abdeckungsgrenzen dokumentiert.
+- [ ] Critical-/High-Befunde konkret behandelt; keine automatische Ausnahme wegen fehlendem Patch. Genehmigte Ausnahmen sind CVE-, Komponenten- und Digest-genau, begründet und befristet.
+- [ ] Unveränderte alte P6-/P7-/Historienverträge, numerische Locks, vollständige Regression und isolierter Restore mit dem endgültigen Imagebestand nachgewiesen.
+- [ ] Caddy-CA unverändert oder separat genehmigt migriert; echte Client-Trust-, VPN-/Firewall-, DNS-, Backup-/Key-Recovery- und Alarmnachweise liegen vor.
+- [ ] Operatorprüfung erzeugt einen neuen unveränderlichen Freigabenachweis; das lokale blockierte PR4-Manifest ist keine Produktionsfreigabe.
+- [ ] Keine ungeprüfte S3-/Datenbankmigration, Quellenfreigabe oder Modell-/Strategiepromotion aus PR4 ableiten.
+
+Diese Punkte sind Anforderungen, keine vorweggenommenen Operatornachweise. Der reale Zielhost bleibt `TARGET_HOST_NOT_VERIFIED`.

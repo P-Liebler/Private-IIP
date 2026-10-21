@@ -22,7 +22,7 @@ def main() -> None:
     for source in args.paths:
         files = source.rglob("*") if source.is_dir() else [source]
         for path in files:
-            if path.suffix.lower() not in {".md", ".txt", ".json"} or not path.is_file():
+            if path.suffix.lower() not in {".md", ".txt", ".json", ".log"} or not path.is_file():
                 continue
             raw = path.read_bytes()
             encoding = "utf-16" if raw.startswith((b"\xff\xfe", b"\xfe\xff")) else "utf-8-sig"

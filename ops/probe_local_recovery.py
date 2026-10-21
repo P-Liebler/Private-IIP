@@ -28,6 +28,8 @@ def main() -> int:
     parser.add_argument("--portfolio-id", required=True)
     parser.add_argument("--instrument-id", required=True)
     parser.add_argument("--faults", action="store_true", help="Explicitly permit local container stop/start")
+    parser.add_argument("--optional-faults", action="store_true", help="Explicitly test local MLflow/Ollama stop/start")
+    parser.add_argument("--compose-override", type=Path, help="Local staging image override, never a target deployment")
     args = parser.parse_args()
     values = read_env(args.env_file)
     if values.get("APP_ENV") != "staging" or values.get("VPN_BIND_ADDRESS") != "127.0.0.1" or values.get("APP_DOMAIN") != "localhost":
@@ -59,7 +61,10 @@ def main() -> int:
         assert result["status"] == "COMPLETE" and Decimal(result["total_value_base"]) == Decimal("10180")
 
     def compose(*command: str):
-        result = subprocess.run(["docker", "compose", "--env-file", str(args.env_file), "-f", "docker-compose.prod.yml", *command], capture_output=True, check=False)
+        base = ["docker", "compose", "--env-file", str(args.env_file), "-f", "docker-compose.prod.yml"]
+        if args.compose_override:
+            base += ["-f", str(args.compose_override)]
+        result = subprocess.run([*base, *command], capture_output=True, check=False)
         if result.returncode:
             raise RuntimeError("Controlled Compose operation failed")
 
@@ -103,6 +108,21 @@ def main() -> int:
                 raise RuntimeError("API did not recover")
             evidence["api_warm_restart_seconds"] = round(time.perf_counter() - started, 3)
             portfolio()  # Existing cookie remains valid against the persisted session table.
+        if args.optional_faults:
+            for service in ("mlflow", "ollama"):
+                compose("start", "--wait", service)
+                compose("stop", service)
+                try:
+                    fetch("/api/v1/health/ready")
+                    portfolio()
+                    fetch(f"/api/v1/instruments/{args.instrument_id}")
+                    assistant = fetch("/api/v1/assistant/status")
+                    if service == "ollama":
+                        assert assistant["status"] == "LLM_UNAVAILABLE"
+                finally:
+                    compose("start", "--wait", service)
+                evidence[service + "_outage"] = "CORE_REMAINS_AVAILABLE"
+                portfolio()
         fetch("/api/v1/auth/logout", {}, expected=204)
         fetch("/api/v1/settings", expected=401)
         evidence["passed"] = True

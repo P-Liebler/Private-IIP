@@ -11,3 +11,10 @@
 `rollback-prep` sichert den aktuellen Zustand, führt aber kein Rollback aus. Ein altes Image kann mit neuem Schema inkompatibel sein. Dann in **neue isolierte Volumes** den vor dem Update verifizierten Satz plus passende Secrets/CA und alte Images restaurieren, Hashes und funktionale Abnahme prüfen, erst anschließend im Wartungsfenster umschalten. Zwischenzeitliche neue Daten müssen als mögliches Verlustfenster ausgewiesen werden; keine blinde Alembic-Downgrade-Ausführung. Die einzige alte Kopie und immutable Archive dürfen nicht überschrieben werden.
 
 Numerische/Assistant-Dependency-Locks bleiben unverändert. Sicherheitsupdates an diesen Pins sind eine ausdrückliche Runtime-Migration mit neuen Modellartefakten und vollständiger Validierung, niemals nachträgliche Änderung archivierter Manifeste.
+## PR4-Ergänzung: Auditbindung und Rollbackgrenzen
+
+Vor einem Upgrade müssen Quellstand, Lockfiles, Konfigurationsvertrag, SBOM-Bytes und tatsächliche Image-Digests im unveränderlichen RC-Manifest gebunden sein. `ops/deploy.py` verweigert Produktion bei offenen Security-/Zielhost-/Operator-Gates und baut dort keine Images neu. Ein Tagvergleich genügt nicht. Eigene Caddy-/PostgreSQL-Builds benötigen eine nachvollziehbare Bereitstellung der geprüften Bytes auf dem Zielhost.
+
+PostgreSQL bleibt Major 17, pgvector 0.8.6. Ein späterer Major-Wechsel braucht einen eigenen Dump-/Restore-/Kollations- und Queryvergleich; kein blindes Starten auf bestehenden Volumes. Die Python-Basisänderung erhält die numerischen Locks und verlangt die strikte Prüfung alter Modellmanifeste. Keine historischen Manifeste umschreiben, um einen Rollback zu ermöglichen.
+
+Ein Code-/Image-Rollback darf nur auf nachweislich schemakompatible Digests erfolgen. Nach angewandter inkompatibler Migration gibt es keine automatische Alembic-Rückmigration: kontrollierter Restore aus geprüftem Backup, dokumentierter Datenverlustzeitraum und separate Operatorentscheidung. Der alte Bestand bleibt bis zum abgeschlossenen Nachweis verfügbar. MinIO wird durch PR4 nicht automatisch migriert; siehe [S3-Review](S3_COMPATIBILITY_REVIEW.md).

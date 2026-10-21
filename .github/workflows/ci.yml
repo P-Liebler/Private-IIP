@@ -4,12 +4,21 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
+  security:
+    uses: ./.github/workflows/security.yml
+    permissions:
+      contents: read
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       - name: Prepare ephemeral local environment
         run: |
           cp .env.example .env
@@ -41,7 +50,7 @@ jobs:
           docker compose run --rm --no-deps web npm run lint
           docker compose run --rm --no-deps web npm run typecheck
           docker compose run --rm --no-deps web npm run build
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: '24'
           cache: npm

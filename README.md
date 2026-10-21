@@ -1,5 +1,9 @@
 # Private Investment Intelligence Platform
 
+## PR4 – Sicherheitsprüfung und Release-Vorbereitung
+
+**Lokal verifiziert; SECURITY_BLOCKED; TARGET_HOST_NOT_VERIFIED.** 264 Backendtests, 21 Browserfälle und 30 Host-/Security-Tests bestanden. Zehn Images/SBOMs geprüft; frischer isolierter Restore mit 342 Raw-Objekten, unveränderten P6-/P7-Verträgen und Golden CHF 10'180 bestanden. Der lokale RC bleibt wegen offener PostgreSQL-/MinIO-Criticals und fehlender Zielhost-Abnahme nicht freigegeben. [Gesamtabnahme](docs/PR4_ACCEPTANCE_REPORT.md), [PR4A](docs/PR4A_SECURITY_ASSESSMENT_REPORT.md), [PR4B](docs/PR4B_REMEDIATION_REPORT.md), [PR4C und Manifest](docs/PR4C_RELEASE_CANDIDATE_REPORT.md), [S3-Entscheid](docs/operations/S3_COMPATIBILITY_REVIEW.md). Die Produktionsausführung verlangt separate Security-/Zielhost-/Operatorfreigaben und geprüfte Digest-Images; siehe [Deployment](docs/operations/DEPLOYMENT_GUIDE.md).
+
 ## PR3 – private Installation und Betrieb
 
 Lokale Vorbereitung mit Produktionspreflight, geschützter Operatoransicht `/system/status`, gehärtetem Compose und Backup-/Restore-/Monitoringwerkzeugen. `OPERATIONS_OPERATOR_USERNAMES` ist eine eigene ausdrückliche JSON-Allowlist. [Deployment Guide](docs/operations/DEPLOYMENT_GUIDE.md), [PR3-Bericht](docs/PR3_ACCEPTANCE_REPORT.md) und [offene Operatornachweise](docs/operations/OPERATOR_ACCEPTANCE_CHECKLIST.md) sind maßgeblich. Zielhost noch nicht verfügbar; lokale Tests ersetzen keine VPN-, Client-CA-, unabhängige Backup- oder Produktionsfreigabe. Aktuelle Image-Sicherheitsbefunde bleiben offen. Finanzsammlung/Forward bleiben aus, Forecasts SHADOW und Empfehlungen GATED.

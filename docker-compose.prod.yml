@@ -56,6 +56,9 @@ x-backend-environment: &backend-environment
 
 services:
   ollama:
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
     profiles: [llm]
     image: ollama/ollama:0.40.4@sha256:926d40fd6eeeebd346b5c358a63de2a10ec995371cd93dd22f1843200694b1a6
     environment:
@@ -78,6 +81,9 @@ services:
     restart: unless-stopped
     networks: [platform]
   mlflow:
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
     profiles: [ml]
     build: {context: ., dockerfile: ops/mlflow/Dockerfile}
     environment: *backend-environment
@@ -90,7 +96,16 @@ services:
     logging: *bounded-logging
     security_opt: [no-new-privileges:true]
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=5).close()"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 180s
   ml-worker:
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
     profiles: [ml]
     build: {context: ., dockerfile: backend/Dockerfile, target: production}
     command: ["celery", "-A", "app.jobs.celery_app:celery_app", "worker", "--loglevel=WARNING", "--concurrency=1", "--queues=ml", "--hostname=ml@%h", "--max-tasks-per-child=1"]
@@ -105,10 +120,17 @@ services:
     logging: *bounded-logging
     security_opt: [no-new-privileges:true]
     restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.jobs.celery_app:celery_app inspect ping --destination=ml@$$HOSTNAME --timeout=5"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 30s
   postgres:
     mem_limit: 1g
     cpus: 2
-    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    image: private-iip/postgres:pr4-rc1
+    build: {context: ., dockerfile: ops/postgres/Dockerfile.candidate}
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-investment}
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
@@ -127,7 +149,7 @@ services:
   valkey:
     mem_limit: 256m
     cpus: 1
-    image: valkey/valkey:8.1.10-alpine
+    image: valkey/valkey:8.1.10-alpine@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507
     command: ["valkey-server", "--appendonly", "yes"]
     volumes: [valkey_data:/data]
     healthcheck:
@@ -143,7 +165,7 @@ services:
   minio:
     mem_limit: 1g
     cpus: 2
-    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9
     command: ["server", "/data"]
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
@@ -163,7 +185,11 @@ services:
   caddy:
     mem_limit: 256m
     cpus: 1
-    image: caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+    image: private-iip/caddy:pr4-rc1
+    build: {context: ., dockerfile: ops/caddy/Dockerfile.candidate}
+    read_only: true
+    cap_drop: [ALL]
+    tmpfs: [/tmp]
     environment:
       APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN}
     ports:
@@ -184,14 +210,21 @@ services:
     networks: [platform]
 
   ca-export:
-    image: caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+    image: private-iip/caddy:pr4-rc1
+    build: {context: ., dockerfile: ops/caddy/Dockerfile.candidate}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]
+    mem_limit: 32m
+    cpus: 0.25
     command: ["sh", "-c", "for attempt in $$(seq 1 120); do if test -f /data/caddy/pki/authorities/local/root.crt; then cp /data/caddy/pki/authorities/local/root.crt /trust/root.crt && chmod 644 /trust/root.crt; exit $$?; fi; sleep 1; done; exit 1"]
     volumes:
       - caddy_data:/data:ro
       - caddy_ca:/trust
     depends_on:
       caddy: { condition: service_started }
-    networks: [platform]
+    network_mode: none
 
   api:
     mem_limit: 2g
@@ -309,9 +342,12 @@ services:
     networks: [platform]
 
   prometheus:
+    read_only: true
+    cap_drop: [ALL]
+    tmpfs: [/tmp]
     mem_limit: 512m
     cpus: 1
-    image: prom/prometheus:v3.6.0
+    image: prom/prometheus:v3.15.0@sha256:efd719c99d83b060d9daefdcf00360461adf279f45ef5391f8d111892118753e
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=30d"]
     volumes:
       - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -329,9 +365,12 @@ services:
     networks: [platform]
 
   grafana:
+    read_only: true
+    cap_drop: [ALL]
+    tmpfs: [/tmp]
     mem_limit: 512m
     cpus: 1
-    image: grafana/grafana:12.3.4
+    image: grafana/grafana:12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?set GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
@@ -355,7 +394,7 @@ services:
 
   backup:
     profiles: [ops]
-    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9
     entrypoint: ["mc"]
     environment:
       MC_HOST_local: http://${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}:${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}@minio:9000

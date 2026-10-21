@@ -16,7 +16,7 @@ test("PR3 system status keeps operator and financial gates explicit", async ({ p
     await expect(page.getByText("independent_backup: NOT_VERIFIED", { exact: true })).toBeVisible();
     await expect(page.getByText("RECOMMENDATIONS_GATED", { exact: true })).toBeVisible();
   } else {
-    await expect(page.getByRole("alert")).toContainText("Operations access required");
+    await expect(page.getByRole("alert").filter({ hasText: "Operations access required" })).toBeVisible();
     await expect(page.getByText("Dienste", { exact: true })).toHaveCount(0);
   }
 });

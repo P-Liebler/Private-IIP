@@ -41,7 +41,9 @@ test("PR2 model comparison requires untouched chronological windows", async ({ p
 });
 
 test("PR2 forward history is experimental and does not invent metrics", async ({ page }) => {
+  const report = page.waitForResponse(response => new URL(response.url()).pathname.endsWith("/validation/forward") && response.request().method() === "GET" && response.ok(), { timeout: 30000 });
   await page.goto("/models/forward-validation");
+  expect((await report).status()).toBe(200);
   await expect(page.getByRole("heading", { name: "Forward Shadow History", exact: true })).toBeVisible();
   await expect(page.getByText(/FORWARD_ARCHIVED_SHADOW/).first()).toBeVisible();
   await expect(page.getByText(/INSUFFICIENT_MATURED_HISTORY/).first()).toBeVisible();

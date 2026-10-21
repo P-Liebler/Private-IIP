@@ -1,0 +1,43 @@
+services:
+  seaweed:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: [server, -s3, -dir=/data, -ip=seaweed, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64]
+    working_dir: /data
+    volumes:
+      - data:/data
+      - ${S3_TEST_CONFIG:?explicit synthetic config required}:/etc/seaweed/s3.json:ro
+    networks: [isolated]
+    mem_limit: 512m
+    cpus: 1
+    security_opt: [no-new-privileges:true]
+  minio-sdk:
+    image: private-iip-pr4-backend-candidate
+    entrypoint: [python, /probe/s3_compatibility_probe.py]
+    environment: &fixture
+      PYTHONPATH: /app
+      S3_COMPAT_TEST_MODE: synthetic-isolated-pr4
+      S3_TEST_ACCESS: ${S3_TEST_ACCESS:?explicit synthetic credential required}
+      S3_TEST_SECRET: ${S3_TEST_SECRET:?explicit synthetic credential required}
+      S3_PROBE_SDK: minio
+    volumes: [./s3_compatibility_probe.py:/probe/s3_compatibility_probe.py:ro]
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  boto3-sdk:
+    image: private-iip-pr4-mlflow-candidate
+    entrypoint: [python, /probe/s3_compatibility_probe.py]
+    environment:
+      <<: *fixture
+      S3_PROBE_SDK: boto3
+    volumes: [./s3_compatibility_probe.py:/probe/s3_compatibility_probe.py:ro]
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+networks:
+  isolated: {internal: true}
+volumes:
+  data:

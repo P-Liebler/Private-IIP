@@ -17,3 +17,13 @@ Stand 19.10.2026. Der Operator hat bestätigt: **kein Zielhost verfügbar; lokal
 ## Tatsächlich offene Bedingungen
 
 Zielhost, private DNS-/VPN-Konfiguration, Windows-/Android-CA-Vertrauen, unabhängiges verschlüsseltes Backupziel, aktiver Tageszeitplan, echte Schlüssel-Recovery und nachgewiesene Alarmzustellung sind **NOT_VERIFIED**. Kein Hostneustart oder Firewall-/DNS-/Task-Scheduler-Eingriff wurde autorisiert oder ausgeführt.
+
+## PR4: überprüfbarer Imagebestand vor dem Rollout
+
+Die Build-Vorgaben verwenden geprüfte Basis-Digests. Eigene Images werden lokal unter versionierten RC-Tags gebaut; diese Tags allein sind keine Freigabe und kein Nachweis ihrer Verfügbarkeit in einer Registry. Für den Zielhost müssen die exakt geprüften Images über eine genehmigte Registry oder verifizierte Offline-Archive bereitgestellt werden. Keine ungeprüften Ersatzimages verwenden.
+
+Vor einer Produktionsausführung verlangt `ops/deploy.py` zusätzlich `--release-manifest <genehmigtes-manifest.json>`. Geprüft werden Manifestinhalt, referenzierte Artefakthashes, der Git-sichtbare Quellbestand, vollständige Digest-Zuordnung aller Dienste sowie die separaten Zustände `SECURITY_REMEDIATED`, `TARGET_HOST_VERIFIED` und `OPERATOR_APPROVED` mit Operatornachweis. Das lokale PR4-Manifest erfüllt diese Freigabezustände ausdrücklich nicht. Es darf nicht allein durch Umbenennen von Statusfeldern zu einer Freigabe erklärt werden; die nachgewiesenen Entscheidungen benötigen einen neuen append-only Nachweis.
+
+Nach bestandener Freigabe startet der Produktionspfad ausschliesslich die Manifestimages mit `--no-build`. Ein neuer Build, eine andere Konfiguration oder ein neuer Digest verlangt erneute Audit-/Kompatibilitätsnachweise. Backup und kontrollierte, ausdrücklich geprüfte Alembic-Migration bleiben vorgeschaltet. Der lokale Stagingpfad ist weiterhin getrennt und erteilt keine Produktionsfreigabe.
+
+Security-Prüfkette: verifizierten Trivy-Scanner und aktuelle DB bereitstellen; `ops/ci_full_image_audit.py` für den vollständigen Compose-Bestand ausführen; `ops/validate_sboms.py` prüft die exakten SBOM-Bytes gegen vendorte offizielle Schemas; `ops/security_policy.py` bewertet das vollständige Inventar. Fehlende Images, Scanfehler, ungültige SBOMs und nicht genehmigte Critical-Befunde sind Blocker. Der kritische CI-Paketcheck ist keine vollständige Release-Abnahme. Details: [PR4A](../PR4A_SECURITY_ASSESSMENT_REPORT.md), [S3-Entscheidung](S3_COMPATIBILITY_REVIEW.md).

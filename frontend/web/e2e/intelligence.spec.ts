@@ -41,12 +41,14 @@ test("P10 unavailable alert is explicit, brief is idempotent, optimizer abstains
   test.skip(!username || !password || !portfolio || !instrument, "Explicit synthetic local fixture required");
   await login(page);
   await page.goto("/alerts");
-  await page.getByLabel("Regelname").fill(`SYNTHETIC browser ${Date.now()}`);
+  const ruleName = `SYNTHETIC browser ${Date.now()}`;
+  await page.getByLabel("Regelname").fill(ruleName);
   await page.getByLabel("Alert-Typ").selectOption("FORECAST_CHANGED");
   await page.getByLabel("Instrument-ID", { exact: true }).fill(instrument!);
   await page.getByRole("button", { name: "Regel speichern", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Jetzt auswerten", exact: true }).first()).toBeEnabled();
-  await page.getByRole("button", { name: "Jetzt auswerten", exact: true }).first().click();
+  const rule = page.getByRole("article").filter({ has: page.getByRole("heading", { name: `${ruleName} · FORECAST_CHANGED`, exact: true }) });
+  await expect(rule.getByRole("button", { name: "Jetzt auswerten", exact: true })).toBeEnabled({ timeout: 30000 });
+  await rule.getByRole("button", { name: "Jetzt auswerten", exact: true }).click();
   await expect(page.locator("main")).toContainText("ALERT_EVALUATION_UNAVAILABLE");
   await page.goto("/daily-brief");
   await page.getByRole("button", { name: "Bericht jetzt erstellen", exact: true }).click();

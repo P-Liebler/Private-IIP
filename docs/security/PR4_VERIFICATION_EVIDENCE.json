@@ -1,0 +1,117 @@
+{
+  "recorded_at": "2026-10-20T15:09:28.858928+00:00",
+  "scope": "LOCAL_TECHNICAL_VERIFICATION_NOT_RELEASE_APPROVAL",
+  "baseline_commit": "581a13c415d20ff8594d5ecf97b98226b8b5c74e",
+  "tests": {
+    "backend": {
+      "passed": 264,
+      "seconds": 397.4,
+      "warnings": [
+        "Existing Starlette testclient deprecation"
+      ],
+      "runtime": "Python 3.12.15 / Debian Trixie development image; baseline local PostgreSQL 17.11"
+    },
+    "browser": {
+      "passed": 21,
+      "skipped": 0,
+      "reported_duration": "2.1m",
+      "workers": 1,
+      "runtime": "Completed Node 24.22 standalone build via E2E Compose"
+    },
+    "host_security": {
+      "passed": 30,
+      "seconds": 2.147,
+      "includes_original_operational_goldens": 12
+    },
+    "frontend": [
+      "lint passed",
+      "typecheck passed",
+      "standalone build passed"
+    ],
+    "backend_quality": [
+      "Ruff passed",
+      "285 files formatted",
+      "Mypy 197 files passed"
+    ],
+    "migration": {
+      "head": "0019_validation",
+      "required_tables": 76
+    },
+    "unchanged_contracts": {
+      "master_main_sections": 212,
+      "master_content_unchanged": true,
+      "dependency_locks_unchanged": 4
+    }
+  },
+  "image_package_scans": {
+    "count": 10,
+    "status": "SCANNED_EXACT_IMAGE",
+    "scanner": "Trivy 0.76.0",
+    "database_updated_at": "2026-10-20T07:17:35.368599961Z",
+    "native_ollama_review": "SCAN_INCOMPLETE_MANUAL_REVIEW_REQUIRED"
+  },
+  "sboms": {
+    "count": 10,
+    "formal_schema_validation": true,
+    "original_byte_hash_validation": true
+  },
+  "dependency_audit_exit_codes": {
+    "core_exit": 0,
+    "mlflow_exit": 0,
+    "npm_exit": 0
+  },
+  "source_secret_scan": {
+    "status": "NO_KNOWN_SECRET_FINDINGS",
+    "finding_count": 0,
+    "report_sha256": "e04ed209af17ee87d674a98703a4a6b31250cc8cbdb212dd4c47f15d43046012",
+    "scope": "Git-visible source snapshot before RC generation; ignored operator files not read"
+  },
+  "preflight": {
+    "secure_fixture": "PASSED_LOCAL_PREFLIGHT_NOT_TARGET_ACCEPTANCE",
+    "ci_configuration": "PASSED_OFFLINE",
+    "localhost_stage": "REJECTED_APP_DOMAIN_INVALID_AS_DESIGNED"
+  },
+  "normal_local_settings": {
+    "app_env": "local",
+    "assistant_test_mode": false,
+    "data_collection_enabled": false,
+    "forward_shadow_enabled": false
+  },
+  "staging": {
+    "healthy_long_running_services": 13,
+    "observed_roles_including_ca_export": 14,
+    "tls_auth_golden_monitoring": "PASSED",
+    "browser_page_errors": 0,
+    "browser_csp_errors": 0,
+    "mlflow_authenticated_s3_roundtrip": "PASSED",
+    "ollama_inference_gpu": "NOT_VERIFIED"
+  },
+  "evidence_file_sha256": {
+    "backups/pr4-final-backend.txt": "8e2117610e035913b1f52c6e14479713960184cb801939ab571727308b637d04",
+    "backups/pr4-final-ruff.txt": "af352a86840ad0af3d37ea0d9197f868363a6dac6b1c2ef5d2722f6b41d2d9af",
+    "backups/pr4-final-format.txt": "b8ee151a7bd726167a8cff633725c2e0e723e99233108eccd6270f889c0bcd84",
+    "backups/pr4-final-mypy.txt": "d7a748777968c92f922ecc414ce2501081ddb21fc22b4727c3981f26d68b5522",
+    "backups/pr4-final-frontend-lint.txt": "8c3a7b20a8130a63dd9f8b042338f7b7946f2dab657f5b7ca5126a77fc44f6e2",
+    "backups/pr4-final-frontend-typecheck.txt": "86f7dd44da4598e4e576b440d0d806230a7af1c69a7bcda7fa86ed9f01b5d2c3",
+    "backups/pr4-final-frontend-build.txt": "58f8bc529c0b5243f3c5d69988646a99aa9d043e1680a1e2c1f983a748f0981b",
+    "backups/pr4-final-browser.txt": "7c9d543612ba7ec2a5e65d038b549a8fbf6bcbeacff79ef807a86f0adf935495",
+    "backups/pr4-host-final-v9.txt": "81e0de250fa0385dffe5f29ab8f75d0b7bd749d955a04c4ec8b167d7f928b185",
+    "backups/pr4-final-migration.txt": "a99ab452abaa16af20553ecfe272992215818a2527aaeb498f7c43e0e8248ef6",
+    "backups/pr4-final-preflight-fixture.json": "a2369214cb3e9ece81c596cb7f15257c548292b98b0aa45ad4715e02ec6e480b",
+    "backups/pr4-final-ci-preflight.json": "79aab7a441971847ea07d2f0ac684fbe0b9819865656a1699d8bad609abec81c",
+    "backups/pr4-final-preflight.json": "2bc8a75ba5465aab03d37153b73a7e15e41cb50a23ce5a9da4d67e6781a839b8",
+    "backups/pr4-final-workflow-yaml.txt": "d5585dc6cc2f1797d591c9ac99a7bd879211c9f53b41e2621975b99d0c1817e5",
+    "backups/pr4-final-unchanged-contracts.txt": "57cbd1f362b8768ab64133f3e91cd098c9e7bfde9470bbc1c1d84bdd810b84d3",
+    "backups/pr4-final-stage-endpoint.txt": "1cf4d94473c3ff88ab80579de08d6d8c626fdf1fb34b15928dc8cfd9b782961d",
+    "backups/pr4-final-stage-browser.txt": "92851091e885e558d69404f82e8e71af277bb1d50a8f1bcef424f333a144b1b2",
+    "backups/pr4-mlflow-tracking-probe-v3.txt": "4df36adc501201174a780a720955d1d2699adc03db4d84049199482ddcfd32c6",
+    "backups/pr4-final-normal-settings.json": "6b5b7a0c28611b4cab2a5761100760f5f2406006bb1b62be3d26125e46bc2ef9",
+    "backups/pr4-core-dependency-audit.json": "4580af1ebf3656c2bcae1ff650affb85f3aee06cadcd2d22881b9f694f0601b9",
+    "backups/pr4-mlflow-dependency-audit.json": "783cae4a2565b6f47d2abc9a801aab364173c808ff5d105d0442a2c81018d3a4",
+    "backups/pr4-npm-audit.json": "8070cf6fdc98d891beccf4cefd0b064aeec0d2c045953fb935be70dea98bd295",
+    "backups/pr4-dependency-status.json": "3600a6f230c317a3cc23995e37edcffdfe4634480d1a84829d0796b6b0f2f2f2",
+    "backups/pr4-final-top-sbom-validation.json": "2e6850398299c7f2e36b92fac1e705bbbb9610bc26c689cbd52b0fc6a2809bfc",
+    "backups/pr4-final-source-scan/source-security.json": "e04ed209af17ee87d674a98703a4a6b31250cc8cbdb212dd4c47f15d43046012"
+  },
+  "private_evidence_note": "Ignored local raw reports are hashed, not published. Public phase reports, image/SBOM inventories, runtime/fault/restore summaries are versioned separately. No host, source, model or strategy release approval."
+}

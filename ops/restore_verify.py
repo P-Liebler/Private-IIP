@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import secrets
 import subprocess
 import sys
@@ -74,8 +75,14 @@ def main() -> int:
     parser.add_argument("--intelligence-history-hash")
     parser.add_argument("--collections-history-hash")
     parser.add_argument("--validation-history-hash")
+    parser.add_argument("--api-image", help="Prebuilt immutable image reference, including @sha256 digest")
+    parser.add_argument("--postgres-image", help="Reviewed PostgreSQL 17 candidate, including @sha256 digest")
+    parser.add_argument("--object-store-image", help="Reviewed MinIO image, including @sha256 digest")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
+    for image in (args.api_image, args.postgres_image, args.object_store_image):
+        if image and not re.fullmatch(r"[A-Za-z0-9_./:-]+@sha256:[0-9a-f]{64}", image):
+            parser.error("Restore image overrides require an immutable digest")
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
         parser.error("Dataset ID and expected hash must be provided together")
     if bool(args.model_id) != bool(args.expected_artifact_hash):
@@ -134,10 +141,22 @@ def main() -> int:
         "RESTORE_TEST_VALIDATION_HISTORY_HASH": args.validation_history_hash or "",
         "RESTORE_TEST_RECOMMENDATION_HISTORY_HASH": args.recommendation_history_hash or "",
     }
+    for key, value in (("RESTORE_API_IMAGE", args.api_image), ("RESTORE_POSTGRES_IMAGE", args.postgres_image), ("RESTORE_OBJECT_STORE_IMAGE", args.object_store_image)):
+        if value:
+            environment[key] = value
+        else:
+            environment.pop(key, None)
     status: dict[str, object] = {
         "started_at": datetime.now(UTC).isoformat(),
         "success": False,
         "backup_run_id": backup.name,
+        "image_contract": {"api": args.api_image, "postgres": args.postgres_image, "object_store": args.object_store_image},
+        "verified_backup_files": len(manifest["checksums"]),
+        "expected_value": args.expected_value,
+        "archive_contracts": {"dataset": args.expected_dataset_hash, "model": args.expected_artifact_hash,
+                              "predictions": args.prediction_history_hash, "risk": args.risk_history_hash,
+                              "recommendations": args.recommendation_history_hash, "intelligence": args.intelligence_history_hash,
+                              "collections": args.collections_history_hash, "validation": args.validation_history_hash},
     }
     try:
         command(project, compose_file, environment, "up", "-d", "--wait", "postgres", "minio")
@@ -193,7 +212,7 @@ def main() -> int:
             "restored/raw-ingestions",
         )
         command(
-            project, compose_file, environment, "up", "-d", "--build", "--wait", "api", "valkey"
+            project, compose_file, environment, "up", "-d", "--no-build" if args.api_image else "--build", "--wait", "api", "valkey"
         )
         command(
             project,
@@ -218,11 +237,14 @@ def main() -> int:
     finally:
         target = root / "runtime" / "restore-status.json"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
         try:
             command(project, compose_file, environment, "down", "-v", "--remove-orphans")
+            status["cleanup_success"] = True
         except RuntimeError:
+            status["cleanup_success"] = False
             print("Isolated restore cleanup failed; inspect the restore project", file=sys.stderr)
+        status["cleanup_completed_at"] = datetime.now(UTC).isoformat()
+        target.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
         operation_lock.close()
 
 

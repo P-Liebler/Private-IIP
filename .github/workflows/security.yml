@@ -1,0 +1,97 @@
+name: Security evidence
+
+on:
+  workflow_call:
+    inputs:
+      full_inventory:
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      full_inventory:
+        type: boolean
+        default: true
+        description: Scan the complete configured image inventory
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Dependency, source and critical image gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install checksum-pinned scanner
+        id: scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
+          mkdir -p "$RUNNER_TEMP/pr4-tools"
+          curl --fail --location --retry 2 https://github.com/aquasecurity/trivy/releases/download/v0.76.0/trivy_0.76.0_Linux-64bit.tar.gz -o "$RUNNER_TEMP/pr4-tools/trivy.tar.gz"
+          echo "e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7  $RUNNER_TEMP/pr4-tools/trivy.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/pr4-tools/trivy.tar.gz" -C "$RUNNER_TEMP/pr4-tools"
+          echo "SCANNER=$RUNNER_TEMP/pr4-tools/trivy" >> "$GITHUB_ENV"
+          echo "SCANNER_SHA=$(sha256sum "$RUNNER_TEMP/pr4-tools/trivy" | cut -d ' ' -f 1)" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/pr4-tools/trivy" image --download-db-only --cache-dir "$RUNNER_TEMP/pr4-cache" --db-repository public.ecr.aws/aquasecurity/trivy-db:2
+      - name: Offline contracts and source secrets
+        run: |
+          python3 -m unittest discover -s ops/tests -v
+          python3 ops/create_security_ci_env.py "$RUNNER_TEMP/security.env"
+          python3 ops/preflight.py --env-file "$RUNNER_TEMP/security.env" --mode PRODUCTION --offline
+          docker compose -f docker-compose.prod.yml --env-file "$RUNNER_TEMP/security.env" --profile '*' config --quiet
+          python3 ops/scan_source_secrets.py --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --output "$RUNNER_TEMP/pr4-source"
+      - name: Dependency audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'echo DEPENDENCY_SECURITY_NOT_PASSED' ERR
+          python3 -m venv "$RUNNER_TEMP/audit-venv"
+          "$RUNNER_TEMP/audit-venv/bin/pip" install pip-audit==2.10.1 jsonschema==4.26.0
+          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements.lock -r backend/requirements-assistant.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-core-dependencies.json"
+          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements-mlflow.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-mlflow-dependencies.json"
+          docker build -f frontend/web/Dockerfile --target dependencies -t private-iip-security-npm .
+          docker run --rm private-iip-security-npm npm audit --omit=dev --json > "$RUNNER_TEMP/pr4-npm-dependencies.json"
+      - name: Build core production images and scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
+          python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-images" --core-only
+          "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-images/inventory.json" --output "$RUNNER_TEMP/pr4-core-sbom-validation.json"
+      - name: Critical package gate (not release approval)
+        run: python3 ops/security_policy.py "$RUNNER_TEMP/pr4-images/inventory.json" --required api web --critical-only
+      - name: Recorded full-release critical gate (does not replace a fresh full scan)
+        run: python3 ops/security_policy.py docs/security/PR4_IMAGE_INVENTORY.json --required caddy postgres valkey minio backend web prometheus grafana mlflow ollama --critical-only
+      - name: Full inventory operator audit
+        if: ${{ always() && inputs.full_inventory && steps.scanner.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
+          python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-full-images"
+          "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --output "$RUNNER_TEMP/pr4-full-sbom-validation.json"
+          python3 ops/security_policy.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --required api worker scheduler ml-worker web postgres valkey minio caddy prometheus grafana mlflow ollama
+      - name: Preserve public evidence (no raw scanner configuration or secret matches)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: security-evidence-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/pr4-images/*.record.json
+            ${{ runner.temp }}/pr4-images/inventory.json
+            ${{ runner.temp }}/pr4-images/*.cdx.json
+            ${{ runner.temp }}/pr4-full-images/*.record.json
+            ${{ runner.temp }}/pr4-full-images/inventory.json
+            ${{ runner.temp }}/pr4-full-images/*.cdx.json
+            ${{ runner.temp }}/pr4-source/source-security.json
+            ${{ runner.temp }}/pr4-core-dependencies.json
+            ${{ runner.temp }}/pr4-mlflow-dependencies.json
+            ${{ runner.temp }}/pr4-npm-dependencies.json
+            ${{ runner.temp }}/pr4-core-sbom-validation.json
+            ${{ runner.temp }}/pr4-full-sbom-validation.json
