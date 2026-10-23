@@ -1,5 +1,11 @@
 # Private Installation
 
+## PR5 – Vorbereitung vom 22.10.2026
+
+Der lokale Workflow ist implementiert; **REAL_PRIVATE_DATA_USE_NOT_APPROVED**. [Abnahme](../PR5_ACCEPTANCE_REPORT.md) und [Security Closure](../PR5A_SECURITY_CLOSURE_REPORT.md) sind für den neuen Stand maßgeblich. Gepatchte Core-/Parser-Runtime und getrennte Legacyprüfung ersetzen keine Storage-/High-/native-/Zielhostfreigabe. PostgreSQL-Alpine und SeaweedFS sind isolierte Kandidaten; niemals als automatische Ersatzimages auf Originalvolumes starten. Produktiv-Compose wurde dafür nicht umgeschaltet. Es gibt kein freigegebenes PR5-Produktionsmanifest.
+
+Für einen späteren privaten Pilot eigene Nutzer, Volumes, Secrets und unabhängiges Backup verwenden; Originale und Auszüge außerhalb Git/CI/Browserartefakten halten. [Pilotprotokoll](../user/REAL_PORTFOLIO_PILOT.md). Neue Images benötigen neue exakte Scans und die bestehenden separaten Operatorfreigaben. Ein lokaler Testmodus hebt keine Produktionsprüfung auf.
+
 ## Aktueller Nachweis vom 21.10.2026
 
 Aktueller lokaler Kandidat PR4-LOCAL-20261021-01 ist SECURITY_BLOCKED und darf nicht produktiv ausgerollt werden. Vor Installation: Backend-TLS/Legacy-Runtimeweg, MinIO-Entscheid, PostgreSQL-/High-/native-Reviews, frische Scans und getrennte Security-/Zielhost-/Operatorfreigaben. Nur final freigegebene Manifestdigests mit --no-build; keine Uebernahme eines lokalen Teststatus als Freigabe.

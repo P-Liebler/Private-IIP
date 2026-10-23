@@ -45,7 +45,8 @@ class ModelRegistryService:
         )
         return review.status if review else "EXPERIMENT"
 
-    async def artifact(self, model: MLModelVersion) -> dict[str, Any]:
+    async def archived_bytes(self, model: MLModelVersion) -> tuple[bytes, dict[str, Any]]:
+        """Read/hash/validate archive metadata; never load or execute a model."""
         expected_prefix = f"model-artifacts/{model.training_run_id}/"
         if not model.artifact_key.startswith(expected_prefix) or not model.artifact_key.endswith(
             f"{model.artifact_hash}.json"
@@ -61,8 +62,17 @@ class ModelRegistryService:
             or artifact.get("training_code") != model.configuration["code"]
         ):
             raise AppError(409, "ARTIFACT_CONTRACT_MISMATCH", "Model artifact metadata changed")
+        return data, dict(artifact)
+
+    async def artifact(self, model: MLModelVersion) -> dict[str, Any]:
+        _, artifact = await self.archived_bytes(model)
         if artifact["training_code"]["dependencies"] != code_manifest()["dependencies"]:
             raise AppError(409, "ARTIFACT_DEPENDENCY_MISMATCH", "Pinned dependencies differ")
+        support = artifact["training_code"].get("supporting_dependencies")
+        if support is not None and support != code_manifest()["supporting_dependencies"]:
+            raise AppError(
+                409, "ARTIFACT_DEPENDENCY_MISMATCH", "Pinned supporting dependencies differ"
+            )
         return dict(artifact)
 
     async def review(

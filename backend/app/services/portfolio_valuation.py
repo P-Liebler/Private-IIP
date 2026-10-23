@@ -9,7 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models import CorporateActionVersion, Instrument, PortfolioActionApplication, Transaction
+from app.models import (
+    CorporateActionVersion,
+    DataSource,
+    Instrument,
+    PortfolioActionApplication,
+    Transaction,
+)
 from app.services.market_queries import MarketQueryService, pit_cutoff
 from app.services.portfolio_engine import ZERO, ledger_state, money
 from app.services.portfolios import PortfolioService
@@ -54,10 +60,12 @@ class PortfolioValuationService:
         known_unrealized = ZERO
         cash_complete = True
         securities_complete = True
+        cost_basis_complete = True
         for (account_id, currency), amount in sorted(
             state.cash.items(), key=lambda item: (str(item[0][0]), item[0][1])
         ):
             fx = await self.market.fx(currency, portfolio.base_currency, day, cutoff)
+            fx = await self._source_names(fx)
             rate = cast(Decimal, fx["rate"]) if fx["status"] == "AVAILABLE" else None
             base_amount = money(amount * rate) if rate is not None else None
             if base_amount is None:
@@ -76,11 +84,18 @@ class PortfolioValuationService:
                     "fx": fx,
                 }
             )
+            if amount < 0:
+                issues.append(
+                    {"code": "NEGATIVE_CASH", "account_id": account_id, "currency": currency}
+                )
         for (account_id, instrument_id), position in sorted(
             state.positions.items(), key=lambda item: (str(item[0][0]), str(item[0][1]))
         ):
             if position.quantity == 0:
                 continue
+            if position.cost_basis is None:
+                cost_basis_complete = False
+                issues.append({"code": "UNKNOWN_COST_BASIS", "instrument_id": instrument_id})
             instrument = await self.db.get(Instrument, instrument_id)
             assert instrument is not None
             price_history = await self.market.prices(
@@ -88,6 +103,7 @@ class PortfolioValuationService:
             )
             prices = cast(list[dict[str, object]], price_history["prices"])
             latest = prices[-1] if prices else None
+            source = await self.db.get(DataSource, latest["source_id"]) if latest else None
             price_day = cast(date, latest["date"]) if latest else None
             age = (day - price_day).days if price_day else None
             price = cast(Decimal, latest["close"]) if latest else None
@@ -120,6 +136,7 @@ class PortfolioValuationService:
                     {"code": price_status, "instrument_id": instrument_id, "price_date": price_day}
                 )
             fx = await self.market.fx(position.currency, portfolio.base_currency, day, cutoff)
+            fx = await self._source_names(fx)
             rate = cast(Decimal, fx["rate"]) if fx["status"] == "AVAILABLE" else None
             base_value = money(native * rate) if native is not None and rate is not None else None
             if native is not None and rate is None:
@@ -138,8 +155,9 @@ class PortfolioValuationService:
                 and price_status == "CURRENT"
             ):
                 known_securities += base_value
-                known_cost_basis += money(position.cost_basis * rate)
-                known_unrealized += money((native - position.cost_basis) * rate)
+                if position.cost_basis is not None:
+                    known_cost_basis += money(position.cost_basis * rate)
+                    known_unrealized += money((native - position.cost_basis) * rate)
             unresolved = await self._unapplied_actions(account_id, instrument_id, rows, day, cutoff)
             if unresolved:
                 securities_complete = False
@@ -185,20 +203,36 @@ class PortfolioValuationService:
                     "price_age_days": age,
                     "price_version_id": latest["id"] if latest else None,
                     "price_source_id": latest["source_id"] if latest else None,
+                    "price_source_name": source.name if source else None,
+                    "price_observed_at": latest["observed_at"] if latest else None,
+                    "price_kind": "DAILY_CLOSE_NOT_LIVE",
+                    "market_data_state": "HISTORICAL_ONLY"
+                    if on_date is not None and day < cutoff.date()
+                    else {
+                        "CURRENT": "DELAYED",
+                        "STALE_PRICE": "STALE",
+                        "MISSING_PRICE": "MISSING",
+                        "MISSING_EVENT_PRICE": "INVALID",
+                    }.get(price_status, "MISSING"),
+                    "collection_state": "SOURCE_BLOCKED"
+                    if source and (source.gate_status != "APPROVED" or not source.enabled)
+                    else "MANUAL_IMPORT"
+                    if source and source.slug == "MANUAL_CSV"
+                    else "SOURCE_GATE_REQUIRED",
                     "price_quality": latest["quality_label"] if latest else None,
                     "market_value_native": native,
                     "market_value_base": base_value,
                     "cost_basis_base_at_valuation_fx": money(position.cost_basis * rate)
-                    if rate is not None
+                    if rate is not None and position.cost_basis is not None
                     else None,
                     "unrealized_pnl_base_at_valuation_fx": money(
                         (native - position.cost_basis) * rate
                     )
-                    if native is not None and rate is not None
+                    if native is not None and rate is not None and position.cost_basis is not None
                     else None,
                     "fx": fx,
                     "unrealized_pnl_native": native - position.cost_basis
-                    if native is not None
+                    if native is not None and position.cost_basis is not None
                     else None,
                     "valuation_status": price_status
                     if price_status != "CURRENT"
@@ -235,13 +269,18 @@ class PortfolioValuationService:
         realized_base = await self._historical_sum(
             state.realized_events, portfolio.base_currency, cutoff
         )
+        if state.realized_incomplete:
+            realized_base = None
+            issues.append({"code": "UNKNOWN_REALIZED_COST_BASIS"})
         income_base = await self._historical_sum(
             state.income_events, portfolio.base_currency, cutoff
         )
         fees_base = await self._historical_sum(state.fee_events, portfolio.base_currency, cutoff)
         taxes_base = await self._historical_sum(state.tax_events, portfolio.base_currency, cutoff)
         if any(
-            events and amount is None
+            events
+            and amount is None
+            and not (events is state.realized_events and state.realized_incomplete)
             for events, amount in (
                 (state.realized_events, realized_base),
                 (state.income_events, income_base),
@@ -274,7 +313,11 @@ class PortfolioValuationService:
             "base_currency": portfolio.base_currency,
             "status": status,
             "analytics_status": "PARTIAL"
-            if any(issue["code"] == "MISSING_EVENT_FX" for issue in issues)
+            if any(
+                issue["code"]
+                in {"MISSING_EVENT_FX", "UNKNOWN_COST_BASIS", "UNKNOWN_REALIZED_COST_BASIS"}
+                for issue in issues
+            )
             else status,
             "issues": issues,
             "cash": cash,
@@ -283,9 +326,11 @@ class PortfolioValuationService:
             "securities_value_base": known_securities if securities_complete else None,
             "known_value_base": known_value,
             "total_value_base": total,
-            "cost_basis_base_at_valuation_fx": known_cost_basis if securities_complete else None,
+            "cost_basis_base_at_valuation_fx": known_cost_basis
+            if securities_complete and cost_basis_complete
+            else None,
             "unrealized_pnl_base_at_valuation_fx": known_unrealized
-            if securities_complete
+            if securities_complete and cost_basis_complete
             else None,
             "realized_pnl_base_at_trade_fx": realized_base,
             "income_base_at_event_fx": income_base,
@@ -313,6 +358,14 @@ class PortfolioValuationService:
             total += money(amount * rates[key])
         return money(total)
 
+    async def _source_names(self, fx: dict[str, object]) -> dict[str, object]:
+        names = []
+        for source_id in cast(list[UUID], fx.get("source_ids", [])):
+            source = await self.db.get(DataSource, source_id)
+            if source:
+                names.append(source.name)
+        return {**fx, "source_names": names}
+
     async def _unapplied_actions(
         self,
         account_id: UUID,
@@ -326,7 +379,7 @@ class PortfolioValuationService:
             for row in rows
             if row.account_id == account_id
             and row.instrument_id == instrument_id
-            and row.type == "BUY"
+            and row.type in {"BUY", "OPENING_POSITION"}
             and row.created_at <= cutoff
             and (row.voided_at is None or row.voided_at > cutoff)
         ]

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import csv
+import hashlib
+import json
 from datetime import UTC, date, datetime
 from io import StringIO
 from typing import cast
@@ -13,7 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models import Transaction
+from app.models import Instrument, Transaction
 from app.schemas.portfolio import TransactionInput
 from app.services.csv_preview import CsvPreviewService
 from app.services.portfolio_engine import ledger_state
@@ -56,8 +58,23 @@ ALIASES = {
 }
 
 
+def plan_hash(mapping: dict[str, str] | None, resolutions: dict[int, UUID] | None) -> str:
+    value = {
+        "mapping": mapping,
+        "resolutions": {str(k): str(v) for k, v in (resolutions or {}).items()},
+    }
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 async def parse_rows(
-    data: bytes, account_id: UUID, mapping: dict[str, str], db: AsyncSession, account_name: str
+    data: bytes,
+    account_id: UUID,
+    mapping: dict[str, str],
+    db: AsyncSession,
+    account_name: str,
+    resolutions: dict[int, UUID] | None = None,
 ) -> list[dict[str, object]]:
     try:
         decoded = data.decode("utf-8-sig")
@@ -106,7 +123,7 @@ async def parse_rows(
                     continue
                 instrument_id, status = await CsvPreviewService(
                     db, RawIngestionService(db)
-                )._resolve(identifiers, trade_date, errors)
+                )._resolve(identifiers, trade_date, errors, (resolutions or {}).get(line))
                 if status != "RESOLVED" or (
                     normalized.get("instrument_id")
                     and str(normalized["instrument_id"]) != str(instrument_id)
@@ -116,6 +133,16 @@ async def parse_rows(
                     )
                     continue
                 normalized["instrument_id"] = instrument_id
+            elif line in (resolutions or {}):
+                selected = (resolutions or {})[line]
+                if normalized.get("instrument_id") and str(normalized["instrument_id"]) != str(
+                    selected
+                ):
+                    results.append(
+                        {"line": line, "error": "Selected instrument conflicts with CSV ID"}
+                    )
+                    continue
+                normalized["instrument_id"] = selected
             payload = TransactionInput.model_validate(normalized)
             results.append({"line": line, "payload": payload})
         except ValidationError as error:
@@ -123,6 +150,21 @@ async def parse_rows(
     if not results:
         raise AppError(422, "CSV_EMPTY", "CSV contains no transactions")
     return results
+
+
+def duplicate_status(payload: TransactionInput, existing: list[Transaction]) -> str:
+    """Include voided originals: reimport must never resurrect a correction."""
+    fingerprint = transaction_fingerprint(payload)
+    if payload.external_id:
+        matches = [row for row in existing if row.external_id == payload.external_id]
+        if matches:
+            return (
+                "DUPLICATE"
+                if any(row.fingerprint == fingerprint for row in matches)
+                else "CONFLICT"
+            )
+        return "NEW"
+    return "DUPLICATE" if any(row.fingerprint == fingerprint for row in existing) else "NEW"
 
 
 class PortfolioImportService:
@@ -139,6 +181,7 @@ class PortfolioImportService:
         data: bytes,
         filename: str,
         mapping: dict[str, str] | None = None,
+        resolutions: dict[int, UUID] | None = None,
     ) -> dict[str, object]:
         await self.portfolios.owned(portfolio_id)
         account = await self.portfolios.account(portfolio_id, account_id)
@@ -157,6 +200,8 @@ class PortfolioImportService:
                 "user_id": str(self.user_id),
                 "portfolio_id": str(portfolio_id),
                 "account_id": str(account_id),
+                "parser_version": "PR5_TRANSACTION_CSV_V1",
+                "request_key": plan_hash(mapping, resolutions),
             },
         )
         try:
@@ -190,20 +235,14 @@ class PortfolioImportService:
                     }
                 ],
             }
-        rows = await parse_rows(data, account_id, proposed, self.db, account.name)
+        rows = await parse_rows(data, account_id, proposed, self.db, account.name, resolutions)
         existing = list(
             (
                 await self.db.scalars(
-                    select(Transaction).where(
-                        Transaction.account_id == account_id, Transaction.status == "ACTIVE"
-                    )
+                    select(Transaction).where(Transaction.account_id == account_id)
                 )
             ).all()
         )
-        ids = {row.external_id for row in existing if row.external_id}
-        fingerprints = {row.fingerprint for row in existing}
-        seen_ids: set[str] = set()
-        seen_fingerprints: set[str] = set()
         preview_rows: list[dict[str, object]] = []
         for entry in rows:
             line = entry["line"]
@@ -213,11 +252,20 @@ class PortfolioImportService:
             payload = entry["payload"]
             assert isinstance(payload, TransactionInput)
             fingerprint = transaction_fingerprint(payload)
-            duplicate = (
-                payload.external_id in ids | seen_ids
-                if payload.external_id
-                else fingerprint in fingerprints | seen_fingerprints
-            )
+            classification = duplicate_status(payload, existing)
+            duplicate = classification == "DUPLICATE"
+            if classification == "CONFLICT":
+                preview_rows.append(
+                    {
+                        "line": line,
+                        "status": "CONFLICT",
+                        "error": (
+                            "External ID has different accounting values; "
+                            "review correction explicitly"
+                        ),
+                    }
+                )
+                continue
             try:
                 await self.portfolios._validate_input(portfolio_id, payload)
                 if not duplicate:
@@ -227,25 +275,26 @@ class PortfolioImportService:
                         **payload.model_dump(),
                         created_at=datetime.now(UTC),
                         voided_at=None,
+                        fingerprint=fingerprint,
                     )
                     ledger_state([*existing, candidate], date.max, datetime.now(UTC))
                     existing.append(candidate)
             except AppError as error:
                 preview_rows.append({"line": line, "status": "INVALID", "error": error.message})
                 continue
+            instrument = (
+                await self.db.get(Instrument, payload.instrument_id)
+                if payload.instrument_id
+                else None
+            )
             preview_rows.append(
                 {
                     "line": line,
                     "status": "DUPLICATE" if duplicate else "READY",
-                    "type": payload.type,
-                    "trade_date": payload.trade_date,
-                    "instrument_id": payload.instrument_id,
-                    "currency": payload.currency,
+                    **payload.model_dump(mode="json"),
+                    "instrument_name": instrument.name if instrument else None,
                 }
             )
-            if payload.external_id:
-                seen_ids.add(payload.external_id)
-            seen_fingerprints.add(fingerprint)
         return {
             "raw_ingestion_id": raw.id,
             "mapping": proposed,
@@ -253,12 +302,19 @@ class PortfolioImportService:
             "row_count": len(rows),
             "rows": preview_rows,
             "ready_count": sum(row["status"] == "READY" for row in preview_rows),
+            "duplicate_count": sum(row["status"] == "DUPLICATE" for row in preview_rows),
+            "instrument_resolutions": {str(k): str(v) for k, v in (resolutions or {}).items()},
         }
 
     async def commit(
-        self, portfolio_id: UUID, account_id: UUID, raw_id: UUID, mapping: dict[str, str]
+        self,
+        portfolio_id: UUID,
+        account_id: UUID,
+        raw_id: UUID,
+        mapping: dict[str, str],
+        resolutions: dict[int, UUID] | None = None,
     ) -> dict[str, object]:
-        await self.portfolios.owned(portfolio_id)
+        await self.portfolios.owned(portfolio_id, lock=True)
         account = await self.portfolios.account(portfolio_id, account_id)
         raw = await self.raw.get(raw_id)
         if (
@@ -274,19 +330,60 @@ class PortfolioImportService:
         if await self.db.scalar(
             select(Transaction.id).where(Transaction.raw_ingestion_id == raw_id)
         ):
-            raise AppError(409, "IMPORT_ALREADY_COMMITTED", "CSV import was already committed")
-        rows = await parse_rows(data, account_id, mapping, self.db, account.name)
+            return {
+                "raw_ingestion_id": raw_id,
+                "created_count": 0,
+                "transaction_ids": [],
+                "status": "ALREADY_COMMITTED",
+            }
+        recorded_plan = raw.request_metadata.get("request_key")
+        if recorded_plan == plan_hash(None, resolutions):
+            header = next(csv.reader(StringIO(data.decode("utf-8-sig"), newline="")))
+            automatic = {
+                column: ALIASES.get(column.strip().lower(), column.strip().lower())
+                for column in header
+                if ALIASES.get(column.strip().lower(), column.strip().lower()) in FIELDS
+            }
+            valid_plan = automatic == mapping
+        else:
+            valid_plan = recorded_plan == plan_hash(mapping, resolutions)
+        if raw.request_metadata.get("parser_version") != "PR5_TRANSACTION_CSV_V1" or not valid_plan:
+            raise AppError(
+                409,
+                "IMPORT_PREVIEW_CHANGED",
+                "Preview changed columns and instrument choices before commit",
+            )
+        rows = await parse_rows(data, account_id, mapping, self.db, account.name, resolutions)
         if any("error" in row for row in rows):
             raise AppError(422, "CSV_ROW_INVALID", "Fix invalid rows before commit")
         created: list[str] = []
+        skipped = 0
+        existing = list(
+            (
+                await self.db.scalars(
+                    select(Transaction).where(Transaction.account_id == account_id)
+                )
+            ).all()
+        )
         try:
             for entry in rows:
                 payload = entry["payload"]
                 assert isinstance(payload, TransactionInput)
+                classification = duplicate_status(payload, existing)
+                if classification == "CONFLICT":
+                    raise AppError(
+                        409,
+                        "IMPORT_ID_CONFLICT",
+                        "External ID differs; use explicit transaction correction",
+                    )
+                if classification == "DUPLICATE":
+                    skipped += 1
+                    continue
                 row = await self.portfolios.create_transaction(
                     portfolio_id, payload, raw_id=raw_id, source="MANUAL_CSV", commit=False
                 )
                 created.append(str(row.id))
+                existing.append(row)
             await self.db.commit()
         except Exception:
             await self.db.rollback()
@@ -294,5 +391,6 @@ class PortfolioImportService:
         return {
             "raw_ingestion_id": raw_id,
             "created_count": len(created),
+            "duplicate_count": skipped,
             "transaction_ids": created,
         }

@@ -1,0 +1,98 @@
+# Disposable, synthetic-only candidate. No original volumes or host ports.
+name: private-iip-pr5-s3
+services:
+  source:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    entrypoint: [weed]
+    user: "10001:10001"
+    command: [server, -s3, -dir=/data, -ip=source, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64]
+    volumes: [source:/data, "${S3_TEST_CONFIG:?synthetic config}:/etc/seaweed/s3.json:ro"]
+    networks: [isolated]
+    mem_limit: 512m
+    cpus: 1
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  target:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    entrypoint: [weed]
+    user: "10001:10001"
+    command: [server, -s3, -dir=/data, -ip=target, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64]
+    volumes: [target:/data, "${S3_TEST_CONFIG:?synthetic config}:/etc/seaweed/s3.json:ro"]
+    networks: [isolated]
+    mem_limit: 512m
+    cpus: 1
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  tls:
+    image: private-iip/caddy@sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4
+    volumes: [./pr5-s3.Caddyfile:/etc/caddy/Caddyfile:ro, ca:/data, caddy_config:/config]
+    networks:
+      isolated:
+        aliases: [source-tls, target-tls]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+  ca-export:
+    profiles: [ops]
+    image: private-iip/caddy@sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4
+    entrypoint: [sh, -ec]
+    command: ['for i in $$(seq 1 60); do if test -s /private/caddy/pki/authorities/local/root.crt; then cp /private/caddy/pki/authorities/local/root.crt /public/root.crt; chmod 644 /public/root.crt; exit 0; fi; sleep 1; done; exit 1']
+    volumes: [ca:/private:ro, public_ca:/public]
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  volume-init:
+    profiles: [ops]
+    image: private-iip/caddy@sha256:39e9211b2021e423f69240fdd9d52803bbe8dc9a595e20deb29583253fe511d4
+    entrypoint: [sh, -ec]
+    command: ["chown -R 10001:10001 /source /target"]
+    user: "0:0"
+    volumes: [source:/source, target:/target]
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN]
+    security_opt: [no-new-privileges:true]
+  core-probe:
+    profiles: [ops]
+    image: private-iip/backend@sha256:91fccb8efac21ccc3e19b725386b72c9a329de6aa6b9ecce87e520cf2ad39f08
+    entrypoint: [python, /probe/probe_pr5_core_tls.py]
+    environment:
+      PR5_SYNTHETIC_S3: explicit-isolated-fixture
+      S3_TEST_ACCESS: ${S3_TEST_ACCESS:?synthetic access}
+      S3_TEST_SECRET: ${S3_TEST_SECRET:?synthetic secret}
+    volumes: [./probe_pr5_core_tls.py:/probe/probe_pr5_core_tls.py:ro, public_ca:/trust:ro]
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1
+  probe:
+    profiles: [ops]
+    image: private-iip/mlflow:pr4-rc4
+    entrypoint: [python, /probe/s3_migration_probe.py]
+    environment:
+      PR5_SYNTHETIC_S3: explicit-isolated-fixture
+      S3_TEST_ACCESS: ${S3_TEST_ACCESS:?synthetic access}
+      S3_TEST_SECRET: ${S3_TEST_SECRET:?synthetic secret}
+    volumes: [./s3_migration_probe.py:/probe/s3_migration_probe.py:ro, public_ca:/trust:ro, "${S3_TEST_EVIDENCE:?isolated synthetic checkpoint}:/evidence"]
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1
+networks:
+  isolated: {internal: true}
+volumes:
+  source:
+  target:
+  ca:
+  caddy_config:
+  public_ca:

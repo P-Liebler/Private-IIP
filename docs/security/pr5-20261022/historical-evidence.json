@@ -1,0 +1,7 @@
+{
+  "scope": "HISTORICAL_VERSIONED_PR3_PR4_EVIDENCE",
+  "basis_commit": "2c563e9dd7de1bb211728b0132170ef038b01c9e",
+  "versioned_reports_inventories_manifests_unchanged": true,
+  "pr4_original_sboms_sha256_verified": 10,
+  "host_acceptance": "NOT_VERIFIED"
+}

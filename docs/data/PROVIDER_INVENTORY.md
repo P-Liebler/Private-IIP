@@ -1,5 +1,7 @@
 # Provider-Inventar
 
+PR5-Review vom 22.10.2026: [Nutzungsrechte, praktische Versorgung und Grenzen](../PR5C_MARKET_DATA_REPORT.md). Keine reale Quelle aktiviert und kein Provider-Live-Test als bestanden hinzugefügt. Twelve Data/Garage sind keine zusätzlich implementierten Finanzprovider. Eigene zulässige Dateien bleiben der funktionale Fallback; synthetische Tests sind keine echte tägliche Datenversorgung. Die folgende Implementierungsmatrix bleibt davon getrennt.
+
 Stand 2026-10-16. Status der realen Registry ist getrennt von synthetischen TEST_-Quellen zu lesen.
 
 | Quelle | IMPLEMENTED | OFFLINE_TESTED | LIVE_TESTED (Produktpfad) | OPERATOR_APPROVED | ENABLED | SCHEDULED |

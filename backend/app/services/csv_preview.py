@@ -137,7 +137,11 @@ class CsvPreviewService:
         )
 
     async def _resolve(
-        self, row: dict[str, str | None], as_of: date | None, errors: list[str]
+        self,
+        row: dict[str, str | None],
+        as_of: date | None,
+        errors: list[str],
+        explicit_id: UUID | None = None,
     ) -> tuple[UUID | None, str]:
         if as_of is None:
             return None, "UNRESOLVED"
@@ -174,6 +178,11 @@ class CsvPreviewService:
         if any(not ids for ids in found):
             return None, "AMBIGUOUS" if any(ids for ids in found) else "UNRESOLVED"
         common = set.intersection(*found)
+        if explicit_id is not None:
+            if explicit_id in common:
+                return explicit_id, "RESOLVED"
+            errors.append("Selected instrument conflicts with dated CSV identifiers")
+            return None, "UNRESOLVED"
         if len(common) == 1 and all(ids == common for ids in found):
             return next(iter(common)), "RESOLVED"
         return None, "AMBIGUOUS"

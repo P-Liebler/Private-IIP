@@ -1,5 +1,16 @@
 # Operator-Abnahmeprotokoll
 
+## Offene PR5-Betreiberabnahme (22.10.2026)
+
+- [ ] Sicherheitsreview der finalen Runtime-/Storage-Digests, High-/native-/CSP-Befunde; keine implizite Risikoakzeptanz aus lokalen Tests.
+- [ ] PostgreSQL-17-Image-/libc-/Collationentscheidung und Object-Store-Migration einschließlich MLflow, Retention und realer Rückschaltung separat freigegeben.
+- [ ] Instrumentbezogene Datenrechte einschließlich automatischem Abruf, Archivierung, Quellenangabe und täglicher Kurs-/FX-/Action-Coverage dokumentiert; regelmäßige Sammlung erst danach ausdrücklich aktivieren.
+- [ ] Echter Pilot mit separat bereitgestellten Belegen, Mengen/Cash/FX/Brokerwert und geklärten Abweichungen nach [Pilotprotokoll](../user/REAL_PORTFOLIO_PILOT.md).
+- [ ] Zielhost/VPN, Client-CA, unabhängige zeitgesteuerte Backups, Schlüssel-Recovery, Neustart und Alarmempfang tatsächlich nachgewiesen.
+- [ ] Neue Remote-CI und finales unveränderliches Manifest geprüft; gesonderte Security-/Zielhost-/Operatorfreigabe vor Produktivstart mit Digest-Images und `--no-build`.
+
+[PR5-Nachweise](../PR5_ACCEPTANCE_REPORT.md). Diese offenen Punkte sind keine Aufforderung, Quellengates oder Finanzvalidierung zu umgehen. Die folgende PR4-Checkliste bleibt historischer Kontext.
+
 ## Aktueller Nachweis vom 21.10.2026
 
 [ ] Gepatchte Backend-TLS-Runtime mit strengem Legacy-Modellvertrag abgenommen.

@@ -25,6 +25,7 @@ class PortfolioSummaryService:
         current = await self.valuation.value(portfolio_id, day, cutoff)
         rows = await PortfolioService(self.db, self.user_id).transactions(portfolio_id)
         flows = ledger_state(rows, day, cutoff).external_flows
+        opening_dates = ledger_state(rows, day, cutoff).opening_dates
         base = cast(str, current["base_currency"])
 
         async def net_after(start: date | None) -> Decimal | None:
@@ -43,7 +44,7 @@ class PortfolioSummaryService:
         result: dict[str, object] = {
             "valuation": current,
             "total_return_base": money(total - lifetime_flows)
-            if total is not None and lifetime_flows is not None
+            if total is not None and lifetime_flows is not None and not opening_dates
             else None,
         }
         for label, start in (
@@ -55,10 +56,17 @@ class PortfolioSummaryService:
             external = await net_after(start)
             result[label] = (
                 money(total - opening_value - external)
-                if (total is not None and opening_value is not None and external is not None)
+                if (
+                    total is not None
+                    and opening_value is not None
+                    and external is not None
+                    and not any(start < d <= day for d in opening_dates)
+                )
                 else None
             )
         result["return_basis"] = "ABSOLUTE_NET_OF_EXTERNAL_FLOWS"
         result["action_coverage"] = "UNVERIFIED"
         result["return_status"] = "PROVISIONAL"
+        if opening_dates:
+            result["historical_return_limit"] = "OPENING_POSITION_IS_NOT_VERIFIED_TRADE_HISTORY"
         return result

@@ -75,7 +75,12 @@ async def main() -> None:
         if model_id:
             model = await ModelRegistryService(db).owned(UUID(model_id), user.id)
             assert model.artifact_hash == os.environ["RESTORE_TEST_ARTIFACT_HASH"]
-            await ModelRegistryService(db).artifact(model)
+            if os.environ.get("RESTORE_TEST_LEGACY_MODEL") == "true":
+                # Archive bytes only; host must also complete the exact
+                # networkless verifier before the restore may pass.
+                await ModelRegistryService(db).archived_bytes(model)
+            else:
+                await ModelRegistryService(db).artifact(model)
             await DatasetBuilder(db).rebuild(model.dataset_id, user.id)
             if model.mlflow_run_id:
                 assert (

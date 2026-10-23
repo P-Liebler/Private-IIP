@@ -24,9 +24,12 @@ def digest(path: Path) -> str:
     return value.hexdigest()
 
 
-def command(project: str, file: Path, env: dict[str, str], *args: str) -> None:
+def command(project: str, file: Path, env: dict[str, str], *args: str) -> bytes:
+    files = ["-f", str(file)]
+    if env.get("RESTORE_OBJECT_STORE_KIND") == "seaweed-synthetic":
+        files += ["-f", str(file.with_name("docker-compose.restore-seaweed.yml"))]
     result = subprocess.run(
-        ["docker", "compose", "-p", project, "-f", str(file), *args],
+        ["docker", "compose", "-p", project, *files, *args],
         env=env,
         capture_output=True,
         check=False,
@@ -56,6 +59,7 @@ def command(project: str, file: Path, env: dict[str, str], *args: str) -> None:
             file=sys.stderr,
         )
         raise RuntimeError(f"Isolated Compose step failed ({result.returncode})")
+    return result.stdout
 
 
 def main() -> int:
@@ -68,6 +72,7 @@ def main() -> int:
     parser.add_argument("--dataset-id")
     parser.add_argument("--expected-dataset-hash")
     parser.add_argument("--model-id")
+    parser.add_argument("--legacy-image", help="Explicit exact archive runtime; verified separately with network none")
     parser.add_argument("--expected-artifact-hash")
     parser.add_argument("--prediction-history-hash")
     parser.add_argument("--risk-history-hash")
@@ -78,15 +83,22 @@ def main() -> int:
     parser.add_argument("--api-image", help="Prebuilt immutable image reference, including @sha256 digest")
     parser.add_argument("--postgres-image", help="Reviewed PostgreSQL 17 candidate, including @sha256 digest")
     parser.add_argument("--object-store-image", help="Reviewed MinIO image, including @sha256 digest")
+    parser.add_argument("--object-store-kind", choices=["minio", "seaweed-synthetic"], default="minio")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
-    for image in (args.api_image, args.postgres_image, args.object_store_image):
+    if args.object_store_kind == "seaweed-synthetic" and (
+        not args.username.startswith("restore_") or not (args.object_store_image or "").startswith("chrislusf/seaweedfs")
+    ):
+        parser.error("Seaweed candidate requires explicit synthetic restore fixture and image")
+    for image in (args.api_image, args.postgres_image, args.object_store_image, args.legacy_image):
         if image and not re.fullmatch(r"[A-Za-z0-9_./:-]+@sha256:[0-9a-f]{64}", image):
             parser.error("Restore image overrides require an immutable digest")
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
         parser.error("Dataset ID and expected hash must be provided together")
     if bool(args.model_id) != bool(args.expected_artifact_hash):
         parser.error("Model ID and expected artifact hash must be provided together")
+    if args.legacy_image and not args.model_id:
+        parser.error("Legacy verification requires an explicit archived model")
     password = os.environ.get("RESTORE_TEST_PASSWORD")
     if not password:
         parser.error("Set RESTORE_TEST_PASSWORD to the explicit fixture user's password")
@@ -133,6 +145,7 @@ def main() -> int:
         "RESTORE_TEST_DATASET_ID": args.dataset_id or "",
         "RESTORE_TEST_DATASET_HASH": args.expected_dataset_hash or "",
         "RESTORE_TEST_MODEL_ID": args.model_id or "",
+        "RESTORE_TEST_LEGACY_MODEL": "true" if args.legacy_image else "false",
         "RESTORE_TEST_ARTIFACT_HASH": args.expected_artifact_hash or "",
         "RESTORE_TEST_PREDICTION_HISTORY_HASH": args.prediction_history_hash or "",
         "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
@@ -140,7 +153,18 @@ def main() -> int:
         "RESTORE_TEST_COLLECTIONS_HISTORY_HASH": args.collections_history_hash or "",
         "RESTORE_TEST_VALIDATION_HISTORY_HASH": args.validation_history_hash or "",
         "RESTORE_TEST_RECOMMENDATION_HISTORY_HASH": args.recommendation_history_hash or "",
+        "RESTORE_OBJECT_STORE_KIND": args.object_store_kind,
     }
+    s3_config = None
+    environment.pop("RESTORE_S3_CONFIG", None)
+    if args.object_store_kind == "seaweed-synthetic":
+        s3_config = root / "runtime" / (project + "-synthetic-s3.json")
+        s3_config.parent.mkdir(parents=True, exist_ok=True)
+        with s3_config.open("x", encoding="utf-8") as stream:
+            json.dump({"identities": [{"name": "synthetic-restore",
+                "credentials": [{"accessKey": "restore_user", "secretKey": environment["RESTORE_MINIO_PASSWORD"]}],
+                "actions": ["Admin", "Read", "Write", "List", "Tagging"]}]}, stream)
+        environment["RESTORE_S3_CONFIG"] = str(s3_config)
     for key, value in (("RESTORE_API_IMAGE", args.api_image), ("RESTORE_POSTGRES_IMAGE", args.postgres_image), ("RESTORE_OBJECT_STORE_IMAGE", args.object_store_image)):
         if value:
             environment[key] = value
@@ -149,6 +173,7 @@ def main() -> int:
     status: dict[str, object] = {
         "started_at": datetime.now(UTC).isoformat(),
         "success": False,
+        "object_store_kind": args.object_store_kind,
         "backup_run_id": backup.name,
         "image_contract": {"api": args.api_image, "postgres": args.postgres_image, "object_store": args.object_store_image},
         "verified_backup_files": len(manifest["checksums"]),
@@ -185,6 +210,13 @@ def main() -> int:
             "investment",
             "/tmp/restore.dump",
         )
+        if args.dataset_id:
+            probe = command(project, compose_file, environment, "exec", "-T", "postgres",
+                            "psql", "-X", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-U", "restore_user",
+                            "-d", "investment", "-c",
+                            Path(__file__).with_name("postgres").joinpath("restore_contract.sql").read_text(encoding="utf-8"))
+            status["postgres_environment"] = next(json.loads(line) for line in probe.decode().splitlines() if line.startswith("{"))
+            status["postgres_contract_probe"] = "PASS"
         command(
             project,
             compose_file,
@@ -225,6 +257,15 @@ def main() -> int:
             "-m",
             "scripts.verify_restored_fixture",
         )
+        if args.legacy_image:
+            from verify_legacy_model import verify
+            envelope = command(project, compose_file, environment, "exec", "-T", "api",
+                               "python", "-m", "scripts.export_legacy_model", "--model-id",
+                               args.model_id, "--username", args.username)
+            try:
+                status["legacy_verification"] = verify(envelope, args.legacy_image)
+            except (ValueError, subprocess.SubprocessError) as error:
+                raise RuntimeError("ISOLATED_LEGACY_VERIFICATION_FAILED") from error
         status.update({"success": True, "completed_at": datetime.now(UTC).isoformat()})
         print("Isolated restore PASSED")
         return 0
@@ -240,6 +281,10 @@ def main() -> int:
         try:
             command(project, compose_file, environment, "down", "-v", "--remove-orphans")
             status["cleanup_success"] = True
+            if s3_config is not None:
+                if s3_config.resolve().parent != (root / "runtime").resolve():
+                    raise RuntimeError("UNSAFE_SYNTHETIC_CONFIG_PATH")
+                s3_config.unlink()
         except RuntimeError:
             status["cleanup_success"] = False
             print("Isolated restore cleanup failed; inspect the restore project", file=sys.stderr)

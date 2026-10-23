@@ -1,0 +1,7 @@
+# Controlled patch on the exact PR4 production/dev runtime; no numerical changes.
+ARG BASE_IMAGE=private-iip/backend:pr4-rc3@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816
+FROM ${BASE_IMAGE}
+USER root
+RUN pip install --no-cache-dir --no-deps --upgrade certifi==2026.10.19 pypdf==6.21.1 && pip check
+COPY backend/ /app/
+USER 10001:10001

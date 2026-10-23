@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -9,6 +10,11 @@ import {
 
 const labels: Record<ImportKind, string> = {
   prices: "Tageskurse", actions: "Corporate Actions", fx: "Wechselkurse",
+};
+const templates: Record<ImportKind, string> = {
+  prices: "date,isin,ticker,close,currency,open,high,low,volume\n",
+  fx: "date,base_currency,quote_currency,rate\n",
+  actions: "date,isin,ticker,action_type,value,currency,payment_date,source_reference\n",
 };
 
 export default function ImportsPage() {
@@ -34,6 +40,7 @@ export default function ImportsPage() {
   function submitPreview(event: FormEvent) { event.preventDefault(); if (file) upload.mutate(); }
   return <main className="space-y-8 py-10">
     <header><h1 className="text-3xl font-semibold">CSV-Import</h1><p className="mt-2 text-zinc-400">Originaldatei prüfen, Zuordnung bestätigen und erst dann in geprüfte Daten übernehmen.</p></header>
+    <section className="space-y-3 rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Marktdaten für Ihr Portfolio</h2><p>Nur rechtmäßig bereitgestellte Originale verwenden. UTF-8, Komma, ISO-Datum und Dezimalpunkt; eine passende ISIN, FIGI oder eindeutige Tickerkennung pro Kurs-/Action-Zeile. Kein Kurs wird aus einem Kaufpreis oder einem LLM ergänzt.</p><p className="text-sm text-zinc-400">Tageskurse sind Schlusskurse, keine Livepreise. FX: 1 Einheit Basiswährung = rate Einheiten Zielwährung. Tägliche Referenzen verwenden; SNB-Monatswerte ersetzen keine täglichen Fixings. Corporate Actions: SPLIT mit Verhältnis, DIVIDEND mit Bruttobetrag je Aktie; Zahlungstag und Herkunft angeben, sofern belegt. Die Übernahme allein bucht keine zusätzliche Portfoliodividende.</p><a className="inline-block text-emerald-400 underline" download={`${kind}-template.csv`} href={`data:text/csv;charset=utf-8,${encodeURIComponent(templates[kind])}`}>Leere Vorlage für {labels[kind]} herunterladen</a><div className="flex flex-wrap gap-4"><Link className="text-emerald-400 underline" href="/portfolios">Zur Portfolioeinrichtung</Link><Link className="text-emerald-400 underline" href="/settings/data-sources">Quellenfreigaben prüfen</Link><Link className="text-emerald-400 underline" href="/data-operations">Begrenzte Aktualisierung für freigegebene Quellen</Link></div><p className="text-sm text-amber-400">Ohne Freigabe kein automatischer Abruf. Eine manuelle Datei beweist weder vollständige Corporate-Action-Abdeckung noch historische Point-in-Time-Verfügbarkeit.</p></section>
     <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
       <form onSubmit={submitPreview} className="grid gap-4 sm:grid-cols-2">
         <label>Datentyp<select className="mt-2 w-full rounded border border-zinc-700 bg-zinc-950 p-3" value={kind} onChange={(event) => { setKind(event.target.value as ImportKind); reset(); }}>{Object.entries(labels).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label>

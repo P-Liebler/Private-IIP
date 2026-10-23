@@ -1,0 +1,37 @@
+# PR5A – Security Closure
+
+Stand: 22.10.2026. **TECHNICAL_REMEDIATION_PARTIAL / SECURITY_BLOCKED / REAL_PRIVATE_DATA_USE_NOT_APPROVED.** Keine Produktionsmigration, keine Ausnahme oder Source-/Modellfreigabe.
+
+## Verifizierte Ausgangslage
+
+HEAD und origin/main beim Start: `2c563e9dd7de1bb211728b0132170ef038b01c9e`. GitHub-Run `39603225713`: Job `119232741968` (`verify`) completed/success einschließlich Backend, Frontend und Browser. Job `119232742271` (`security`) completed/failure im Dependency-Audit; spätere Imagegates wurden übersprungen. Kein allgemeiner Remote-CI-Pass.
+
+Neue lokale Baseline am 21.10.: **266 Backendtests**, **21 Browserfälle ohne Skips**, **32 ursprüngliche Hosttests**. Ein erster Browserstart war durch die lokale PowerShell-Dateiausführungsrichtlinie blockiert; keine Systemrichtlinie geändert. Der erste Python-Runner übernahm P6-Variablen mit Ziffern nicht: 19 bestanden/2 übersprungen. Korrigierter vollständiger Lauf: 21 bestanden. Fehlversuche bleiben separat erhalten.
+
+## Core und historischer Modellvertrag
+
+Normale Core-/Dev-Locks ändern ausschließlich `certifi 2026.7.22` auf `2026.10.19`; numerische Pins bleiben unverändert. Der alte Core-Lock liegt bytegetreu unter `backend/legacy_contracts/pr4/requirements.lock`. Der aktuelle Audit fand zusätzlich `pypdf 6.20.1` / CVE-2026-113786: gezielte unterstützende Migration auf 6.21.1 mit `--no-deps` und `pip check`, altem unterstützendem Lock im Archiv und neuer Dokumentpipelineversion. Bestehende Dokumentversionen bleiben erhalten. API und Celery prüfen installierte TLS-/Parserpins. Neue Code-Manifeste verwenden `PR5_CORE_CERTIFI_20261019_PDF_6211_V2`. Die normale Modellprüfung behält den exakten Corevergleich und prüft zusätzlich den unterstützenden Vertrag, wenn er im Original vorhanden ist. Alte Modelle werden unter der neuen Runtime verweigert.
+
+`ops/verify_legacy_model.py` prüft exportierte interne JSON-Artefakte ausschließlich im expliziten digest-gepinnten Archivimage: `--network none`, read-only, UID 10001, keine Mounts oder Docker-Sockets, keine weitergegebenen Secrets, Ressourcenlimit und Timeout. Kein Collector, kein Modellcodeimport, keine Promotion oder Archivänderung. Hash, Originalmetadaten, alter Core-Lock und tatsächlich installierte Pins werden verglichen. Fehlende historische Assistant-Verträge werden als `NOT_RECORDED_IN_ARCHIVE` ausgewiesen und nicht nachgetragen. Der vorhandene synthetische P7-Artefakthash bleibt unverändert; tatsächlicher networkloser Lauf bestanden. Vier gezielte Backend-Guards und drei neue Host-Isolationsverträge bestanden. Die aktualisierte Restoreprüfung verlangt bei expliziter Legacy-Auswahl zusätzlich diesen getrennten Prozess; ihr vollständiger finaler Lauf ist einschließlich dieser Prüfung bestanden.
+
+Primärprüfung 21./22.10.: [certifi-Herstelleradvisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2), [pypdf-Advisory](https://github.com/py-pdf/pypdf/security/advisories/GHSA-5hx5-vpf9-5wcv). TLS-Verifikation bleibt eingeschaltet. Finales Coreimage besteht tatsächliche httpx-/MinIO-SDK-Proben mit eigener CA, abgewiesenem fremdem Trust und authentifiziertem Objekt-/Hashvergleich. Core+Assistant-, MLflow- und Frontend-Dependency-Audits melden keine bekannten Schwachstellen; verbleibende Imagebefunde sind davon unabhängig.
+
+## PostgreSQL 17
+
+Alternativer Kandidat auf digest-gepinntem PostgreSQL 17.11/Alpine 3.24.2, gleicher pgvector-Version 0.8.6 mit SHA-256-gepinnter Quelle. gosu 1.19 bleibt funktional erhalten und wird nach neuem Go-Befund mit Go 1.27.3 gebaut. Der finale Kandidat `pr5-rc3` meldet mit DB vom 22.10. **0 High / 0 Critical**, 1 Medium/3 Unknown; keine Exception. Die ersten Kandidaten enthielten erst den alten Go-Critical, dann den neuen Go-High; Originalscans bleiben erhalten.
+
+Dieser Basiswechsel ist kein Drop-in-Austausch eines Debian-Datenvolumes. Der logische Restore ist auf dem finalen Kandidaten bestanden, ebenso JSONB, numeric(28,8), Vektorberechnung, HNSW-/GIN-Indizes und tatsächlich abgewiesenes PIT-Update innerhalb zurückgerollter Testtransaktion. Gleiche Locale-Namen unter musl/glibc beweisen keine identische Sortierung; produktiver Collation-/Reindexreview bleibt erforderlich. Originalvolumes bleiben unverändert. Produktions-Compose bleibt bis zur gesonderten Entscheidung auf dem bisherigen Kandidaten. [Builddefinition](../ops/postgres/Dockerfile.pr5).
+
+## S3-Migrationsprototyp
+
+Separates internes Docker-Netz, zwei SeaweedFS-4.48-Instanzen, eigene Volumes/Credentials/CA und TLS-Gateway, keine Hostports oder Originaldaten. Nach behobenen Start-/Volumerechtefehlern laufen die S3-Server als UID 10001 mit cap-drop ALL; einmalige Besitzinitialisierung ausschließlich auf diesen Testvolumes. Tatsächlicher boto3-Test mit **3 synthetischen Objekten / 12.600.070 Bytes** bestanden: PUT/GET/HEAD/LIST/DELETE, Streaming, Range, Metadaten, SHA-256, abgewiesene falsche Credentials und ungültiger TLS-Trust.
+
+Ein Multipart-Upload wurde nach tatsächlich bestätigten **5.242.880 Bytes** mit Exit 77 unterbrochen. Ein neuer Prozess fand den unvollständigen Upload, übernahm den vorhandenen Part, vervollständigte ihn und prüfte alle Objekte erneut. Mirror auf lokale Testdateien und Rücklesen in einen frischen Bucket stimmen vollständig überein. Die Quelle ist unverändert lesbar. Dies ist ein tatsächlicher Transfer-/Wiederaufnahmetest; der zusätzliche vollständige App-Restore ist unten separat dokumentiert. Kein produktiver Endpointwechsel.
+
+[SeaweedFS-Advisory](https://github.com/seaweedfs/seaweedfs/security/advisories/GHSA-99q7-x53r-6j4g) und [Garage-S3-Dokumentation](https://garagehq.deuxfleurs.fr/documentation/reference-manual/s3-compatibility/) wurden am 21.10. erneut gesichtet. Paketnullbefunde ersetzen keinen Review der konkreten Filer-/TUS-Exposition oder der Betriebseigenschaften. Garage ist weiterhin eine dokumentarische Alternative, kein getesteter Ersatz. **MinIO bleibt im normalen lokalen Bestand; eine produktive Migration ist nicht autorisiert.**
+
+## Finale lokale Nachweise und offene Freigabe
+
+Der finale vollständige App-Restore auf gepatchtem Backend, PostgreSQL-Kandidat und SeaweedFS ist am 22.10. bestanden: 410 Raw-Objekte/411 Dateihashes, P6/P7 unverändert, aktuelle P8/P9/P10/PR1/PR2-Verträge und Golden CHF 10'180; Cleanup erfolgreich. Die separate exakte Legacyprüfung ist Bestandteil des Erfolgs. Zuvor fehlgeschlagene Versuche bleiben erhalten. Dies erweitert den oben beschriebenen reinen Objekt-Mirror-Test um tatsächliche App-Reads einschließlich MLflow-Artefaktverweis und Dokumentarchiv, ohne produktiven Endpointwechsel.
+
+[Exaktes Inventar und originale SBOMs](security/pr5-20261022/inventory-final.json), [fünf formal gültige SBOMs](security/pr5-20261022/sbom-validation-final.json), [konkrete Restrisiken](security/PR5_RESIDUAL_RISKS.md), [Kompatibilitätsumfang](security/PR5_COMPATIBILITY_REPORT.md). Scope: geänderte Kandidaten plus bestehendes MinIO, kein frischer Gesamtscan aller unveränderten PR4-Images. Backend 0 Critical/44 High, Web 0/0, PostgreSQL-Kandidat 0/0, SeaweedFS 0/5, bestehendes MinIO 9/125. Fehlgeschlagener erster Seaweed-Tagscan wurde nicht in einen Nullbefund umgedeutet; separater exakter Digestscan ist vollständig. Keine High-Ausnahme erteilt. MinIO-Wartung/Migration, High-/native-/CSP-Reviews und getrennte Security-/Zielhost-/Operatorfreigaben bleiben offen; private Echtdatennutzung bleibt gesperrt.

@@ -1,0 +1,19 @@
+# PR5 – verbleibende Sicherheitsrisiken
+
+Stand: 22.10.2026. **SECURITY_BLOCKED; keine genehmigten Exceptions.** [Exakte Scans und SBOMs](pr5-20261022/inventory-final.json), [formale SBOM-Prüfung](pr5-20261022/sbom-validation-final.json).
+
+Die fünf neu geprüften Einträge umfassen neue Backend-/Web-/PostgreSQL-Kandidaten, den Seaweed-Prototyp und den bestehenden MinIO-Store. Dies ist kein frischer Gesamtscan aller unveränderten PR4-Images. Insbesondere ersetzt der PostgreSQL-Kandidat nicht den noch konfigurierten Debian-Store; dessen bisheriger Scan und die offenen Criticals bleiben relevant, bis ein Cutover tatsächlich freigegeben ist. Keine plattformweite Reduktion auf die Summe dieser fünf Kandidatenscans behaupten.
+
+| Komponente | Aktueller Paketbefund | Konkrete Exposition und Entscheidung |
+| --- | --- | --- |
+| Backend PR5 rc6 | 0 Critical / 44 High | certifi 2026.10.19 und pypdf 6.21.1 korrigiert; verbleibende Highs betreffen OS-Pakete wie util-linux, ncurses, libacl, libsystemd/libudev und perl. Der Scanner nennt dafür keinen Fix in diesem Distributionsvertrag. API/Celery führen Anwendungscode als UID 10001 aus; Cap-Drop und private Netze sind Begrenzungen, kein Nachweis der Nichterreichbarkeit aller Bibliothekspfade. Ungeprüft und nicht akzeptiert. |
+| Web PR5 rc2 | 0 Critical / 0 High, 2 Unknown | Paketnullbefunde schließen Node-/Browser-/CSP-Risiken nicht aus. Standalone-/CSP-Proben sind Funktionstests; vollständiger Policy-/Route-/Inline-Script-Review bleibt separat. |
+| PostgreSQL PR5 rc3 | 0 Critical / 0 High, 1 Medium/3 Unknown | PG17.11/pgvector0.8.6, gosu1.19 mit Go1.27.3 neu gebaut. Authentifizierter SQL-/Restore-/Triggerpfad getestet. Image-Entrypoint initialisiert als root und wechselt per gosu zu postgres; dies wird nicht durch Entfernen der Berechtigungsprüfung umgangen. Kein Originalvolume aus Debian angehängt. libc/Locale/Collation und Betriebsupgrade benötigen eigenen Review. |
+| SeaweedFS 4.48 | 0 Critical / 5 High | Go1.26.8 und x/net0.58.0 sind betroffen, unter anderem CVE-2026-111943, CVE-2026-78667, CVE-2026-78669 und CVE-2026-97031. Der Prototyp läuft ohne Hostports mit privaten synthetischen S3-Zugängen. Filer-/TUS-Zugriffe, Mandantentrennung und die Herstelleradvisory GHSA-99q7-x53r-6j4g sind nicht abschließend bewertet. Keine Produktionsauswahl allein wegen weniger Paketbefunde. |
+| Bestehendes MinIO | 9 Critical / 125 High | Normaler Raw-/Modell-/Dokumenten-/MLflow-Store. S3-Authentifizierung und privater TLS-Proxy begrenzen Zugang, beseitigen die Befunde und die ungeklärte Wartung nicht. Migration weiterhin nicht freigegeben. |
+| Legacy-Modellimage | Bewusst historischer verwundbarer Vertrag | Ausschließlich expliziter Operatorprozess mit `--network none`, read-only, UID10001, ohne Mounts/Secrets/Socket und mit Limit/Timeout. Prüft interne JSON-Bytes und Pins, führt keinen Modellcode aus. Kein normales API-/Collector-Image, keine Promotion. |
+| Übrige PR4-Images/native Ollama | Heutiger Gesamtnachweis nicht erstellt | Vor Release erneut alle finalen Digests scannen; native CUDA/cuDNN/GGML/MLX-Abdeckung bleibt manuell unvollständig. Vorherige SBOM-/Scannerbefunde nicht als heutige Nullbefunde übernehmen. |
+
+Die aktuelle [Go-Sicherheitsankündigung](https://groups.google.com/g/golang-announce/c/66pojueaQek) begründet den zweiten gosu-Toolchainpatch auf 1.27.3. Der zusätzliche [pypdf-Herstellerbefund](https://github.com/py-pdf/pypdf/security/advisories/GHSA-5hx5-vpf9-5wcv) wurde gezielt auf 6.21.1 korrigiert; er wird nicht allein wegen optionaler Paketvoraussetzungen ignoriert.
+
+Für Freigabe erforderlich: gewarteter Store mit geschlossenem Expositionsreview, gesonderte Migrations-/Rollbackentscheidung, Prüfung der offenen Highs/Unknowns und nativen Komponenten, frischer vollständiger Manifestscan sowie Security-/Zielhost-/Operatorfreigaben. Fehlender Zielhost, reale Quellenrechte und Modell-/Strategiegates sind zusätzliche unabhängige Sperren.

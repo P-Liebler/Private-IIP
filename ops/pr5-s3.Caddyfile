@@ -1,0 +1,12 @@
+{
+  admin off
+  auto_https disable_redirects
+}
+https://source-tls:8443 {
+  tls internal
+  reverse_proxy source:8333
+}
+https://target-tls:8443 {
+  tls internal
+  reverse_proxy target:8333
+}

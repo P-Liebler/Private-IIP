@@ -1,0 +1,21 @@
+# Same gosu release, rebuilt with the patched Go toolchain; no privilege bypass.
+FROM golang:1.27.3-alpine@sha256:d530cf60723abf1ffae0cd16bb546b379ec0550d2f3815e5b16ed69dbc00fba4 AS gosu
+ENV GOTOOLCHAIN=local CGO_ENABLED=0
+ADD --checksum=sha256:cd9719b775dbfedae53923c9b0dc792b66d42c51e0b36652ed6f747fbadc0164 https://codeload.github.com/tianon/gosu/tar.gz/refs/tags/1.19 /tmp/gosu.tar.gz
+RUN mkdir /src && tar -xzf /tmp/gosu.tar.gz -C /src --strip-components=1
+WORKDIR /src
+RUN go build -mod=readonly -trimpath -ldflags='-s -w' -o /out/gosu .
+
+# Alternative PG17 candidate only. Never attach it to an existing Debian data
+# directory: verify an isolated logical restore and collation behavior first.
+FROM postgres:17.11-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+ADD --checksum=sha256:10bf9938906e5d643bbc4a7eea104b6f57ba4898e5b76b20e60484ea1d5a7f8f https://codeload.github.com/pgvector/pgvector/tar.gz/refs/tags/v0.8.6 /tmp/vector.tar.gz
+RUN apk upgrade --no-cache \
+    && apk add --no-cache --virtual .vector-build build-base \
+    && mkdir /tmp/vector \
+    && tar -xzf /tmp/vector.tar.gz -C /tmp/vector --strip-components=1 \
+    && make -C /tmp/vector OPTFLAGS="" with_llvm=no \
+    && make -C /tmp/vector install with_llvm=no \
+    && apk del .vector-build \
+    && rm -rf /tmp/vector /tmp/vector.tar.gz
+COPY --from=gosu /out/gosu /usr/local/bin/gosu

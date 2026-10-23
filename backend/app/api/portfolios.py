@@ -32,6 +32,7 @@ from app.schemas.portfolio import (
 from app.services.auth import AuthContext
 from app.services.portfolio_import import PortfolioImportService
 from app.services.portfolio_performance import PortfolioPerformanceService
+from app.services.portfolio_reconciliation import ReconciliationInput, reconcile
 from app.services.portfolio_reporting import PortfolioReportingService
 from app.services.portfolio_snapshots import PortfolioSnapshotService
 from app.services.portfolio_summary import PortfolioSummaryService
@@ -121,6 +122,7 @@ class ImportCommit(BaseModel):
     account_id: UUID
     raw_ingestion_id: UUID
     mapping: dict[str, str]
+    instrument_resolutions: dict[int, UUID] = Field(default_factory=dict)
 
 
 @router.get("/benchmarks")
@@ -186,6 +188,13 @@ async def accounts(portfolio_id: UUID, db: DB, user: USER) -> list[dict[str, obj
     ]
 
 
+@router.post("/portfolios/{portfolio_id}/reconciliation")
+async def reconcile_statement(
+    portfolio_id: UUID, payload: ReconciliationInput, db: DB, user: USER
+) -> dict[str, object]:
+    return await reconcile(db, user.user.id, portfolio_id, payload)
+
+
 @router.post("/portfolios/{portfolio_id}/accounts", status_code=201)
 async def create_account(
     portfolio_id: UUID, payload: AccountCreate, db: DB, user: USER
@@ -219,6 +228,9 @@ async def transactions(portfolio_id: UUID, db: DB, user: USER) -> list[dict[str,
     result = []
     for row in await service.transactions(portfolio_id):
         item = transaction_view(row)
+        if row.instrument_id:
+            instrument = await db.get(Instrument, row.instrument_id)
+            item["instrument_name"] = instrument.name if instrument else None
         item.update(await reporting.transaction_amounts(row, portfolio.base_currency))
         result.append(item)
     return result
@@ -241,6 +253,7 @@ async def preview_transactions(
     db: DB,
     user: USER,
     column_mapping: str | None = None,
+    instrument_resolutions: str | None = None,
 ) -> dict[str, object]:
     if request.headers.get("Content-Type", "").split(";", 1)[0].lower() != "text/csv":
         raise AppError(415, "CSV_CONTENT_TYPE_REQUIRED", "Upload a text/csv file")
@@ -259,12 +272,26 @@ async def preview_transactions(
             isinstance(k, str) and isinstance(v, str) for k, v in mapping.items()
         ):
             raise AppError(422, "CSV_MAPPING_INVALID", "Mapping must contain string fields")
+    resolutions: dict[int, UUID] = {}
+    if instrument_resolutions is not None:
+        try:
+            supplied = json.loads(instrument_resolutions)
+            if not isinstance(supplied, dict) or len(supplied) > 10000:
+                raise ValueError("Invalid resolutions")
+            resolutions = {int(k): UUID(v) for k, v in supplied.items()}
+            if any(line < 2 or line > 10001 for line in resolutions):
+                raise ValueError("Invalid CSV line")
+        except (ValueError, TypeError, AttributeError) as error:
+            raise AppError(
+                422, "CSV_RESOLUTION_INVALID", "Use explicit instrument choices by CSV line"
+            ) from error
     return await PortfolioImportService(db, user.user.id).preview(
         portfolio_id,
         account_id,
         bytes(data),
         request.headers.get("X-Filename", "transactions.csv"),
         mapping,
+        resolutions,
     )
 
 
@@ -273,7 +300,11 @@ async def commit_transactions(
     portfolio_id: UUID, payload: ImportCommit, db: DB, user: USER
 ) -> dict[str, object]:
     return await PortfolioImportService(db, user.user.id).commit(
-        portfolio_id, payload.account_id, payload.raw_ingestion_id, payload.mapping
+        portfolio_id,
+        payload.account_id,
+        payload.raw_ingestion_id,
+        payload.mapping,
+        payload.instrument_resolutions,
     )
 
 

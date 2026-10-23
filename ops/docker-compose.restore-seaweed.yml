@@ -1,0 +1,17 @@
+# Explicit synthetic isolated restore only. No existing server volumes attached.
+services:
+  minio:
+    entrypoint: [weed]
+    user: "10001:10001"
+    working_dir: /data
+    command: [server, -s3, -s3.port=9000, -dir=/data, -ip=minio, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64]
+    volumes: ["${RESTORE_S3_CONFIG:?isolated synthetic S3 config}:/etc/seaweed/s3.json:ro"]
+    read_only: true
+    tmpfs: ["/data:rw,uid=10001,gid=10001,mode=0700,size=256m", /tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 9000"]
+      interval: 5s
+      timeout: 3s
+      retries: 30

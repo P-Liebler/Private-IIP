@@ -35,6 +35,7 @@ from app.core.errors import AppError
 from app.core.logging import configure_logging, request_id_var
 from app.core.metrics import observe
 from app.core.metrics import router as metrics_router
+from app.core.runtime_contract import verify_tls_runtime
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
 
 
 def create_app() -> FastAPI:
+    verify_tls_runtime()
     settings = get_settings()
     app = FastAPI(title="Investment Intelligence API", version="0.1.0", debug=settings.app_debug)
     app.include_router(data_operations_router)

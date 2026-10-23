@@ -29,7 +29,10 @@ async def main():
             user = await db.get(User, portfolio.user_id)
             assert user and user.username.startswith("restore_")
             model = await ModelRegistryService(db).owned(UUID(os.environ["PR4_MODEL_ID"]), user.id)
-            await ModelRegistryService(db).artifact(model)
+            if os.environ.get("PR5_LEGACY_ARCHIVE") == "true":
+                await ModelRegistryService(db).archived_bytes(model)
+            else:
+                await ModelRegistryService(db).artifact(model)
             replay = await DatasetBuilder(db).rebuild(UUID(os.environ["PR4_DATASET_ID"]), user.id)
             dataset = await db.get(DatasetVersion, UUID(os.environ["PR4_DATASET_ID"]))
             assert dataset and replay["content_hash"] == dataset.content_hash
@@ -41,7 +44,8 @@ async def main():
                       "model_artifact_hash": model.artifact_hash,
                       "prediction_history_hash": digest({"predictions": [view(row) for row in predictions], "outcomes": [view(row) for row in outcomes]}),
                       "prediction_count": len(predictions), "outcome_count": len(outcomes),
-                      "schema_head": await db.scalar(text("SELECT version_num FROM alembic_version"))}
+                      "schema_head": await db.scalar(text("SELECT version_num FROM alembic_version")),
+                      "model_runtime_verification": "SEPARATE_NETWORKLESS_LEGACY_PROCESS_REQUIRED" if os.environ.get("PR5_LEGACY_ARCHIVE") == "true" else "CURRENT_EXACT_RUNTIME"}
             sources = (await db.scalars(select(DataSource).order_by(DataSource.slug))).all()
             result["source_gates"] = {source.slug: {"status": source.gate_status, "enabled": source.enabled} for source in sources}
             for checkpoint in (await history_checkpoint(db, user.id, portfolio.id, verify=True),

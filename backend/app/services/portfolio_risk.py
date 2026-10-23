@@ -190,6 +190,7 @@ class PortfolioRiskService:
             previous = None
             complete = bool(sessions)
             flow_events = ledger_state(transactions, end, cutoff).external_flows
+            opening_dates = ledger_state(transactions, end, cutoff).opening_dates
             factor, interval_valid = Decimal(1), True
             if sessions:
                 day = sessions[0]
@@ -211,7 +212,7 @@ class PortfolioRiskService:
                         ].get("coverage_id"):
                             valid = False
                     amount = cast(Decimal | None, value["total_value_base"]) if valid else None
-                    flow, flow_valid = Decimal(0), True
+                    flow, flow_valid = Decimal(0), day not in opening_dates
                     for event_day, currency, event_amount in flow_events:
                         if event_day == day:
                             fx = await market.fx(currency, portfolio.base_currency, event_day)

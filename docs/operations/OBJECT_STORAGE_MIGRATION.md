@@ -1,6 +1,10 @@
 # Object-Store-Migration – vorbereiteter Ablauf
 
-Stand: 21.10.2026. **MIGRATION_NOT_AUTHORIZED / NOT_EXECUTED.** MinIO bleibt unverändert. Der isolierte SeaweedFS-SDK-Prototyp ist keine Produktionsfreigabe; [Kompatibilitätsreview](S3_COMPATIBILITY_REVIEW.md). Dieser Ablauf ergänzt den bereits dokumentierten Entscheid und erfindet keinen genehmigten Zielstore.
+Stand: 22.10.2026. **PRODUCTION_MIGRATION_NOT_AUTHORIZED / NOT_EXECUTED.** MinIO bleibt im normalen Bestand unverändert. Der isolierte SeaweedFS-SDK-Prototyp ist keine Produktionsfreigabe; [PR5A-Nachweise](../PR5A_SECURITY_CLOSURE_REPORT.md) ergänzen den [bisherigen Review](S3_COMPATIBILITY_REVIEW.md).
+
+PR5 führte auf eigenen synthetischen Volumes einen tatsächlichen Multipart-Abbruch nach 5.242.880 bestätigten Bytes und Wiederaufnahme in einem neuen Prozess aus. Drei Objekte/12.600.070 Bytes einschließlich Modell-JSON und Dokumentbytes wurden mit Metadaten und SHA-256 verglichen, lokal gespiegelt und in einen frischen Bucket restauriert. TLS mit eigener CA, fehlerhafter Trust, falsche Credentials, Range und Streaming sind geprüft. Zusätzlich schaltet die tatsächliche konfigurierte App-Storagefactory im isolierten Testprozess von Quelle zu Ziel und zurück und prüft alle drei Originaltypen erneut. Ein produktiver App-Endpoint wurde nicht umgeschaltet; produktive Rückschaltung bleibt separat abzunehmen.
+
+`restore_verify.py --object-store-kind seaweed-synthetic --object-store-image <digest>` ergänzt ausschließlich für `restore_`-Testkonten einen separaten internen Restore mit kurzlebigem Store und eigenen Credentials. Es ist kein Migrationstool für Originalvolumes. Der allgemeine Migrationsablauf unten bleibt vor einem produktiven Cutover vollständig abzuarbeiten, einschließlich MLflow, Retention/Versionen, Rückschaltung und Operatorfreigabe.
 
 ## Voraussetzungen
 

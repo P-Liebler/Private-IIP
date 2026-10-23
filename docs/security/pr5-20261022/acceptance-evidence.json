@@ -1,0 +1,127 @@
+{
+  "recorded_at": "2026-10-22T13:01:16.731009+00:00",
+  "scope": "LOCAL_SYNTHETIC_ACCEPTANCE_NOT_PRODUCTION_RELEASE",
+  "basis_commit": "2c563e9dd7de1bb211728b0132170ef038b01c9e",
+  "tests": {
+    "backend_passed": 281,
+    "browser_passed": 22,
+    "browser_skipped": 0,
+    "host_passed": 35
+  },
+  "master_numbered_sections": 212,
+  "real_source_gates_unchanged": true,
+  "real_originals": "NOT_PROVIDED",
+  "real_private_data_use": "NOT_APPROVED",
+  "restore": {
+    "started_at": "2026-10-22T12:52:36.793907+00:00",
+    "success": true,
+    "object_store_kind": "seaweed-synthetic",
+    "backup_run_id": "20261022T125200Z-67708",
+    "image_contract": {
+      "api": "private-iip/backend@sha256:b3764e65630dd931f3a33d27e587571112acad39f4e9ccdbc78e9a4bc211cd4a",
+      "postgres": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "object_store": "chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d"
+    },
+    "verified_backup_files": 411,
+    "expected_value": "10180",
+    "archive_contracts": {
+      "dataset": "dd5cd6ef97b9248eb148725797470069b9b33635df15f8506d61bf99761ea538",
+      "model": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+      "predictions": "b40f37e61a676b21e9170ae5d376979b5aaeb2d4a2cc38e00793e2e114a2bc19",
+      "risk": "effadedd110361c218ebf418f58ac5c6dae834cbcf3f1926dfa4b819b3f04886",
+      "recommendations": "0907abec26d2d4fcb964ee595249740cfe2515a7b47cb79b3303512a5889e55f",
+      "intelligence": "c3da667fc9f146565546231ec0ec5514d3617afad116b62d1b36c973cb27cb78",
+      "collections": "0def8e331e1ecbdca099089d720848aa3c69463263cd78b4a91a63564e58dd7f",
+      "validation": "353f4bcdde0d7d11c8f3e880a4670753f3541f1d5d6fbaa3aefddae2c5292cff"
+    },
+    "postgres_environment": {
+      "server_version": "17.11",
+      "lc_collate": "en_US.utf8",
+      "lc_ctype": "en_US.utf8",
+      "vector": "0.8.6"
+    },
+    "postgres_contract_probe": "PASS",
+    "legacy_verification": {
+      "contract": "PR5_LEGACY_VERIFICATION_V1",
+      "verified": true,
+      "artifact_sha256": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+      "core_lock_sha256": "c14c377220680eb75bc180b437cbef659d44666b6700319705622c3e7233aa84",
+      "support_lock_sha256": "e330067d6717e54b203ccfc70ac2c5d082d637be9bcf720c73fa9d5643deefbe",
+      "supporting_archive_contract": "NOT_RECORDED_IN_ARCHIVE",
+      "scope": "ARCHIVED_BYTES_AND_EXACT_INSTALLED_CONTRACT_ONLY_NO_FORECAST_VALIDATION",
+      "image": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "network": "none",
+      "read_only": true,
+      "verifier_sha256": "c8e41f8a48a5cdc9faaf320b35c0791b2521dcc04d7364d8895427b7ee337799"
+    },
+    "completed_at": "2026-10-22T12:54:22.723535+00:00",
+    "cleanup_success": true,
+    "cleanup_completed_at": "2026-10-22T12:54:32.661099+00:00"
+  },
+  "private_log_hashes": {
+    "backend": {
+      "path": "backups/pr5-final-v2-backend.txt",
+      "sha256": "c907b5d6ef7ca2617bb0c11b6add6fe2b446ddbbef21fd2df931683e726a332c"
+    },
+    "browser": {
+      "path": "backups/pr5-final-v2-browser.txt",
+      "sha256": "f83ab42e0a0d007709fd64fb10b7841385bcc5b4b1bf76b6c5ec147c2c0f82e6"
+    },
+    "host": {
+      "path": "backups/pr5-final-v2-host.txt",
+      "sha256": "ea4f44bbf0fab7bfabef9ade31b20bfc79bf77a30417fb9b2e450c8694b757c3"
+    },
+    "mypy": {
+      "path": "backups/pr5-final-v2-mypy.txt",
+      "sha256": "8b206bec0cb61ef28c33e3ac59f8edeb2d8543948e1628a1977ba13d876c4d4f"
+    },
+    "ruff": {
+      "path": "backups/pr5-final-v2-ruff.txt",
+      "sha256": "af352a86840ad0af3d37ea0d9197f868363a6dac6b1c2ef5d2722f6b41d2d9af"
+    },
+    "format": {
+      "path": "backups/pr5-final-v2-format.txt",
+      "sha256": "d4da118d19f5cd5abf771ef0d3bdffa892ac721b9f9a6125ccd3411f19aee942"
+    },
+    "frontend": {
+      "path": "backups/pr5-final-v2-frontend.txt",
+      "sha256": "25bcc89d2378777bcc50e55d305d4f1f5647e32cd58b09b0e03ebab5ce610890"
+    },
+    "fresh_migration": {
+      "path": "backups/pr5-final-v2-migration.txt",
+      "sha256": "725ee1d57ac924e0b590cdf54ae6b709ceea46d0b756ab13fa70f28773558f13"
+    },
+    "runtime_flags": {
+      "path": "backups/pr5-final-runtime-flags.txt",
+      "sha256": "3fbb33338880fd523d5e28826c9aaf2a068625fb7a9aecb3fe9daadbda163dce"
+    },
+    "core_dependencies": {
+      "path": "backups/pr5-core-dependencies-v2.json",
+      "sha256": "ff476f7e303d5c750abdbc873239fac54e863081f6190e248cf675477f776e88"
+    },
+    "mlflow_dependencies": {
+      "path": "backups/pr5-mlflow-dependencies.json",
+      "sha256": "0f83f9b8d3a020e301e275273b81d8f3e87d058f24ec9e455d2ff8d32da3e43e"
+    },
+    "npm_dependencies": {
+      "path": "backups/pr5-npm-dependencies.json",
+      "sha256": "8070cf6fdc98d891beccf4cefd0b064aeec0d2c045953fb935be70dea98bd295"
+    },
+    "core_tls_and_storage_rollback": {
+      "path": "backups/pr5-core-storage-rollback-v3.txt",
+      "sha256": "b9b46d2882cdf7bbaf761280cfb219efa7739daf14d1b4c3c2973efa725e4471"
+    },
+    "staging_https": {
+      "path": "backups/pr5-staging-https.txt",
+      "sha256": "5d19b215e2932f89bbcc277a9221f7637d4c93535cc698bc574b8835d7d8144a"
+    },
+    "staging_browser": {
+      "path": "backups/pr5-staging-browser.txt",
+      "sha256": "5d40e74030476ce74cbc8eeb06bbd46bac17372a360cd30474915955c2429bf5"
+    },
+    "staging_mlflow": {
+      "path": "backups/pr5-staging-mlflow.txt",
+      "sha256": "e06a43076282401ed73d25c837fb00a90935df1bf34ab05a63f591437596619c"
+    }
+  }
+}

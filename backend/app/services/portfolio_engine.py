@@ -25,11 +25,13 @@ class PositionState:
     instrument_id: UUID
     currency: str
     quantity: Decimal = ZERO
-    cost_basis: Decimal = ZERO
-    realized_pnl: Decimal = ZERO
+    cost_basis: Decimal | None = ZERO
+    realized_pnl: Decimal | None = ZERO
 
     @property
-    def average_cost(self) -> Decimal:
+    def average_cost(self) -> Decimal | None:
+        if self.cost_basis is None:
+            return None
         return money(self.cost_basis / self.quantity) if self.quantity else ZERO
 
 
@@ -46,6 +48,8 @@ class LedgerState:
     fee_events: list[tuple[date, str, Decimal]] = field(default_factory=list)
     tax_events: list[tuple[date, str, Decimal]] = field(default_factory=list)
     transaction_ids: list[UUID] = field(default_factory=list)
+    opening_dates: list[date] = field(default_factory=list)
+    realized_incomplete: bool = False
 
 
 def _add(bucket: dict[str, Decimal], currency: str, value: Decimal) -> None:
@@ -71,7 +75,7 @@ def ledger_state(transactions: list[Transaction], on_date: date, cutoff: datetim
         visible,
         key=lambda item: (
             item.trade_date,
-            0 if item.type == "SPLIT" else 1,
+            0 if item.type == "OPENING_POSITION" else 1 if item.type == "SPLIT" else 2,
             item.created_at,
             str(item.id),
         ),
@@ -126,10 +130,36 @@ def ledger_state(transactions: list[Transaction], on_date: date, cutoff: datetim
         if tax:
             _add(state.taxes, row.currency, tax)
             state.tax_events.append((row.trade_date, row.currency, tax))
-        if row.type in {"BUY", "SELL", "SPLIT"}:
+        if row.type in {"BUY", "SELL", "SPLIT", "OPENING_POSITION"}:
             if row.instrument_id is None:
                 raise AppError(422, "INVALID_TRANSACTION", "Instrument required")
             key = (row.account_id, row.instrument_id)
+            if row.type == "OPENING_POSITION":
+                if (
+                    key in state.positions
+                    or row.quantity is None
+                    or row.quantity <= 0
+                    or row.price is not None
+                    or row.fee
+                    or row.tax
+                    or (row.amount is not None and row.amount < 0)
+                    or not row.notes
+                    or len(row.notes.strip()) < 10
+                ):
+                    raise AppError(
+                        422,
+                        "OPENING_POSITION_INVALID",
+                        "Opening must precede trades and include source provenance",
+                    )
+                state.positions[key] = PositionState(
+                    row.account_id,
+                    row.instrument_id,
+                    row.currency,
+                    quantity=quantity,
+                    cost_basis=row.amount,
+                )
+                state.opening_dates.append(row.trade_date)
+                continue  # No invented purchase, cash movement or historical return.
             position = state.positions.setdefault(
                 key, PositionState(row.account_id, row.instrument_id, row.currency)
             )
@@ -138,21 +168,31 @@ def ledger_state(transactions: list[Transaction], on_date: date, cutoff: datetim
             if row.type == "BUY":
                 position.quantity += quantity
                 purchase = money(quantity * price + fee + tax)
-                position.cost_basis = money(position.cost_basis + purchase)
+                if position.cost_basis is not None:
+                    position.cost_basis = money(position.cost_basis + purchase)
                 _cash(state, row.account_id, row.currency, -purchase)
             elif row.type == "SELL":
                 if quantity > position.quantity:
                     raise AppError(409, "INSUFFICIENT_POSITION", "Sell exceeds available quantity")
-                sold_cost = money(position.cost_basis * quantity / position.quantity)
+                sold_cost = (
+                    money(position.cost_basis * quantity / position.quantity)
+                    if position.cost_basis is not None
+                    else None
+                )
                 position.quantity -= quantity
-                position.cost_basis = money(position.cost_basis - sold_cost)
+                if position.cost_basis is not None and sold_cost is not None:
+                    position.cost_basis = money(position.cost_basis - sold_cost)
                 if not position.quantity:
                     position.cost_basis = ZERO
                 proceeds = money(quantity * price - fee - tax)
-                position.realized_pnl = money(position.realized_pnl + proceeds - sold_cost)
-                state.realized_events.append(
-                    (row.trade_date, row.currency, money(proceeds - sold_cost))
-                )
+                if sold_cost is None or position.realized_pnl is None:
+                    position.realized_pnl = None
+                    state.realized_incomplete = True
+                else:
+                    position.realized_pnl = money(position.realized_pnl + proceeds - sold_cost)
+                    state.realized_events.append(
+                        (row.trade_date, row.currency, money(proceeds - sold_cost))
+                    )
                 _cash(state, row.account_id, row.currency, proceeds)
             else:
                 new_quantity = position.quantity * quantity  # quantity is the split ratio

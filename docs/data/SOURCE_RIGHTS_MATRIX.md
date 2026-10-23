@@ -1,5 +1,9 @@
 # Quellenrechte und Eignung
 
+## Ergänzende PR5-Prüfung vom 21./22.10.2026
+
+Aktueller dokumentarischer Vergleich von Yahoo, ECB, SNB, SEC, OpenFIGI, Alpha Vantage, Twelve Data und eigenen CSVs: [PR5C](../PR5C_MARKET_DATA_REPORT.md). Besonders dauerhafte Archivierung, Non-Display-Nutzung, Schweizer Aktien/ETFs und tägliche FX sind nicht pauschal gedeckt. Twelve Data verlangt tarifabhängige Speicherung und grundsätzlich Löschung nach Vertragsende; unveränderliche Dauerarchive benötigen passende gesonderte Rechte. ECB-API-Hilfe war beim Review nicht erreichbar. Keine Registryfreigabe oder Aktivierung wurde durch diese Dokumentationsprüfung erteilt. Die nachfolgende Matrix dokumentiert den früheren Vergleich und muss vor einer konkreten Quellenfreigabe instrument- und zweckbezogen ergänzt werden.
+
 Prüfung der Primärdokumentation: **2026-10-15/16**. Dokumentationsprüfung ist keine Operator-Freigabe. `UNKNOWN` bezeichnet ungeklärte Rechte, keine mutmassliche Erlaubnis. Private Nutzung, automatischer Abruf, unveränderliche Originalablage, historische Aufbewahrung und abgeleitete Analysen müssen gemeinsam vom Operator gedeckt sein. Gebührenfreiheit betrifft API-Gebühren; Hardware, Strom, Speicher und Betrieb bleiben Kosten.
 
 ## Daten und Zugangsvertrag

@@ -21,6 +21,7 @@ TransactionType = Literal[
     "TRANSFER_OUT",
     "SPLIT",
     "CASH_ADJUSTMENT",
+    "OPENING_POSITION",
 ]
 
 
@@ -105,7 +106,16 @@ class TransactionInput(BaseModel):
             raise ValueError("FX rate must be positive")
         if self.settlement_date is not None and self.settlement_date < self.trade_date:
             raise ValueError("Settlement cannot precede trade")
-        if self.type in {"BUY", "SELL"}:
+        if self.type == "OPENING_POSITION":
+            if not self.instrument_id or self.quantity is None or self.quantity <= 0:
+                raise ValueError("Opening position needs instrument and positive quantity")
+            if self.price is not None or self.fee or self.tax:
+                raise ValueError("Opening position is not a trade and has no price, fee or tax")
+            if self.amount is not None and self.amount < 0:
+                raise ValueError("Known opening cost basis must be nonnegative")
+            if not self.notes or len(self.notes.strip()) < 10:
+                raise ValueError("Opening position requires statement/source provenance")
+        elif self.type in {"BUY", "SELL"}:
             if (
                 not self.instrument_id
                 or self.quantity is None

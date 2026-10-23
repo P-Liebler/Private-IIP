@@ -225,6 +225,17 @@ class PortfolioPerformanceService:
             ).all()
         )
         flow_by_day: dict[date, Decimal] = {}
+        if any(start < d <= end for d in ledger_state(rows, end, cutoff).opening_dates):
+            return {
+                "status": "PARTIAL",
+                "reason": "OPENING_POSITION_FLOW_UNAVAILABLE",
+                "absolute_return_base": None,
+                "twr": None,
+                "xirr": None,
+                "cagr": None,
+                "fx_contribution_base": None,
+                "series": [],
+            }
         missing_flow_fx: list[date] = []
         for day, currency, amount in ledger_state(rows, end, cutoff).external_flows:
             if day <= start:

@@ -216,7 +216,8 @@ class PortfolioService:
         if payload.instrument_id:
             instrument = await self.db.get(Instrument, payload.instrument_id)
             if instrument is None or (
-                payload.type in {"BUY", "SELL", "SPLIT"} and instrument.currency != payload.currency
+                payload.type in {"BUY", "SELL", "SPLIT", "OPENING_POSITION"}
+                and instrument.currency != payload.currency
             ):
                 raise AppError(
                     422, "INVALID_TRANSACTION", "Instrument missing or currency mismatch"

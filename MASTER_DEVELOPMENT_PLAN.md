@@ -1757,6 +1757,8 @@ updated_at
 
 # 57. Transaction Types
 
+PR5 ergänzt im bestehenden Ledger `OPENING_POSITION` für belegte Startbestände. Stichtag, Konto, Instrument, Währung, Stückzahl und Herkunft sind Pflicht; der gesamte Einstandswert ist optional. Es entstehen weder ein erfundener Kauf noch ein Cashflow. Unbekannte Kosten und davon abhängige Gewinne bleiben unbekannt; Renditeintervalle über einen solchen Anfangsbestand werden ohne nachgewiesenen externen Flow gesperrt. Korrekturen und PIT-Replay verwenden dieselben versionierten Transaktionen wie P4. Es entsteht kein zweites Bestandsbuch.
+
 ```text
 BUY
 SELL
@@ -1776,6 +1778,7 @@ TRANSFER_OUT
 SPLIT
 
 CASH_ADJUSTMENT
+OPENING_POSITION
 ```
 
 ---
@@ -1910,6 +1913,8 @@ custom
 ---
 
 # 64. Portfolio Import
+
+PR5 verbindet diese Pipeline mit einem geführten Portfolioeinstieg. Die Vorschau zeigt Buchungswerte, Fehler und Duplikate; mehrdeutige Kennungen benötigen eine ausdrückliche, zu Datum und Kennungen passende Instrumentauswahl. Der Vorschauvertrag bindet Spalten- und Instrumentzuordnungen an das unveränderliche Original. Wiederholte Imports erzeugen keine erneute Buchung und reaktivieren keine stornierten Originale; geänderte externe IDs/Buchungswerte verlangen die bestehende explizite Korrektur. Ein separater Auszugsabgleich liest ausschließlich denselben Ledger und dieselbe Bewertung, kennzeichnet manuelle Angaben und ändert keine Buchungen.
 
 Zuerst:
 

@@ -16,6 +16,7 @@ from app.backtesting.features import FEATURE_VERSION
 from app.backtesting.validation import available
 from app.core.config import get_settings
 from app.core.errors import AppError
+from app.core.runtime_contract import RUNTIME_CONTRACT
 from app.models import (
     ActionCoverageReview,
     DatasetVersion,
@@ -39,6 +40,7 @@ from app.services.version_hashing import version_payload
 def code_manifest() -> dict[str, Any]:
     files = sorted(Path("app").rglob("*.py"))
     return {
+        "runtime_contract": RUNTIME_CONTRACT,
         "git_commit": get_settings().code_commit,
         "code_hash": digest({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}),
         "dependencies": Path("requirements.lock").read_text(),

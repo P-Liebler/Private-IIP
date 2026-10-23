@@ -1,5 +1,11 @@
 # Private Investment Intelligence Platform
 
+## PR5 – lokaler Beta-Workflow (22.10.2026)
+
+**BETA_IMPLEMENTED / REAL_PRIVATE_DATA_USE_NOT_APPROVED.** Portfolio-Onboarding, geprüfter und wiederholbarer CSV-Import, explizite Startbestände, Kurs-/FX-Provenienz und read-only Depotabgleich verwenden die vorhandene P4-Engine. Unbekannter Einstand und unvollständige Bewertungen bleiben sichtbar. Core-TLS und Dokumentparser sind gezielt gepatcht; alte Modellverträge werden separat ohne Netzwerk geprüft. Keine reale Quelle aktiviert, kein Produktiv-Cutover und keine Finanzfreigabe.
+
+[Startanleitung](docs/user/GETTING_STARTED.md), [Transaktionen](docs/user/IMPORT_TRANSACTIONS.md), [Marktdaten](docs/user/IMPORT_MARKET_DATA.md), [Depotabgleich](docs/user/PORTFOLIO_RECONCILIATION.md), [Datenqualität](docs/user/DATA_QUALITY.md), [PR5-Abnahme und offene Gates](docs/PR5_ACCEPTANCE_REPORT.md). Ein echter Portfolio-Pilot ist mangels bereitgestellter Belege und Sicherheitsfreigabe noch nicht abgenommen. Die folgenden PR4-Angaben sind historische Nachweise.
+
 ## Aktueller Nachweis vom 21.10.2026
 
 PR4 erneut lokal geprueft am 21.10.: 266 Backend-, 21 Browser- und 32 Hosttests; neuer isolierter Restore mit 355 Raw-Objekten und CHF 10’180. Kandidat PR4-LOCAL-20261021-01 bleibt SECURITY_BLOCKED (13 Critical / 366 High), TARGET_HOST_NOT_VERIFIED. Kein produktiver Release, kein neuer Remote-CI-Pass, keine Finanzfreigabe.

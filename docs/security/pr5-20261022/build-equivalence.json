@@ -1,0 +1,13 @@
+{
+  "scope": "FINAL_BUILD_DECLARATION_SYNC_ONLY",
+  "regression_runtime": "pr5-rc5",
+  "final_candidate": "pr5-rc6",
+  "identical_app_and_lock_hashes": {
+    "app": "b9f9b7211085e885e8b3633cd153a59901e70ed2e0040bb76886a00d595dbde8",
+    "core": "c022b1b43f8acc1b6569e218f2f15bba5cb9488000a3508c446eb50dc4624979",
+    "support": "0dd7bdb5d7d27825bfa12db4a167d6d460a186c5298ef9f372de5a2ee99a7e6c"
+  },
+  "supporting_declaration_matches_lock": true,
+  "startup_guards_passed": true,
+  "final_scan_and_restore": "SEPARATE_EVIDENCE_REQUIRED"
+}
