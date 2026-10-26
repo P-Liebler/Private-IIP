@@ -13,6 +13,7 @@ from app.assistant.news import archived_news
 from app.assistant.tools import ToolRegistry
 from app.models import (
     AnalystEstimate,
+    DocumentRemoval,
     FundamentalFact,
     Instrument,
     MLModelVersion,
@@ -216,6 +217,9 @@ class TimeMachineService:
             ResearchDocument.created_at <= cutoff,
             ResearchDocument.known_at <= cutoff,
             ResearchDocument.observed_at <= cutoff,
+            ~select(DocumentRemoval.id)
+            .where(DocumentRemoval.document_id == ResearchDocument.id)
+            .exists(),
         )
         if iid:
             docs_query = docs_query.where(ResearchDocument.instrument_id == iid)

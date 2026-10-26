@@ -3,10 +3,15 @@
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSession, login, sessionQueryKey, verifyTotp } from "@/lib/auth";
+import { QueryProvider } from "@/components/query-provider";
 
 const subscribe = () => () => {};
 
 export default function LoginPage() {
+  return <QueryProvider><LoginForm /></QueryProvider>;
+}
+
+function LoginForm() {
   const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
   const queryClient = useQueryClient();
   const [username, setUsername] = useState("");

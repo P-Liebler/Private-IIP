@@ -18,7 +18,7 @@ test("P10 assistant preserves financial gates, private history and source eviden
   await login(page);
   await page.goto("/assistant");
   await page.getByRole("button", { name: "Neue Unterhaltung", exact: true }).click();
-  await page.getByLabel("Portfolio", { exact: true }).selectOption(portfolio!);
+  await page.getByRole("combobox", { name: "Portfolio", exact: true }).selectOption(portfolio!);
   await page.getByLabel("Instrument-ID", { exact: true }).fill(instrument!);
   await page.getByLabel("Frage", { exact: true }).fill("Soll ich kaufen? Empfehlung und Risiken erklaeren.");
   await page.getByRole("button", { name: "Analyse starten", exact: true }).click();
@@ -61,7 +61,7 @@ test("P10 unavailable alert is explicit, brief is idempotent, optimizer abstains
   await page.getByRole("button", { name: "Risiko-Snapshot berechnen" }).click();
   expect((await riskResponse).status()).toBe(200);
   await page.goto("/optimizer");
-  await page.getByLabel("Portfolio", { exact: true }).selectOption(portfolio!);
+  await page.getByRole("combobox", { name: "Portfolio", exact: true }).selectOption(portfolio!);
   await expect(page.getByRole("button", { name: "Simulation berechnen", exact: true })).toBeEnabled({ timeout: 15000 });
   await page.getByRole("button", { name: "Simulation berechnen", exact: true }).click();
   await expect(page.getByLabel("Optimierungsergebnis")).toContainText("OPTIMIZATION_UNAVAILABLE");

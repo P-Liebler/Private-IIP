@@ -52,7 +52,7 @@ def create_app() -> FastAPI:
         allow_origins=[settings.frontend_origin],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE"],
-        allow_headers=["Content-Type", "X-Request-ID", "X-Filename"],
+        allow_headers=["Content-Type", "X-Request-ID", "X-Filename", "Idempotency-Key"],
     )
 
     @app.exception_handler(AppError)

@@ -3,7 +3,7 @@
 from importlib.metadata import version
 from pathlib import Path
 
-RUNTIME_CONTRACT = "PR5_CORE_CERTIFI_20261019_PDF_6211_V2"
+RUNTIME_CONTRACT = "PR6_CORE_OTEL_1451_V1"
 
 
 def verify_tls_runtime() -> None:
@@ -17,3 +17,7 @@ def verify_tls_runtime() -> None:
         raise RuntimeError("DOCUMENT_PARSER_LOCK_MISMATCH")
     if version("pypdf") != "6.21.1":
         raise RuntimeError("DOCUMENT_PARSER_RUNTIME_MISMATCH")
+    if "opentelemetry-api==1.45.1" not in pins.read_text(encoding="utf-8").splitlines():
+        raise RuntimeError("TELEMETRY_LOCK_MISMATCH")
+    if version("opentelemetry-api") != "1.45.1":
+        raise RuntimeError("TELEMETRY_RUNTIME_MISMATCH")

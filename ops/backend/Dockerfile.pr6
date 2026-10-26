@@ -1,0 +1,7 @@
+# Controlled telemetry security migration. Numerical model packages unchanged.
+ARG BASE_IMAGE=private-iip/backend:pr5-rc6@sha256:91fccb8efac21ccc3e19b725386b72c9a329de6aa6b9ecce87e520cf2ad39f08
+FROM ${BASE_IMAGE}
+USER root
+RUN pip install --no-cache-dir --no-deps --upgrade opentelemetry-api==1.45.1 && pip check
+COPY backend/ /app/
+USER 10001:10001

@@ -1,5 +1,15 @@
 # Private Investment Intelligence Platform
 
+## PR6 – Produkt-UX und lokale Abnahme (23.10.2026)
+
+Sechs Hauptbereiche, Light/Dark/System, zugängliche Dialoge, mobile Positionen, CHF-Übersicht, Charts mit expliziten Datenlücken und ein geführter Portfolio-/CSV-Ablauf verwenden die vorhandenen Finanzdienste. Einzelbuchungen erfordern Bestätigung; stabile Anfrageschlüssel schützen Wiederholungen. Dokumente lassen sich unter Beibehaltung unveränderlicher Originalbelege aus aktiver Bibliothek und neuen Suchabrufen zurückziehen.
+
+**SECURITY_BLOCKED / REAL_DATA_LIMITED / TARGET_HOST_NOT_VERIFIED.** Verschiedene ISINs sind als Identitäten möglich; universelle Kurse, Börsen-/Währungsabdeckung und tägliche Aktualisierung sind nicht nachgewiesen. Keine neue externe Quelle aktiviert, kein echter Portfolio-Pilot freigegeben, keine Modellpromotion und kein Push/Release. Die historischen PR5-/PR4-Angaben unten sind keine neue Freigabe.
+
+[Nutzerwege](docs/ux/USER_JOURNEYS.md), [PR6-Abnahme](docs/PR6_ACCEPTANCE_REPORT.md), [Funktionsmatrix](docs/PR6F_FUNCTIONAL_COMPLETENESS.md), [Quellenprüfung](docs/PR6E_DATA_ACQUISITION_REPORT.md), [Security](docs/PR6G_SECURITY_STATUS.md).
+
+Abgleich 26.10.: Die Regression vom 23.10. umfasst 297 Backend-, 35 Host- und 26 unterschiedliche Browserfälle; isolierter Restore mit 502 Raw-Objekten/503 Dateihashes bestanden. Normaler lokaler Modus mit Testprovider aus und temporären Betreiberrechten entfernt ist geprüft. Das aktualisiert keine Quellen-, Finanz- oder Produktionsfreigabe; Securitynachweise vom 23.10. benötigen vor einem Release einen aktuellen Neuabgleich.
+
 ## PR5 – lokaler Beta-Workflow (22.10.2026)
 
 **BETA_IMPLEMENTED / REAL_PRIVATE_DATA_USE_NOT_APPROVED.** Portfolio-Onboarding, geprüfter und wiederholbarer CSV-Import, explizite Startbestände, Kurs-/FX-Provenienz und read-only Depotabgleich verwenden die vorhandene P4-Engine. Unbekannter Einstand und unvollständige Bewertungen bleiben sichtbar. Core-TLS und Dokumentparser sind gezielt gepatcht; alte Modellverträge werden separat ohne Netzwerk geprüft. Keine reale Quelle aktiviert, kein Produktiv-Cutover und keine Finanzfreigabe.

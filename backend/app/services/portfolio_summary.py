@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import cast
 from uuid import UUID
@@ -19,10 +19,18 @@ class PortfolioSummaryService:
         self.user_id = user_id
         self.valuation = PortfolioValuationService(db, user_id)
 
-    async def summary(self, portfolio_id: UUID) -> dict[str, object]:
-        cutoff = pit_cutoff(None)
+    async def summary(
+        self,
+        portfolio_id: UUID,
+        *,
+        reporting_currency: str | None = None,
+        as_of: datetime | None = None,
+    ) -> dict[str, object]:
+        cutoff = pit_cutoff(as_of)
         day = cutoff.date()
-        current = await self.valuation.value(portfolio_id, day, cutoff)
+        current = await self.valuation.value(
+            portfolio_id, day, cutoff, reporting_currency=reporting_currency
+        )
         rows = await PortfolioService(self.db, self.user_id).transactions(portfolio_id)
         flows = ledger_state(rows, day, cutoff).external_flows
         opening_dates = ledger_state(rows, day, cutoff).opening_dates
@@ -51,7 +59,9 @@ class PortfolioSummaryService:
             ("daily_change_base", day - timedelta(days=1)),
             ("ytd_return_base", date(day.year - 1, 12, 31)),
         ):
-            opening = await self.valuation.value(portfolio_id, start, cutoff)
+            opening = await self.valuation.value(
+                portfolio_id, start, cutoff, reporting_currency=reporting_currency
+            )
             opening_value = cast(Decimal | None, opening["total_value_base"])
             external = await net_after(start)
             result[label] = (

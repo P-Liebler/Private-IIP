@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type Settings } from "@/lib/api";
 import { sessionQueryKey, useSession } from "@/lib/auth";
+import { ThemeSwitcher } from "@/components/ui/theme-provider";
 
 type TotpSetup = { secret: string; provisioning_uri: string };
 
@@ -59,6 +60,7 @@ export default function SettingsPage() {
   return (
     <main className="max-w-2xl py-12">
       <h1 className="text-3xl font-semibold">Einstellungen</h1>
+      <section className="ui-panel mt-6 space-y-4"><h2 className="text-xl font-semibold">Erscheinungsbild</h2><p className="text-sm ui-muted">Hell, Dunkel oder die Einstellung Ihres Geräts. Diese Präferenz enthält keine Finanz- oder Sitzungsdaten.</p><ThemeSwitcher /></section>
       {settings.isPending && <p className="mt-5 text-zinc-400">Lade Einstellungen…</p>}
       {settings.isError && <p role="alert" className="mt-5 text-rose-400">{settings.error.message}</p>}
       {notice && <p role="status" className="mt-5 text-emerald-400">{notice}</p>}

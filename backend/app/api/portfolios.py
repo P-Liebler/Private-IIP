@@ -6,8 +6,8 @@ from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel, ConfigDict, Field
+from fastapi import APIRouter, Depends, Header, Request
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,6 +38,8 @@ from app.services.portfolio_snapshots import PortfolioSnapshotService
 from app.services.portfolio_summary import PortfolioSummaryService
 from app.services.portfolio_valuation import PortfolioValuationService
 from app.services.portfolios import PortfolioService
+from app.services.transaction_csv_format import TransactionCsvFormat
+from app.services.ui_requests import create_once
 
 router = APIRouter(prefix="/api/v1", tags=["portfolios"])
 DB = Annotated[AsyncSession, Depends(get_session)]
@@ -123,6 +125,7 @@ class ImportCommit(BaseModel):
     raw_ingestion_id: UUID
     mapping: dict[str, str]
     instrument_resolutions: dict[int, UUID] = Field(default_factory=dict)
+    csv_format: TransactionCsvFormat | None = None
 
 
 @router.get("/benchmarks")
@@ -151,8 +154,24 @@ async def portfolios(db: DB, user: USER) -> list[dict[str, object]]:
 
 
 @router.post("/portfolios", status_code=201)
-async def create_portfolio(payload: PortfolioCreate, db: DB, user: USER) -> dict[str, object]:
-    return portfolio_view(await PortfolioService(db, user.user.id).create(payload))
+async def create_portfolio(
+    payload: PortfolioCreate,
+    db: DB,
+    user: USER,
+    idempotency_key: Annotated[UUID | None, Header(alias="Idempotency-Key")] = None,
+) -> dict[str, object]:
+    service = PortfolioService(db, user.user.id)
+    return portfolio_view(
+        await create_once(
+            db,
+            user.user.id,
+            idempotency_key,
+            "CREATE_PORTFOLIO",
+            payload.model_dump(mode="json"),
+            Portfolio,
+            lambda: service.create(payload, commit=idempotency_key is None),
+        )
+    )
 
 
 @router.get("/portfolio-dashboard")
@@ -197,10 +216,24 @@ async def reconcile_statement(
 
 @router.post("/portfolios/{portfolio_id}/accounts", status_code=201)
 async def create_account(
-    portfolio_id: UUID, payload: AccountCreate, db: DB, user: USER
+    portfolio_id: UUID,
+    payload: AccountCreate,
+    db: DB,
+    user: USER,
+    idempotency_key: Annotated[UUID | None, Header(alias="Idempotency-Key")] = None,
 ) -> dict[str, object]:
+    service = PortfolioService(db, user.user.id)
+    await service.owned(portfolio_id)
     return account_view(
-        await PortfolioService(db, user.user.id).create_account(portfolio_id, payload)
+        await create_once(
+            db,
+            user.user.id,
+            idempotency_key,
+            f"CREATE_ACCOUNT:{portfolio_id}",
+            payload.model_dump(mode="json"),
+            PortfolioAccount,
+            lambda: service.create_account(portfolio_id, payload, commit=idempotency_key is None),
+        )
     )
 
 
@@ -238,10 +271,16 @@ async def transactions(portfolio_id: UUID, db: DB, user: USER) -> list[dict[str,
 
 @router.post("/portfolios/{portfolio_id}/transactions", status_code=201)
 async def create_transaction(
-    portfolio_id: UUID, payload: TransactionInput, db: DB, user: USER
+    portfolio_id: UUID,
+    payload: TransactionInput,
+    db: DB,
+    user: USER,
+    idempotency_key: Annotated[UUID | None, Header(alias="Idempotency-Key")] = None,
 ) -> dict[str, object]:
     return transaction_view(
-        await PortfolioService(db, user.user.id).create_transaction(portfolio_id, payload)
+        await PortfolioService(db, user.user.id).create_transaction(
+            portfolio_id, payload, idempotency_key=idempotency_key
+        )
     )
 
 
@@ -254,6 +293,7 @@ async def preview_transactions(
     user: USER,
     column_mapping: str | None = None,
     instrument_resolutions: str | None = None,
+    csv_format: str | None = None,
 ) -> dict[str, object]:
     if request.headers.get("Content-Type", "").split(";", 1)[0].lower() != "text/csv":
         raise AppError(415, "CSV_CONTENT_TYPE_REQUIRED", "Upload a text/csv file")
@@ -285,6 +325,12 @@ async def preview_transactions(
             raise AppError(
                 422, "CSV_RESOLUTION_INVALID", "Use explicit instrument choices by CSV line"
             ) from error
+    config = None
+    if csv_format is not None:
+        try:
+            config = TransactionCsvFormat.model_validate_json(csv_format)
+        except ValidationError as error:
+            raise AppError(422, "CSV_FORMAT_INVALID", "Select a supported CSV format") from error
     return await PortfolioImportService(db, user.user.id).preview(
         portfolio_id,
         account_id,
@@ -292,6 +338,7 @@ async def preview_transactions(
         request.headers.get("X-Filename", "transactions.csv"),
         mapping,
         resolutions,
+        config,
     )
 
 
@@ -305,6 +352,7 @@ async def commit_transactions(
         payload.raw_ingestion_id,
         payload.mapping,
         payload.instrument_resolutions,
+        payload.csv_format,
     )
 
 

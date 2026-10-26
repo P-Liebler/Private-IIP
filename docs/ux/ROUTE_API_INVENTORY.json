@@ -1,0 +1,2101 @@
+{
+  "scope": "STATIC_INSPECTION_NOT_FUNCTIONAL_ACCEPTANCE",
+  "routes": [
+    {
+      "route": "/alerts",
+      "source": "frontend/web/app/(protected)/alerts/page.tsx",
+      "user_goal": "Benachrichtigungen und Regeln verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/alert-rules",
+        "/alert-rules/${r.id}",
+        "/alert-rules/${r.id}/evaluate",
+        "/alert-rules/${r.id}/evaluations",
+        "/notifications",
+        "/notifications/${n.id}/read"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/analyses",
+      "source": "frontend/web/app/(protected)/analyses/page.tsx",
+      "user_goal": "Vorhandene Portfolioanalysen und ihre Voraussetzungen öffnen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/portfolios.ts"
+      ],
+      "literal_route_references": [
+        "/backtests",
+        "/benchmarks",
+        "/models",
+        "/portfolios",
+        "/portfolios/${id}/accounts",
+        "/portfolios/${id}/allocation",
+        "/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly",
+        "/portfolios/${id}/summary",
+        "/portfolios/${id}/transactions",
+        "/portfolios/${id}?tab=Risiko",
+        "/portfolios/${id}?tab=Szenarien",
+        "/portfolios/${id}?tab=What-if",
+        "/portfolios/new",
+        "/recommendations"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/assistant",
+      "source": "frontend/web/app/(protected)/assistant/page.tsx",
+      "user_goal": "Vorhandene Evidenz erklären lassen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/assistant/conversations",
+        "/assistant/conversations/${conversation}",
+        "/assistant/conversations/${conversation}/messages",
+        "/assistant/status",
+        "/documents"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/backtests",
+      "source": "frontend/web/app/(protected)/backtests/page.tsx",
+      "user_goal": "Historische Datensätze und Strategien reproduzierbar prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/pit.ts"
+      ],
+      "literal_route_references": [
+        "/backtests",
+        "/backtests/${r.id}",
+        "/datasets",
+        "/datasets/build",
+        "/universes",
+        "/universes/${universe}/imports/commit",
+        "/universes/${universe}/imports/preview",
+        "/universes/${universe}/imports/upload"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/daily-brief",
+      "source": "frontend/web/app/(protected)/daily-brief/page.tsx",
+      "user_goal": "Belegte Tageszusammenfassung ansehen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/daily-brief",
+        "/daily-brief/${selected.id}/explain",
+        "/daily-brief/configuration",
+        "/daily-brief/generate"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": false,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/dashboard",
+      "source": "frontend/web/app/(protected)/dashboard/page.tsx",
+      "user_goal": "Vermögen, Datenprobleme und nächste Aufgabe verstehen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/portfolios.ts"
+      ],
+      "literal_route_references": [
+        "/alerts",
+        "/benchmarks",
+        "/data-quality",
+        "/notifications",
+        "/portfolio-dashboard",
+        "/portfolios",
+        "/portfolios/${id}/accounts",
+        "/portfolios/${id}/allocation",
+        "/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly",
+        "/portfolios/${id}/summary",
+        "/portfolios/${id}/transactions",
+        "/portfolios/${id}?tab=Positionen",
+        "/portfolios/${id}?tab=Transaktionen",
+        "/portfolios/new"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/data-operations",
+      "source": "frontend/web/app/(protected)/data-operations/page.tsx",
+      "user_goal": "Begrenzte Datenaufträge und Verfügbarkeit prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/market-foundation.ts"
+      ],
+      "literal_route_references": [
+        "/data-operations",
+        "/data-operations/${action}",
+        "/data-operations/jobs/${id}/${action}",
+        "/data-sources",
+        "/imports",
+        "/imports/csv/preview",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/market-data/imports/prices/preview",
+        "/settings/data-sources"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/data-operations/readiness",
+      "source": "frontend/web/app/(protected)/data-operations/readiness/page.tsx",
+      "user_goal": "Begrenzte Datenaufträge und Verfügbarkeit prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": false,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/data-quality",
+      "source": "frontend/web/app/(protected)/data-quality/page.tsx",
+      "user_goal": "Datenlücken und ihre Korrektur finden",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/market-data.ts",
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/portfolios.ts"
+      ],
+      "literal_route_references": [
+        "/benchmarks",
+        "/data-operations",
+        "/data-quality/summary",
+        "/instruments/${id}/prices",
+        "/market-data/imports/${kind}/commit",
+        "/market-data/imports/${kind}/preview",
+        "/portfolios",
+        "/portfolios/${id}/accounts",
+        "/portfolios/${id}/allocation",
+        "/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly",
+        "/portfolios/${id}/summary",
+        "/portfolios/${id}/transactions",
+        "/portfolios/${portfolio.id}",
+        "/portfolios/${portfolio.id}?tab=Transaktionen",
+        "/system/backup-status"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/documents",
+      "source": "frontend/web/app/(protected)/documents/page.tsx",
+      "user_goal": "Eigene zulässige Dokumente archivieren und durchsuchen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/research-documents",
+        "/research-documents/${d.id}",
+        "/research-documents/${d.id}/reindex",
+        "/research-documents/metadata",
+        "/research-documents/retrieve",
+        "/research-documents/rights-reviews",
+        "/research-documents/uploads",
+        "/research-documents/uploads/${ticket.upload_id}/content"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/imports",
+      "source": "frontend/web/app/(protected)/imports/page.tsx",
+      "user_goal": "Zulässige Originaldateien prüfen und importieren",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/instrument/[id]",
+      "source": "frontend/web/app/(protected)/instrument/[id]/page.tsx",
+      "user_goal": "Instrument, Kurse und belegte Analysen prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/market-foundation.ts",
+        "frontend/web/lib/api/market-data.ts"
+      ],
+      "literal_route_references": [
+        "/data-quality/summary",
+        "/data-sources",
+        "/imports",
+        "/imports/csv/preview",
+        "/instruments",
+        "/instruments/${id}",
+        "/instruments/${id}/prices",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/market-data/imports/${kind}/commit",
+        "/market-data/imports/${kind}/preview"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/instruments",
+      "source": "frontend/web/app/(protected)/instruments/page.tsx",
+      "user_goal": "Instrumentidentität suchen und prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/market-foundation.ts"
+      ],
+      "literal_route_references": [
+        "/data-sources",
+        "/imports",
+        "/imports/csv/preview",
+        "/instrument/${created.id}",
+        "/instrument/${hit.instrument.id}",
+        "/instrument/${row.instrument_id}",
+        "/instruments",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/models/forward-validation",
+      "source": "frontend/web/app/(protected)/models/forward-validation/page.tsx",
+      "user_goal": "Experimentelle Modelle und Validierung nachvollziehen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/validation/forward/outcomes",
+        "/validation/forward/policies",
+        "/validation/forward/policies/${r.id}/run",
+        "/validation/forward/policies/${r.id}/scheduling/${action}",
+        "/validation/forward?offset=${offset}&limit=100",
+        "/validation/overview"
+      ],
+      "loading_state_inspected": false,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/models",
+      "source": "frontend/web/app/(protected)/models/page.tsx",
+      "user_goal": "Experimentelle Modelle und Validierung nachvollziehen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/ml.ts",
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/instruments/${id}/forecast?horizon=${horizon}",
+        "/instruments/${id}/prediction-history?offset=${offset}",
+        "/ml/datasets/readiness?dataset_id=${encodeURIComponent(datasetId)}&required_features=momentum_20d&required_features=volatility_20",
+        "/ml/models",
+        "/ml/training-runs"
+      ],
+      "loading_state_inspected": false,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/models/validation",
+      "source": "frontend/web/app/(protected)/models/validation/page.tsx",
+      "user_goal": "Experimentelle Modelle und Validierung nachvollziehen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": false,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/news",
+      "source": "frontend/web/app/(protected)/news/page.tsx",
+      "user_goal": "Archivierte Nachrichten und Originalquellen finden",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/research.ts",
+        "frontend/web/lib/api/market-foundation.ts"
+      ],
+      "literal_route_references": [
+        "/data-sources",
+        "/imports/csv/preview",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/watchlists",
+        "/watchlists/${id}/items"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/optimizer",
+      "source": "frontend/web/app/(protected)/optimizer/page.tsx",
+      "user_goal": "Portfoliohypothese ohne Buchung simulieren",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/portfolios/${portfolio}/optimizer",
+        "/portfolios/${portfolio}/risk"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/portfolios/[id]",
+      "source": "frontend/web/app/(protected)/portfolios/[id]/page.tsx",
+      "user_goal": "Portfolio, Konten, Bestände und Buchungen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/market-foundation.ts",
+        "frontend/web/lib/api/portfolios.ts"
+      ],
+      "literal_route_references": [
+        "/benchmarks",
+        "/data-sources",
+        "/imports/csv/preview",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/portfolios",
+        "/portfolios/${id}",
+        "/portfolios/${id}/accounts",
+        "/portfolios/${id}/allocation",
+        "/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly",
+        "/portfolios/${id}/summary",
+        "/portfolios/${id}/transactions",
+        "/transactions/${editing}",
+        "/transactions/${txId}"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/portfolios/new",
+      "source": "frontend/web/app/(protected)/portfolios/new/page.tsx",
+      "user_goal": "Portfolio, Konten, Bestände und Buchungen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": false,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/portfolios",
+      "source": "frontend/web/app/(protected)/portfolios/page.tsx",
+      "user_goal": "Portfolio, Konten, Bestände und Buchungen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/portfolios.ts"
+      ],
+      "literal_route_references": [
+        "/benchmarks",
+        "/portfolios",
+        "/portfolios/${id}/accounts",
+        "/portfolios/${id}/allocation",
+        "/portfolios/${id}/performance?start=${start}&end=${end}&frequency=monthly",
+        "/portfolios/${id}/summary",
+        "/portfolios/${id}/transactions",
+        "/portfolios/new"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/recommendations",
+      "source": "frontend/web/app/(protected)/recommendations/page.tsx",
+      "user_goal": "Gesperrte oder zulässige strukturierte Bewertungen prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/investment-profile",
+        "/portfolios",
+        "/portfolios/${portfolio}/risk",
+        "/recommendations/${r.id}",
+        "/recommendations/evaluate",
+        "/recommendations/history?portfolio_id=${portfolio}",
+        "/recommendations/history?portfolio_id=${portfolio}&offset=${offset}",
+        "/recommendations/strategies"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/recommendations/validation",
+      "source": "frontend/web/app/(protected)/recommendations/validation/page.tsx",
+      "user_goal": "Gesperrte oder zulässige strukturierte Bewertungen prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": false,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/research",
+      "source": "frontend/web/app/(protected)/research/page.tsx",
+      "user_goal": "Nachvollziehbare Fundamentals und Scores vergleichen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/market-foundation.ts",
+        "frontend/web/lib/api/research.ts"
+      ],
+      "literal_route_references": [
+        "/data-sources",
+        "/imports/csv/preview",
+        "/instrument/${item.instrument.id}",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/research/imports/commit",
+        "/research/imports/preview",
+        "/research/imports/upload",
+        "/research/instruments?${params}",
+        "/watchlists",
+        "/watchlists/${id}/items"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/settings/data-sources",
+      "source": "frontend/web/app/(protected)/settings/data-sources/page.tsx",
+      "user_goal": "Konto, Sicherheit, Darstellung und Quellen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api/market-foundation.ts"
+      ],
+      "literal_route_references": [
+        "/data-operations",
+        "/data-sources",
+        "/imports",
+        "/imports/csv/preview",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/settings"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/settings",
+      "source": "frontend/web/app/(protected)/settings/page.tsx",
+      "user_goal": "Konto, Sicherheit, Darstellung und Quellen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/auth/totp/confirm",
+        "/auth/totp/setup",
+        "/settings"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/system/status",
+      "source": "frontend/web/app/(protected)/system/status/page.tsx",
+      "user_goal": "Autorisierte Betriebs- und Freigabezustände prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/data-quality",
+        "/system/status"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": false,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/time-machine",
+      "source": "frontend/web/app/(protected)/time-machine/page.tsx",
+      "user_goal": "Damals tatsächlich verfügbare Historie prüfen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts"
+      ],
+      "literal_route_references": [
+        "/time-machine"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "EXPERIMENTAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/watchlists",
+      "source": "frontend/web/app/(protected)/watchlists/page.tsx",
+      "user_goal": "Beobachtungslisten und private Notizen verwalten",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [
+        "frontend/web/lib/api.ts",
+        "frontend/web/lib/api/market-foundation.ts",
+        "frontend/web/lib/api/research.ts"
+      ],
+      "literal_route_references": [
+        "/data-sources",
+        "/imports/csv/preview",
+        "/instrument/${item.instrument_id}",
+        "/instruments/${id}",
+        "/instruments/search?q=${encodeURIComponent(query)}",
+        "/watchlists",
+        "/watchlists/${id}",
+        "/watchlists/${id}/items",
+        "/watchlists/${id}/items/${item.instrument_id}"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": true,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/login",
+      "source": "frontend/web/app/login/page.tsx",
+      "user_goal": "Privat anmelden und zweiten Faktor bestätigen",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [
+        "/dashboard"
+      ],
+      "loading_state_inspected": true,
+      "empty_state_inspected": false,
+      "error_state_inspected": true,
+      "success_state_inspected": true,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "WORKING",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    },
+    {
+      "route": "/",
+      "source": "frontend/web/app/page.tsx",
+      "user_goal": "Weiterleitung zur privaten Startansicht",
+      "data_source": "Authentifizierte bestehende API; lokale kanonische Daten, Ledger oder private Evidenz. Keine Livewerte aus der UI.",
+      "api_helper_sources": [],
+      "literal_route_references": [
+        "/dashboard"
+      ],
+      "loading_state_inspected": false,
+      "empty_state_inspected": false,
+      "error_state_inspected": false,
+      "success_state_inspected": false,
+      "permission": "Session; Betriebs-/Daten-/ML-Aktionen zusätzlich serverseitige Allowlist",
+      "mobile_acceptance": "NOT_TESTED",
+      "e2e_scope": "Synthetische Browserfälle; konkrete Routen-/Aktionsabdeckung und aktuelle Ergebnisse im PR6-Abnahmebericht prüfen",
+      "baseline_status": "PARTIAL",
+      "limitations": "Reale Quellen-/Daten-/Modell-/Strategie-/Securitygates bleiben unabhängig; statischer Befund ist kein Funktionspass."
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/assistant/status",
+      "source": "backend/app/api/assistant.py",
+      "function": "status"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/assistant/conversations",
+      "source": "backend/app/api/assistant.py",
+      "function": "create_conversation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/assistant/conversations",
+      "source": "backend/app/api/assistant.py",
+      "function": "conversations"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/assistant/conversations/{identifier}",
+      "source": "backend/app/api/assistant.py",
+      "function": "remove_conversation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/assistant/conversations/{identifier}/messages",
+      "source": "backend/app/api/assistant.py",
+      "function": "messages"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/assistant/conversations/{identifier}/messages",
+      "source": "backend/app/api/assistant.py",
+      "function": "ask"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/assistant/tools/invoke",
+      "source": "backend/app/api/assistant.py",
+      "function": "invoke"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/assistant/tool-calls/{identifier}",
+      "source": "backend/app/api/assistant.py",
+      "function": "tool_call"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/rights-reviews",
+      "source": "backend/app/api/assistant.py",
+      "function": "rights_review"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research-documents/rights-reviews",
+      "source": "backend/app/api/assistant.py",
+      "function": "rights_history"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/uploads",
+      "source": "backend/app/api/assistant.py",
+      "function": "prepare_upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/uploads/{identifier}/content",
+      "source": "backend/app/api/assistant.py",
+      "function": "upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/metadata",
+      "source": "backend/app/api/assistant.py",
+      "function": "metadata_only"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/retrieve",
+      "source": "backend/app/api/assistant.py",
+      "function": "retrieve"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research-documents",
+      "source": "backend/app/api/assistant.py",
+      "function": "documents"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/research-documents/{identifier}",
+      "source": "backend/app/api/assistant.py",
+      "function": "remove_document"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research-documents/{identifier}",
+      "source": "backend/app/api/assistant.py",
+      "function": "document_detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research-documents/{identifier}/original",
+      "source": "backend/app/api/assistant.py",
+      "function": "original"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research-documents/{identifier}/reindex",
+      "source": "backend/app/api/assistant.py",
+      "function": "reindex"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "source": "backend/app/api/auth.py",
+      "function": "login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/totp/verify",
+      "source": "backend/app/api/auth.py",
+      "function": "verify_totp"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/session",
+      "source": "backend/app/api/auth.py",
+      "function": "session"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/capabilities",
+      "source": "backend/app/api/auth.py",
+      "function": "capabilities"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "source": "backend/app/api/auth.py",
+      "function": "logout"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/totp/setup",
+      "source": "backend/app/api/auth.py",
+      "function": "setup_totp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/totp/confirm",
+      "source": "backend/app/api/auth.py",
+      "function": "confirm_totp"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/action-coverage/reviews",
+      "source": "backend/app/api/data_operations.py",
+      "function": "action_review"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-operations",
+      "source": "backend/app/api/data_operations.py",
+      "function": "overview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/preview",
+      "source": "backend/app/api/data_operations.py",
+      "function": "preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/jobs",
+      "source": "backend/app/api/data_operations.py",
+      "function": "start"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-operations/jobs/{identifier}",
+      "source": "backend/app/api/data_operations.py",
+      "function": "job"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/jobs/{identifier}/{action}",
+      "source": "backend/app/api/data_operations.py",
+      "function": "control"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/sources/{slug}/review",
+      "source": "backend/app/api/data_operations.py",
+      "function": "review"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/sources/{slug}/{action}",
+      "source": "backend/app/api/data_operations.py",
+      "function": "source_action"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-operations/sources/{slug}/reviews",
+      "source": "backend/app/api/data_operations.py",
+      "function": "reviews"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-operations/coverage/{instrument_id}",
+      "source": "backend/app/api/data_operations.py",
+      "function": "coverage"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/ir-reports/{source_slug}/{instrument_id}/upload",
+      "source": "backend/app/api/data_operations.py",
+      "function": "upload_report"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-operations/ir-reports/{raw_id}/preview",
+      "source": "backend/app/api/data_operations.py",
+      "function": "preview_report"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/data-operations/ir-reports/{raw_id}/commit",
+      "source": "backend/app/api/data_operations.py",
+      "function": "commit_report"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/forecast",
+      "source": "backend/app/api/forecasts.py",
+      "function": "forecast"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/prediction-history",
+      "source": "backend/app/api/forecasts.py",
+      "function": "history"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/predictions/{prediction_id}/evaluate",
+      "source": "backend/app/api/forecasts.py",
+      "function": "evaluate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health/live",
+      "source": "backend/app/api/health.py",
+      "function": "live"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "source": "backend/app/api/health.py",
+      "function": "health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health/ready",
+      "source": "backend/app/api/health.py",
+      "function": "ready"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/imports/csv/preview",
+      "source": "backend/app/api/imports.py",
+      "function": "preview_csv"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/search",
+      "source": "backend/app/api/instruments.py",
+      "function": "search"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/instruments",
+      "source": "backend/app/api/instruments.py",
+      "function": "create"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}",
+      "source": "backend/app/api/instruments.py",
+      "function": "detail"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/instruments/{instrument_id}",
+      "source": "backend/app/api/instruments.py",
+      "function": "update"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/instruments/{instrument_id}/identifiers",
+      "source": "backend/app/api/instruments.py",
+      "function": "add_identifier"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/instruments/{instrument_id}/mapping",
+      "source": "backend/app/api/instruments.py",
+      "function": "request_mapping"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/instruments/{instrument_id}/mapping/accept",
+      "source": "backend/app/api/instruments.py",
+      "function": "accept_mapping"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/alert-rules",
+      "source": "backend/app/api/intelligence.py",
+      "function": "create_rule"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/alert-rules/{identifier}",
+      "source": "backend/app/api/intelligence.py",
+      "function": "update_rule"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/alert-rules/{identifier}",
+      "source": "backend/app/api/intelligence.py",
+      "function": "archive_rule"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/alert-rules",
+      "source": "backend/app/api/intelligence.py",
+      "function": "rules"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/alert-rules/{identifier}/evaluate",
+      "source": "backend/app/api/intelligence.py",
+      "function": "evaluate_rule"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/alert-events",
+      "source": "backend/app/api/intelligence.py",
+      "function": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/alert-rules/{identifier}/evaluations",
+      "source": "backend/app/api/intelligence.py",
+      "function": "evaluation_history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/notifications",
+      "source": "backend/app/api/intelligence.py",
+      "function": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/notifications/{identifier}/read",
+      "source": "backend/app/api/intelligence.py",
+      "function": "read_notification"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/daily-brief/configuration",
+      "source": "backend/app/api/intelligence.py",
+      "function": "brief_config"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/daily-brief/configuration",
+      "source": "backend/app/api/intelligence.py",
+      "function": "update_brief_config"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/daily-brief/generate",
+      "source": "backend/app/api/intelligence.py",
+      "function": "generate_brief"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/daily-brief",
+      "source": "backend/app/api/intelligence.py",
+      "function": "briefs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/daily-brief/{identifier}",
+      "source": "backend/app/api/intelligence.py",
+      "function": "brief_detail"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/daily-brief/{identifier}/explain",
+      "source": "backend/app/api/intelligence.py",
+      "function": "explain_brief"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/financial-events/import",
+      "source": "backend/app/api/intelligence.py",
+      "function": "import_event"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/optimizer",
+      "source": "backend/app/api/intelligence.py",
+      "function": "optimize_portfolio"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/optimizer",
+      "source": "backend/app/api/intelligence.py",
+      "function": "optimizer_history"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/time-machine",
+      "source": "backend/app/api/intelligence.py",
+      "function": "time_machine"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/market-data/imports/{kind}/preview",
+      "source": "backend/app/api/market_data.py",
+      "function": "preview_market"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/market-data/imports/{kind}/commit",
+      "source": "backend/app/api/market_data.py",
+      "function": "commit_market"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/prices",
+      "source": "backend/app/api/market_data.py",
+      "function": "prices"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/prices/{trading_date}/versions",
+      "source": "backend/app/api/market_data.py",
+      "function": "price_versions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/corporate-actions",
+      "source": "backend/app/api/market_data.py",
+      "function": "corporate_actions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/return",
+      "source": "backend/app/api/market_data.py",
+      "function": "instrument_return"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/fx/rate",
+      "source": "backend/app/api/market_data.py",
+      "function": "fx_rate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/fx/providers/ecb/collect",
+      "source": "backend/app/api/market_data.py",
+      "function": "collect_ecb_fx"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-quality/summary",
+      "source": "backend/app/api/market_data.py",
+      "function": "quality_summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/monitoring",
+      "source": "backend/app/api/ml.py",
+      "function": "monitoring"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/datasets/readiness",
+      "source": "backend/app/api/ml.py",
+      "function": "readiness"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ml/datasets/compose",
+      "source": "backend/app/api/ml.py",
+      "function": "compose"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ml/train",
+      "source": "backend/app/api/ml.py",
+      "function": "train"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/training-runs",
+      "source": "backend/app/api/ml.py",
+      "function": "training_runs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/training-runs/{run_id}",
+      "source": "backend/app/api/ml.py",
+      "function": "training_run"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ml/training-runs/{run_id}/cancel",
+      "source": "backend/app/api/ml.py",
+      "function": "cancel_run"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/models",
+      "source": "backend/app/api/ml.py",
+      "function": "models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/models/{model_id}",
+      "source": "backend/app/api/ml.py",
+      "function": "model"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ml/models/{model_id}/evaluation",
+      "source": "backend/app/api/ml.py",
+      "function": "model_evaluation"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ml/models/{model_id}/review",
+      "source": "backend/app/api/ml.py",
+      "function": "review_model"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/macro/imports/upload",
+      "source": "backend/app/api/pit.py",
+      "function": "macro_upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/macro/imports/preview",
+      "source": "backend/app/api/pit.py",
+      "function": "macro_preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/macro/imports/commit",
+      "source": "backend/app/api/pit.py",
+      "function": "macro_commit"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/datasets/{dataset_id}/splits",
+      "source": "backend/app/api/pit.py",
+      "function": "split_dataset"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/universes",
+      "source": "backend/app/api/pit.py",
+      "function": "universes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/universes",
+      "source": "backend/app/api/pit.py",
+      "function": "create_universe"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/universes/{universe_id}/membership",
+      "source": "backend/app/api/pit.py",
+      "function": "membership"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/universes/{universe_id}/imports/upload",
+      "source": "backend/app/api/pit.py",
+      "function": "membership_upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/universes/{universe_id}/imports/preview",
+      "source": "backend/app/api/pit.py",
+      "function": "membership_preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/universes/{universe_id}/imports/commit",
+      "source": "backend/app/api/pit.py",
+      "function": "membership_commit"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/datasets",
+      "source": "backend/app/api/pit.py",
+      "function": "datasets"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/datasets/build",
+      "source": "backend/app/api/pit.py",
+      "function": "build_dataset"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/datasets/{dataset_id}",
+      "source": "backend/app/api/pit.py",
+      "function": "dataset_detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/datasets/{dataset_id}/quality",
+      "source": "backend/app/api/pit.py",
+      "function": "dataset_quality"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/datasets/{dataset_id}/rebuild",
+      "source": "backend/app/api/pit.py",
+      "function": "dataset_rebuild"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/features/{instrument_id}",
+      "source": "backend/app/api/pit.py",
+      "function": "instrument_features"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/features/{instrument_id}/history",
+      "source": "backend/app/api/pit.py",
+      "function": "feature_history"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/backtests",
+      "source": "backend/app/api/pit.py",
+      "function": "create_backtest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/backtests",
+      "source": "backend/app/api/pit.py",
+      "function": "backtests"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/pit/jobs/{job_id}",
+      "source": "backend/app/api/pit.py",
+      "function": "job_status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/backtests/{run_id}",
+      "source": "backend/app/api/pit.py",
+      "function": "backtest_detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/backtests/{run_id}/trades",
+      "source": "backend/app/api/pit.py",
+      "function": "backtest_trades"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/backtests/{run_id}/metrics",
+      "source": "backend/app/api/pit.py",
+      "function": "backtest_metrics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/benchmarks",
+      "source": "backend/app/api/portfolios.py",
+      "function": "benchmarks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/benchmarks",
+      "source": "backend/app/api/portfolios.py",
+      "function": "create_benchmark"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios",
+      "source": "backend/app/api/portfolios.py",
+      "function": "portfolios"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios",
+      "source": "backend/app/api/portfolios.py",
+      "function": "create_portfolio"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolio-dashboard",
+      "source": "backend/app/api/portfolios.py",
+      "function": "dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "get_portfolio"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/portfolios/{portfolio_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "update_portfolio"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/portfolios/{portfolio_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "archive_portfolio"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/accounts",
+      "source": "backend/app/api/portfolios.py",
+      "function": "accounts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/reconciliation",
+      "source": "backend/app/api/portfolios.py",
+      "function": "reconcile_statement"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/accounts",
+      "source": "backend/app/api/portfolios.py",
+      "function": "create_account"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/accounts/{account_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "update_account"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/accounts/{account_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "archive_account"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/transactions",
+      "source": "backend/app/api/portfolios.py",
+      "function": "transactions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/transactions",
+      "source": "backend/app/api/portfolios.py",
+      "function": "create_transaction"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/transactions/import/preview",
+      "source": "backend/app/api/portfolios.py",
+      "function": "preview_transactions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/transactions/import/commit",
+      "source": "backend/app/api/portfolios.py",
+      "function": "commit_transactions"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/transactions/{transaction_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "correct_transaction"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/transactions/{transaction_id}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "void_transaction"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/corporate-actions/apply",
+      "source": "backend/app/api/portfolios.py",
+      "function": "apply_action"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/corporate-actions/{version_id}/preview",
+      "source": "backend/app/api/portfolios.py",
+      "function": "preview_action"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/valuation",
+      "source": "backend/app/api/portfolios.py",
+      "function": "valuation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/holdings",
+      "source": "backend/app/api/portfolios.py",
+      "function": "holdings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/summary",
+      "source": "backend/app/api/portfolios.py",
+      "function": "summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/allocation",
+      "source": "backend/app/api/portfolios.py",
+      "function": "allocation"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/performance",
+      "source": "backend/app/api/portfolios.py",
+      "function": "performance"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/snapshots/{day}",
+      "source": "backend/app/api/portfolios.py",
+      "function": "rebuild_snapshot"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/snapshots",
+      "source": "backend/app/api/portfolios.py",
+      "function": "snapshots"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/benchmark",
+      "source": "backend/app/api/portfolios.py",
+      "function": "benchmark_comparison"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/investment-profile",
+      "source": "backend/app/api/recommendations.py",
+      "function": "profile"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/investment-profile",
+      "source": "backend/app/api/recommendations.py",
+      "function": "update_profile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recommendations/strategies",
+      "source": "backend/app/api/recommendations.py",
+      "function": "strategies"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recommendations/history",
+      "source": "backend/app/api/recommendations.py",
+      "function": "history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recommendations",
+      "source": "backend/app/api/recommendations.py",
+      "function": "history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recommendations/eligibility",
+      "source": "backend/app/api/recommendations.py",
+      "function": "eligibility"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recommendations/evaluate",
+      "source": "backend/app/api/recommendations.py",
+      "function": "generate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recommendations/backtests",
+      "source": "backend/app/api/recommendations.py",
+      "function": "backtest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recommendations/strategy-reviews",
+      "source": "backend/app/api/recommendations.py",
+      "function": "review"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recommendations/{identifier}",
+      "source": "backend/app/api/recommendations.py",
+      "function": "detail"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recommendations/{identifier}/replay",
+      "source": "backend/app/api/recommendations.py",
+      "function": "replay"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/financials",
+      "source": "backend/app/api/research.py",
+      "function": "financials"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/metrics",
+      "source": "backend/app/api/research.py",
+      "function": "metrics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/financials/versions",
+      "source": "backend/app/api/research.py",
+      "function": "fact_versions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/valuation",
+      "source": "backend/app/api/research.py",
+      "function": "valuations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research/instruments/{instrument_id}",
+      "source": "backend/app/api/research.py",
+      "function": "detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research/instruments/{instrument_id}/scores",
+      "source": "backend/app/api/research.py",
+      "function": "scores"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/instruments/{instrument_id}/refresh",
+      "source": "backend/app/api/research.py",
+      "function": "refresh"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/research/instruments",
+      "source": "backend/app/api/research.py",
+      "function": "screener"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/imports/upload",
+      "source": "backend/app/api/research.py",
+      "function": "upload"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/imports/preview",
+      "source": "backend/app/api/research.py",
+      "function": "preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/imports/commit",
+      "source": "backend/app/api/research.py",
+      "function": "commit"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/collect/sec",
+      "source": "backend/app/api/research.py",
+      "function": "collect_sec"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/filings/{filing_id}/download",
+      "source": "backend/app/api/research.py",
+      "function": "download_filing"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/filings",
+      "source": "backend/app/api/research.py",
+      "function": "filing_history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/watchlists",
+      "source": "backend/app/api/research.py",
+      "function": "watchlists"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/watchlists",
+      "source": "backend/app/api/research.py",
+      "function": "create_watchlist"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/watchlists/{identifier}",
+      "source": "backend/app/api/research.py",
+      "function": "update_watchlist"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/watchlists/{identifier}/items",
+      "source": "backend/app/api/research.py",
+      "function": "watchlist_items"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/watchlists/{identifier}/items",
+      "source": "backend/app/api/research.py",
+      "function": "add_item"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/watchlists/{identifier}/items/{instrument_id}",
+      "source": "backend/app/api/research.py",
+      "function": "remove_item"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/news",
+      "source": "backend/app/api/research.py",
+      "function": "news"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/news",
+      "source": "backend/app/api/research.py",
+      "function": "instrument_news"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/instruments/{instrument_id}/estimates",
+      "source": "backend/app/api/research.py",
+      "function": "estimates"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/research/imports/{kind}",
+      "source": "backend/app/api/research.py",
+      "function": "manual_json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-quality/research",
+      "source": "backend/app/api/research.py",
+      "function": "quality"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk/{snapshot_id}/charts",
+      "source": "backend/app/api/risk.py",
+      "function": "chart_data"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk",
+      "source": "backend/app/api/risk.py",
+      "function": "calculate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk/history",
+      "source": "backend/app/api/risk.py",
+      "function": "history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk-history",
+      "source": "backend/app/api/risk.py",
+      "function": "history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk",
+      "source": "backend/app/api/risk.py",
+      "function": "latest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/correlations",
+      "source": "backend/app/api/risk.py",
+      "function": "correlation_view"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/exposures",
+      "source": "backend/app/api/risk.py",
+      "function": "exposure_view"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/risk/{snapshot_id}",
+      "source": "backend/app/api/risk.py",
+      "function": "detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/scenario-definitions",
+      "source": "backend/app/api/risk.py",
+      "function": "definitions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/scenarios",
+      "source": "backend/app/api/risk.py",
+      "function": "run_scenario"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/portfolios/{portfolio_id}/what-if",
+      "source": "backend/app/api/risk.py",
+      "function": "run_whatif"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/simulation-history",
+      "source": "backend/app/api/risk.py",
+      "function": "simulation_history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/scenarios/{run_id}",
+      "source": "backend/app/api/risk.py",
+      "function": "scenario_detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/portfolios/{portfolio_id}/what-if/{run_id}",
+      "source": "backend/app/api/risk.py",
+      "function": "whatif_detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings",
+      "source": "backend/app/api/settings.py",
+      "function": "get_settings"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/settings",
+      "source": "backend/app/api/settings.py",
+      "function": "update_settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/data-sources",
+      "source": "backend/app/api/sources.py",
+      "function": "list_sources"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system/backup-status",
+      "source": "backend/app/api/system_status.py",
+      "function": "backup_status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/system/status",
+      "source": "backend/app/api/system_status.py",
+      "function": "system_status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/validation/overview",
+      "source": "backend/app/api/validation.py",
+      "function": "overview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/validation/records/{identifier}",
+      "source": "backend/app/api/validation.py",
+      "function": "record"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/readiness",
+      "source": "backend/app/api/validation.py",
+      "function": "readiness"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/source-checklists",
+      "source": "backend/app/api/validation.py",
+      "function": "checklist"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/raw-evidence",
+      "source": "backend/app/api/validation.py",
+      "function": "raw_evidence"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/pilots",
+      "source": "backend/app/api/validation.py",
+      "function": "pilot"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/pilots/{identifier}/{action}",
+      "source": "backend/app/api/validation.py",
+      "function": "pilot_action"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/experiments",
+      "source": "backend/app/api/validation.py",
+      "function": "experiment"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/experiments/{identifier}/candidates/{index}",
+      "source": "backend/app/api/validation.py",
+      "function": "queue"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/experiments/{identifier}/evaluate",
+      "source": "backend/app/api/validation.py",
+      "function": "evaluate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/strategies",
+      "source": "backend/app/api/validation.py",
+      "function": "strategy"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/validation/forward",
+      "source": "backend/app/api/validation.py",
+      "function": "forward_report"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/forward/policies",
+      "source": "backend/app/api/validation.py",
+      "function": "forward_policy"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/forward/policies/{identifier}/run",
+      "source": "backend/app/api/validation.py",
+      "function": "forward_run"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/forward/outcomes",
+      "source": "backend/app/api/validation.py",
+      "function": "outcomes"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/validation/forward/policies/{identifier}/scheduling/{action}",
+      "source": "backend/app/api/validation.py",
+      "function": "forward_scheduling"
+    }
+  ]
+}

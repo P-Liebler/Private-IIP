@@ -31,6 +31,7 @@ _METADATA_KEYS = {
     "user_id",
     "portfolio_id",
     "account_id",
+    "csv_format",
 }
 
 

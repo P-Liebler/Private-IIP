@@ -17,6 +17,7 @@ from app.models import (
     ChunkEmbedding,
     DataSource,
     DocumentChunk,
+    DocumentRemoval,
     DocumentRightsReview,
     Instrument,
     ResearchDocument,
@@ -108,7 +109,33 @@ class DocumentService:
         document = await self.db.get(ResearchDocument, identifier)
         if document is None or document.user_id != self.user_id:
             raise AppError(404, "DOCUMENT_NOT_FOUND", "Document not found")
+        if await self.db.scalar(
+            select(DocumentRemoval.id).where(DocumentRemoval.document_id == identifier)
+        ):
+            raise AppError(410, "DOCUMENT_REMOVED", "Document was removed from the active library")
         return document
+
+    async def remove(self, identifier: UUID) -> dict[str, Any]:
+        document = await self.db.get(ResearchDocument, identifier, with_for_update=True)
+        if document is None or document.user_id != self.user_id:
+            raise AppError(404, "DOCUMENT_NOT_FOUND", "Document not found")
+        removal = await self.db.scalar(
+            select(DocumentRemoval).where(DocumentRemoval.document_id == identifier)
+        )
+        if removal is None:
+            removal = DocumentRemoval(
+                user_id=self.user_id,
+                document_id=identifier,
+                reason="OWNER_WITHDRAWAL_FROM_ACTIVE_LIBRARY",
+            )
+            self.db.add(removal)
+            await self.db.commit()
+        return {
+            "id": identifier,
+            "status": "REMOVED_FROM_ACTIVE_LIBRARY",
+            "removed_at": removal.created_at,
+            "raw_retention": "IMMUTABLE_AUDIT_ORIGINAL_RETAINED",
+        }
 
     async def review(self, request: DocumentRightsInput, user: User) -> DocumentRightsReview:
         require_data_operator(user)
@@ -361,6 +388,9 @@ class DocumentService:
             ResearchDocument.known_at <= cutoff,
             ResearchDocument.observed_at <= cutoff,
             ResearchDocument.created_at <= cutoff,
+            ~select(DocumentRemoval.id)
+            .where(DocumentRemoval.document_id == ResearchDocument.id)
+            .exists(),
         )
         if request.instrument_id:
             statement = statement.where(ResearchDocument.instrument_id == request.instrument_id)

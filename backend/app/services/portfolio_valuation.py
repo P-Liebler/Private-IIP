@@ -30,9 +30,15 @@ class PortfolioValuationService:
         self.market = MarketQueryService(db)
 
     async def value(
-        self, portfolio_id: UUID, on_date: date | None = None, as_of: datetime | None = None
+        self,
+        portfolio_id: UUID,
+        on_date: date | None = None,
+        as_of: datetime | None = None,
+        *,
+        reporting_currency: str | None = None,
     ) -> dict[str, object]:
         portfolio = await PortfolioService(self.db, self.user_id).owned(portfolio_id)
+        base_currency = reporting_currency or portfolio.base_currency
         cutoff = pit_cutoff(as_of)
         if portfolio.created_at > cutoff:
             raise AppError(
@@ -64,7 +70,7 @@ class PortfolioValuationService:
         for (account_id, currency), amount in sorted(
             state.cash.items(), key=lambda item: (str(item[0][0]), item[0][1])
         ):
-            fx = await self.market.fx(currency, portfolio.base_currency, day, cutoff)
+            fx = await self.market.fx(currency, base_currency, day, cutoff)
             fx = await self._source_names(fx)
             rate = cast(Decimal, fx["rate"]) if fx["status"] == "AVAILABLE" else None
             base_amount = money(amount * rate) if rate is not None else None
@@ -135,7 +141,7 @@ class PortfolioValuationService:
                 issues.append(
                     {"code": price_status, "instrument_id": instrument_id, "price_date": price_day}
                 )
-            fx = await self.market.fx(position.currency, portfolio.base_currency, day, cutoff)
+            fx = await self.market.fx(position.currency, base_currency, day, cutoff)
             fx = await self._source_names(fx)
             rate = cast(Decimal, fx["rate"]) if fx["status"] == "AVAILABLE" else None
             base_value = money(native * rate) if native is not None and rate is not None else None
@@ -192,6 +198,9 @@ class PortfolioValuationService:
                     "account_id": account_id,
                     "instrument_id": instrument_id,
                     "name": instrument.name,
+                    "ticker": instrument.ticker,
+                    "isin": instrument.isin,
+                    "mic": instrument.mic,
                     "asset_type": instrument.asset_type,
                     "quantity": position.quantity,
                     "average_cost_native": position.average_cost,
@@ -266,17 +275,13 @@ class PortfolioValuationService:
                 if total is not None and total > 0 and base_value is not None
                 else None
             )
-        realized_base = await self._historical_sum(
-            state.realized_events, portfolio.base_currency, cutoff
-        )
+        realized_base = await self._historical_sum(state.realized_events, base_currency, cutoff)
         if state.realized_incomplete:
             realized_base = None
             issues.append({"code": "UNKNOWN_REALIZED_COST_BASIS"})
-        income_base = await self._historical_sum(
-            state.income_events, portfolio.base_currency, cutoff
-        )
-        fees_base = await self._historical_sum(state.fee_events, portfolio.base_currency, cutoff)
-        taxes_base = await self._historical_sum(state.tax_events, portfolio.base_currency, cutoff)
+        income_base = await self._historical_sum(state.income_events, base_currency, cutoff)
+        fees_base = await self._historical_sum(state.fee_events, base_currency, cutoff)
+        taxes_base = await self._historical_sum(state.tax_events, base_currency, cutoff)
         if any(
             events
             and amount is None
@@ -302,15 +307,13 @@ class PortfolioValuationService:
                 for d, c, _ in events
             }
         ):
-            event_fx.append(
-                await self.market.fx(currency, portfolio.base_currency, event_day, cutoff)
-            )
+            event_fx.append(await self.market.fx(currency, base_currency, event_day, cutoff))
         return {
             "portfolio_id": portfolio_id,
             "name": portfolio.name,
             "on_date": day,
             "as_of": cutoff,
-            "base_currency": portfolio.base_currency,
+            "base_currency": base_currency,
             "status": status,
             "analytics_status": "PARTIAL"
             if any(

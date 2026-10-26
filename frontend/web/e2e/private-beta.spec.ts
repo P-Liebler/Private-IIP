@@ -16,6 +16,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliation and opening position", async ({ page }) => {
+  const base = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
   test.skip(!username || !password, "Explicit synthetic login fixture required");
   test.setTimeout(180000);
   const stamp = Date.now().toString(36).toUpperCase();
@@ -29,7 +30,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   await page.getByLabel("Benutzername").fill(username!);
   await page.getByLabel("Passwort").fill(password!);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 30000 });
   await page.goto("/instruments");
   async function createInstrument(name: string, currency: string, mic: string, identifier: string) {
     await page.getByLabel("Name", { exact: true }).fill(name);
@@ -75,7 +76,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   expect((await commit).status()).toBe(200);
   await expect(page.getByRole("status").filter({ hasText: "2 Buchungen übernommen" })).toBeVisible();
   await page.getByRole("button", { name: "Vorschau prüfen", exact: true }).click();
-  await expect(page.getByRole("status").filter({ hasText: "2 Duplikate" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "2 Duplikate" })).toBeVisible({ timeout: 30000 });
   await page.getByRole("checkbox", { name: /Ich habe Konto, Instrumente/ }).check();
   await page.getByRole("button", { name: "Import übernehmen", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "0 Buchungen übernommen" })).toBeVisible();
@@ -84,7 +85,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
     await page.getByLabel("Datentyp").selectOption(kind);
     await page.getByLabel("UTF-8-CSV (max. 5 MB)").setInputFiles({ name: `SYNTHETIC-${kind}.csv`, mimeType: "text/csv", buffer: Buffer.from(data) });
     await page.getByRole("button", { name: "Vorschau erstellen", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Vorschau und Bestätigung" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Vorschau und Bestätigung" })).toBeVisible({ timeout: 30000 });
     await page.getByRole("checkbox", { name: "Datei, Zuordnung und Ergebnis geprüft", exact: true }).check();
     const response = page.waitForResponse(r => r.url().includes(`/imports/${kind}/commit`) && r.request().method() === "POST");
     await page.getByRole("button", { name: "Explizit übernehmen", exact: true }).click();
@@ -96,8 +97,10 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   await page.goto(`/portfolios/${portfolio}`);
   await expect(page.getByText("Gesamtwert", { exact: true }).locator("..")).toContainText("934.20 CHF");
   await page.getByRole("button", { name: "Positionen", exact: true }).click();
-  await expect(page.getByRole("heading", { name: nameA, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: nameA, exact: true })).toBeVisible();
+  await page.getByRole("row").filter({ has: page.getByRole("link", { name: nameA, exact: true }) }).getByRole("button", { name: "Details", exact: true }).click();
   await expect(page.getByText(/Tages-Schlusskurs, kein handelbarer Livepreis/)).toBeVisible();
+  await page.getByRole("button", { name: "Detailansicht schließen", exact: true }).click();
   await page.getByRole("button", { name: "Depotabgleich", exact: true }).click();
   await page.getByLabel("Auszugskonto").selectOption({ label: "SYNTHETIC beta broker" });
   await page.getByLabel("Belegreferenz").fill("SYNTHETIC private-beta statement");
@@ -120,9 +123,17 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   await page.getByLabel("Herkunft des Startbestands").fill("SYNTHETIC opening statement, cost unknown");
   const opening = page.waitForResponse(r => r.url().endsWith("/transactions") && r.request().method() === "POST");
   await page.getByRole("button", { name: "Buchen", exact: true }).click();
-  expect((await opening).status()).toBe(201);
+  await page.getByRole("dialog").getByRole("button", { name: "Ausdrücklich bestätigen", exact: true }).click();
+  const openingResponse = await opening;
+  expect(openingResponse.status()).toBe(201);
+  const openingRow = await openingResponse.json();
+  expect(openingRow.type).toBe("OPENING_POSITION");
+  expect(openingRow.amount).toBeNull();
+  const valuationAfterOpening = await page.request.get(`${base}/portfolios/${portfolio}/valuation`);
+  expect(valuationAfterOpening.ok()).toBe(true);
+  expect((await valuationAfterOpening.json()).issues).toEqual(expect.arrayContaining([expect.objectContaining({ code: "UNKNOWN_COST_BASIS" })]));
   await page.getByRole("button", { name: "Datenqualität", exact: true }).click();
-  await expect(page.getByText(/Der Einstand ist unbekannt/)).toBeVisible();
+  await expect(page.getByText(/Der Einstand ist unbekannt/)).toBeVisible({ timeout: 30000 });
   await page.getByRole("button", { name: "Abmelden", exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);
 });

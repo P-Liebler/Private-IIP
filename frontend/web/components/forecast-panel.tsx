@@ -1,5 +1,6 @@
 "use client";
 
+import { ForecastInterval } from "@/components/forecast-interval";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getForecast, getPredictionHistory } from "@/lib/api/ml";
@@ -18,6 +19,7 @@ export function ForecastPanel({ instrumentId }: { instrumentId: string }) {
     {forecast.isError && <p role="alert">{forecast.error.message}</p>}
     {result && result.confidence_status !== "VALIDATED" && <div className="rounded border border-amber-700 p-4"><p className="font-semibold text-amber-300">NO RELIABLE FORECAST</p><p>{result.reason}</p><p className="mt-2 text-sm text-zinc-400">Für diesen Horizont liegt keine freigegebene, zuverlässig geprüfte Prognose vor.</p></div>}
     {result?.confidence_status === "VALIDATED" && <dl className="grid gap-4 sm:grid-cols-2"><div><dt>Outperformance-Wahrscheinlichkeit</dt><dd>{percent(result.probability_outperform)}</dd></div><div><dt>Erwartete Excess-Rendite</dt><dd>{percent(result.expected_excess_return)}</dd></div><div><dt>Prognoseintervall</dt><dd>{percent(result.lower_bound)} bis {percent(result.upper_bound)}</dd></div><div><dt>Methode / geprüfte Coverage</dt><dd>{result.uncertainty_method} / {percent(result.empirical_coverage ?? null)}</dd></div></dl>}
+    {result?.confidence_status === "VALIDATED" && <ForecastInterval low={result.lower_bound} expected={result.expected_excess_return} high={result.upper_bound} />}
     {forecast.data && <p className="text-xs text-zinc-400">Erzeugt: {new Date(forecast.data.generated_at).toLocaleString("de-CH")} · Modell: {forecast.data.model_id ?? "Kein freigegebenes Modell"}</p>}
     <h3 className="font-semibold">Model Explanation</h3>
     {result?.explanations?.length ? <pre className="overflow-auto text-xs">{JSON.stringify(result.explanations, null, 2)}</pre> : <p className="text-sm text-zinc-400">Ohne freigegebene Prognose keine Modellfaktoren.</p>}

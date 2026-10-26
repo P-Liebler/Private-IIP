@@ -123,6 +123,20 @@ async def main() -> None:
             )
             print("P7 restored prediction/outcome history: exact content hash verified")
         expected_intelligence = os.environ.get("RESTORE_TEST_INTELLIGENCE_HISTORY_HASH")
+        expected_removals = os.environ.get("RESTORE_TEST_DOCUMENT_REMOVAL_HISTORY_HASH")
+        expected_ui_requests = os.environ.get("RESTORE_TEST_UI_REQUEST_HISTORY_HASH")
+        if expected_ui_requests:
+            from app.services.ui_requests import request_checkpoint
+
+            requests = await request_checkpoint(db, user.id)
+            assert requests["ui_request_history_hash"] == expected_ui_requests
+            print("PR6 UI retry receipts: exact content hash verified")
+        if expected_removals:
+            from app.assistant.audit import intelligence_checkpoint
+
+            removals = await intelligence_checkpoint(db, user.id)
+            assert removals["document_removal_history_hash"] == expected_removals
+            print("PR6 document removal decisions: exact content hash verified")
         if expected_intelligence:
             from app.assistant.audit import intelligence_checkpoint
 

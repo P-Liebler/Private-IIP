@@ -4,6 +4,8 @@ Stand: 22.10.2026. Der lokale Beta-Workflow ist in Abnahme. **Echte private Fina
 
 ## Ihr erster Ablauf
 
+PR6 ergänzt unter **Portfolio → Portfolio anlegen** einen geführten Ablauf: Portfolio, Konto, optionales Cash, Transaktionsdatei, Kurse/FX und Bewertungsprüfung. Optionale Schritte lassen sich überspringen. Der bestehende manuelle Ablauf darunter bleibt verfügbar. Einzelbuchungen werden vor Übernahme bestätigt. Bei unklarem Netzwerkabschluss denselben Vorgang mit seinem erhaltenen Anfrageparameter wiederholen; ein neuer Schlüssel bezeichnet eine neue beabsichtigte Buchung. [Ausführliche Nutzerwege](../ux/USER_JOURNEYS.md).
+
 1. Privat anmelden und **Portfolios verwalten** öffnen.
 2. Einen Namen vergeben, **CHF** als Basiswährung wählen und erstellen. Die Basiswährung gehört zum Bewertungsvertrag; einen versehentlich falsch gewählten leeren Testbestand neu anlegen.
 3. Das Portfolio öffnen. **Portfolio einrichten → Konto einrichten** führt zur Konto-/Depotanlage. Konten können mehrere unterstützte Währungen enthalten.

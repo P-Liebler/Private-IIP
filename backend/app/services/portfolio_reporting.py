@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import PortfolioActionApplication, Transaction
+from app.services.market_queries import pit_cutoff
 from app.services.portfolio_engine import money
 from app.services.portfolio_summary import PortfolioSummaryService
 from app.services.portfolio_valuation import PortfolioValuationService
@@ -46,12 +47,20 @@ class PortfolioReportingService:
     async def dashboard(self) -> dict[str, object]:
         service = PortfolioSummaryService(self.db, self.user_id)
         groups: dict[str, list[dict[str, object]]] = {}
+        chf_summaries: list[dict[str, object]] = []
+        cutoff = pit_cutoff(None)
         for portfolio in await PortfolioService(self.db, self.user_id).portfolios():
-            groups.setdefault(portfolio.base_currency, []).append(
-                await service.summary(portfolio.id)
+            summary = await service.summary(portfolio.id, as_of=cutoff)
+            groups.setdefault(portfolio.base_currency, []).append(summary)
+            chf_summaries.append(
+                summary
+                if portfolio.base_currency == "CHF"
+                else await service.summary(portfolio.id, reporting_currency="CHF", as_of=cutoff)
             )
         aggregates = []
-        for currency, summaries in groups.items():
+        # Revalue the original ledger in CHF with the existing date-specific FX
+        # contract. Never sum native totals or translate lifetime P&L at today's FX.
+        for currency, summaries in [*groups.items(), ("CHF_REPORTING", chf_summaries)]:
             valuations = [cast(dict[str, object], item["valuation"]) for item in summaries]
 
             def total(values: list[object]) -> Decimal | None:
@@ -63,7 +72,7 @@ class PortfolioReportingService:
 
             aggregates.append(
                 {
-                    "base_currency": currency,
+                    "base_currency": "CHF" if currency == "CHF_REPORTING" else currency,
                     "status": "COMPLETE"
                     if all(item["status"] == "COMPLETE" for item in valuations)
                     else "PARTIAL",
@@ -79,7 +88,10 @@ class PortfolioReportingService:
         return {
             "aggregation": "GROUPED_BY_BASE_CURRENCY",
             "return_status": "PROVISIONAL",
-            "groups": aggregates,
+            "groups": aggregates[:-1],
+            "chf_summary": aggregates[-1] if chf_summaries else None,
+            "as_of": cutoff,
+            "reporting_method": "ORIGINAL_LEDGER_REVALUED_WITH_EVENT_DATE_FX",
         }
 
     async def allocation(

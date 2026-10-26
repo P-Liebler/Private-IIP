@@ -22,6 +22,11 @@ from app.services.portfolio_engine import ledger_state
 from app.services.portfolios import PortfolioService, transaction_fingerprint
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
+from app.services.transaction_csv_format import (
+    TransactionCsvFormat,
+    detect_format,
+    normalize_cell,
+)
 
 FIELDS = {
     "type",
@@ -58,11 +63,17 @@ ALIASES = {
 }
 
 
-def plan_hash(mapping: dict[str, str] | None, resolutions: dict[int, UUID] | None) -> str:
-    value = {
+def plan_hash(
+    mapping: dict[str, str] | None,
+    resolutions: dict[int, UUID] | None,
+    csv_format: TransactionCsvFormat | None = None,
+) -> str:
+    value: dict[str, object] = {
         "mapping": mapping,
         "resolutions": {str(k): str(v) for k, v in (resolutions or {}).items()},
     }
+    if csv_format is not None:
+        value["format"] = csv_format.model_dump()
     return hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -75,12 +86,16 @@ async def parse_rows(
     db: AsyncSession,
     account_name: str,
     resolutions: dict[int, UUID] | None = None,
+    csv_format: TransactionCsvFormat | None = None,
 ) -> list[dict[str, object]]:
     try:
         decoded = data.decode("utf-8-sig")
     except UnicodeDecodeError as error:
         raise AppError(422, "CSV_ENCODING_INVALID", "CSV must be UTF-8") from error
-    reader = csv.DictReader(StringIO(decoded, newline=""), strict=True)
+    config = csv_format or detect_format(data)
+    if config is None:
+        raise AppError(422, "CSV_FORMAT_REQUIRED", "Select delimiter, date and number format")
+    reader = csv.DictReader(StringIO(decoded, newline=""), strict=True, delimiter=config.delimiter)
     if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)):
         raise AppError(422, "CSV_HEADERS_INVALID", "Missing or duplicate CSV headers")
     if set(mapping) - set(reader.fieldnames) or set(mapping.values()) - FIELDS:
@@ -105,6 +120,9 @@ async def parse_rows(
             if value is not None and value.strip():
                 normalized[canonical] = value.strip()
         try:
+            for key in list(normalized):
+                if key != "account_id":
+                    normalized[key] = normalize_cell(key, str(normalized[key]), config)
             account = normalized.pop("account", None)
             if account is not None and account not in {str(account_id), account_name}:
                 results.append({"line": line, "error": "CSV account differs from selected account"})
@@ -147,6 +165,8 @@ async def parse_rows(
             results.append({"line": line, "payload": payload})
         except ValidationError as error:
             results.append({"line": line, "error": str(error.errors()[0]["msg"])})
+        except ValueError:
+            results.append({"line": line, "error": "Date or number does not match selected format"})
     if not results:
         raise AppError(422, "CSV_EMPTY", "CSV contains no transactions")
     return results
@@ -182,6 +202,7 @@ class PortfolioImportService:
         filename: str,
         mapping: dict[str, str] | None = None,
         resolutions: dict[int, UUID] | None = None,
+        csv_format: TransactionCsvFormat | None = None,
     ) -> dict[str, object]:
         await self.portfolios.owned(portfolio_id)
         account = await self.portfolios.account(portfolio_id, account_id)
@@ -200,12 +221,34 @@ class PortfolioImportService:
                 "user_id": str(self.user_id),
                 "portfolio_id": str(portfolio_id),
                 "account_id": str(account_id),
-                "parser_version": "PR5_TRANSACTION_CSV_V1",
-                "request_key": plan_hash(mapping, resolutions),
+                "parser_version": "PR6_TRANSACTION_CSV_V2",
+                "request_key": plan_hash(mapping, resolutions, csv_format),
+                "csv_format": csv_format.model_dump_json() if csv_format else "AUTO",
             },
         )
+        config = csv_format or detect_format(data)
+        if config is None:
+            return {
+                "raw_ingestion_id": raw.id,
+                "mapping": mapping or {},
+                "columns": [],
+                "row_count": 0,
+                "ready_count": 0,
+                "format_required": True,
+                "rows": [
+                    {
+                        "line": 1,
+                        "status": "FORMAT_REQUIRED",
+                        "error": "Select delimiter, date order and decimal notation explicitly",
+                    }
+                ],
+            }
         try:
-            header = next(csv.reader(StringIO(data.decode("utf-8-sig"), newline="")))
+            header = next(
+                csv.reader(
+                    StringIO(data.decode("utf-8-sig"), newline=""), delimiter=config.delimiter
+                )
+            )
         except (UnicodeDecodeError, StopIteration, csv.Error) as error:
             raise AppError(422, "CSV_HEADERS_INVALID", "Invalid CSV headers") from error
         proposed = (
@@ -235,7 +278,9 @@ class PortfolioImportService:
                     }
                 ],
             }
-        rows = await parse_rows(data, account_id, proposed, self.db, account.name, resolutions)
+        rows = await parse_rows(
+            data, account_id, proposed, self.db, account.name, resolutions, config
+        )
         existing = list(
             (
                 await self.db.scalars(
@@ -300,6 +345,7 @@ class PortfolioImportService:
             "mapping": proposed,
             "columns": header,
             "row_count": len(rows),
+            "detected_format": config.model_dump(),
             "rows": preview_rows,
             "ready_count": sum(row["status"] == "READY" for row in preview_rows),
             "duplicate_count": sum(row["status"] == "DUPLICATE" for row in preview_rows),
@@ -313,6 +359,7 @@ class PortfolioImportService:
         raw_id: UUID,
         mapping: dict[str, str],
         resolutions: dict[int, UUID] | None = None,
+        csv_format: TransactionCsvFormat | None = None,
     ) -> dict[str, object]:
         await self.portfolios.owned(portfolio_id, lock=True)
         account = await self.portfolios.account(portfolio_id, account_id)
@@ -337,8 +384,15 @@ class PortfolioImportService:
                 "status": "ALREADY_COMMITTED",
             }
         recorded_plan = raw.request_metadata.get("request_key")
-        if recorded_plan == plan_hash(None, resolutions):
-            header = next(csv.reader(StringIO(data.decode("utf-8-sig"), newline="")))
+        config = csv_format or detect_format(data)
+        if config is None:
+            raise AppError(409, "CSV_FORMAT_REQUIRED", "Preview an explicit format before commit")
+        if recorded_plan == plan_hash(None, resolutions, csv_format):
+            header = next(
+                csv.reader(
+                    StringIO(data.decode("utf-8-sig"), newline=""), delimiter=config.delimiter
+                )
+            )
             automatic = {
                 column: ALIASES.get(column.strip().lower(), column.strip().lower())
                 for column in header
@@ -346,14 +400,17 @@ class PortfolioImportService:
             }
             valid_plan = automatic == mapping
         else:
-            valid_plan = recorded_plan == plan_hash(mapping, resolutions)
-        if raw.request_metadata.get("parser_version") != "PR5_TRANSACTION_CSV_V1" or not valid_plan:
+            valid_plan = recorded_plan == plan_hash(mapping, resolutions, csv_format)
+        version = raw.request_metadata.get("parser_version")
+        if version not in {"PR5_TRANSACTION_CSV_V1", "PR6_TRANSACTION_CSV_V2"} or not valid_plan:
             raise AppError(
                 409,
                 "IMPORT_PREVIEW_CHANGED",
                 "Preview changed columns and instrument choices before commit",
             )
-        rows = await parse_rows(data, account_id, mapping, self.db, account.name, resolutions)
+        rows = await parse_rows(
+            data, account_id, mapping, self.db, account.name, resolutions, config
+        )
         if any("error" in row for row in rows):
             raise AppError(422, "CSV_ROW_INVALID", "Fix invalid rows before commit")
         created: list[str] = []

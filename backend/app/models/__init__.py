@@ -10,6 +10,7 @@ from app.models.assistant import (
     DailyBrief,
     DailyBriefConfig,
     DocumentChunk,
+    DocumentRemoval,
     DocumentRightsReview,
     FinancialEventVersion,
     Notification,
@@ -82,6 +83,7 @@ from app.models.research import (
     WatchlistItem,
 )
 from app.models.risk import RiskSnapshot, ScenarioDefinition, ScenarioRun, WhatIfRun
+from app.models.ui_request import UIRequest
 from app.models.validation import ValidationRecord
 
 __all__ = [
@@ -97,6 +99,7 @@ __all__ = [
     "DocumentRightsReview",
     "ResearchDocument",
     "DocumentChunk",
+    "DocumentRemoval",
     "ChunkEmbedding",
     "AlertRule",
     "AlertRuleVersion",
@@ -161,5 +164,6 @@ __all__ = [
     "RawIngestion",
     "SessionRecord",
     "User",
+    "UIRequest",
     "Transaction",
 ]

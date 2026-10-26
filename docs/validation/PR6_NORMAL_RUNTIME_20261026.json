@@ -1,0 +1,37 @@
+{
+  "review_date": "2026-10-26",
+  "runtime": {
+    "scope": "AUTHORIZED_LOCAL_PROJECT_ONLY",
+    "test_mode_reset_verified": true,
+    "success": true,
+    "settings": {
+      "app_env": "local",
+      "assistant_test_mode": false,
+      "data_operator_count": 0,
+      "ml_operator_count": 0,
+      "data_collection_enabled": false,
+      "forward_shadow_enabled": false,
+      "assistant_timeout_seconds": 120
+    }
+  },
+  "visual": {
+    "scope": "LOCAL_SYNTHETIC_VISUAL_REVIEW_NORMAL_RUNTIME_NOT_FINANCIAL_ACCEPTANCE",
+    "dashboard_login_and_loaded_history_ms": 24060,
+    "risk_panel_and_history_ready_ms": 6900,
+    "screenshot_origin_y": 0,
+    "widths": [
+      1440,
+      390
+    ],
+    "page_errors": [],
+    "financial_mutations": 0
+  },
+  "original_sha256": {
+    "backups\\pr6-resume-normal-local.json": "7537314035c698dddb4f0c6603ac689f04abe1be7cb6974ce01262d8ca075c0b",
+    "backups\\pr6-final-visual-20261026\\observations.json": "8b0f023261cfe9ad0ac59a74be59bb140a43a67111c54b6c4794c5cbbde18297"
+  },
+  "screenshots": {
+    "docs\\ux\\screenshots\\PR6-dashboard-1440-light.png": "d2aa88ae80eb65faa3064cf838224e8c55a2f006894cd81d56f1148dbc2f4bb1",
+    "docs\\ux\\screenshots\\PR6-dashboard-390-dark.png": "b2aab2ea6184dc85d78b48aa2b761b5c5f774b28b82bf4b06854b3652f1b5402"
+  }
+}

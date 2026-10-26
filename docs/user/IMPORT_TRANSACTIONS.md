@@ -4,7 +4,7 @@ Im Portfolio **Transaktionen → CSV-Transaktionen importieren** öffnen. Der Im
 
 ## Datei vorbereiten
 
-Die Oberfläche bietet eine leere Kopfzeilenvorlage. CSV: **UTF-8, Komma als Trennzeichen, Datum `YYYY-MM-DD`, Dezimalpunkt**. Andere Spaltennamen sind möglich: in der Vorschau zuordnen. Einen semikolongetrennten Export ausdrücklich als Komma-CSV speichern; keine stillschweigende Annahme über Broker- oder Länderformate.
+Die Oberfläche bietet eine leere Kopfzeilenvorlage. Dateien sind **UTF-8, auch mit BOM**. Eindeutiges Standardformat: Komma, Datum `YYYY-MM-DD`, Dezimalpunkt. Zusätzlich lassen sich Komma/Semikolon/Tabulator, ISO/Tag-Monat/Monat-Tag sowie Dezimalpunkt/Dezimalkomma/Schweizer Apostrophgruppierung explizit wählen. Bei mehrdeutigen Werten wie `01/02/2026` verlangt die Oberfläche eine Auswahl und eine neue Vorschau. Es gibt keine stillschweigende Annahme über Broker- oder Länderformate. Andere Spaltennamen in der Vorschau zuordnen.
 
 | Fachlicher Inhalt | Zielfeld | Wann benötigt |
 |---|---|---|

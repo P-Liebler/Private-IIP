@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { useCapabilities } from "@/components/capabilities";
 
 type Source = { source_slug: string; approved: boolean; enabled: boolean; gate_reason: string | null; terms_url: string | null; operator_checklist: Record<string, string>; operator_notes: Record<string, string> };
 type Evidence = { id: string; kind: string; parent_id: string | null; result: Record<string, unknown>; created_at: string };
@@ -17,7 +18,8 @@ function CandidateAction({ row, refresh }: { row: Evidence; refresh: () => void 
 }
 
 export function ValidationLinks() {
-  return <nav className="flex flex-wrap gap-4 text-emerald-400"><Link href="/data-operations/readiness">Real Data Readiness</Link><Link href="/models/validation">Model comparison</Link><Link href="/models/forward-validation">Forward Shadow History</Link><Link href="/recommendations/validation">Strategy evaluation</Link></nav>;
+  const { permissions } = useCapabilities();
+  return <nav className="flex flex-wrap gap-4 text-emerald-400" aria-label="Analysewerkzeuge"><Link href="/data-operations/readiness">Historische Datenqualität</Link>{permissions.ml_operator && <Link href="/models/validation">Modelle prüfen</Link>}<Link href="/models/forward-validation">Prognosen im Testbetrieb</Link>{permissions.ml_operator && <Link href="/recommendations/validation">Strategien prüfen</Link>}</nav>;
 }
 
 export function JsonAction({ title, endpoint, disabled = false, initial = "{}", refresh }: { title: string; endpoint: string; disabled?: boolean; initial?: string; refresh?: () => void }) {

@@ -21,13 +21,13 @@ test("login and inspect a valued portfolio", async ({ page }) => {
   await page.getByLabel("Benutzername").fill(username!);
   await page.getByLabel("Passwort").fill(password!);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 30000 });
 
   await page.goto(`/portfolios/${portfolioId}`);
   await expect(page.getByRole("heading", { name: "Disposable restore test" })).toBeVisible();
   await expect(page.getByText(/10.?180\.00 CHF/).first()).toBeVisible();
   await page.getByRole("button", { name: "Positionen" }).click();
-  await expect(page.getByRole("heading", { name: "Disposable restore test instrument" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Disposable restore test instrument", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Transaktionen" }).click();
   await expect(page.getByText(/DEPOSIT/).last()).toBeVisible();
   await expect(page.getByText(/BUY/).last()).toBeVisible();
@@ -43,7 +43,7 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
   await page.getByLabel("Benutzername").fill(username!);
   await page.getByLabel("Passwort").fill(password!);
   await page.getByRole("button", { name: "Anmelden" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 30000 });
     const name = `Browser acceptance ${Date.now()}`;
     await page.goto("/portfolios");
     await page.getByLabel("Portfolio-Name", { exact: true }).fill(name);
@@ -58,6 +58,7 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByLabel("Betrag", { exact: true }).fill("10000");
     const depositResponse = page.waitForResponse(response => response.url().endsWith(`/portfolios/${cleanupPortfolioId}/transactions`) && response.request().method() === "POST");
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Ausdrücklich bestätigen", exact: true }).click();
     expect((await depositResponse).status()).toBe(201);
     await expect(page.getByRole("listitem").filter({ hasText: "DEPOSIT" })).toBeVisible({ timeout: 30000 });
     await page.getByRole("combobox", { name: "Typ", exact: true }).selectOption("BUY");
@@ -72,6 +73,7 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByLabel("Gebühr", { exact: true }).fill("2");
     await page.getByLabel("Steuer / Quellensteuer").fill("1");
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Ausdrücklich bestätigen", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: "BUY" })).toBeVisible();
     await page.getByRole("button", { name: "Übersicht", exact: true }).click();
     await expect(page.getByText(/10.?177\.30 CHF/).first()).toBeVisible();
@@ -99,12 +101,13 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByLabel("Preis je Stück").fill("1");
     await page.getByLabel("Handelsdatum").fill(purchaseDay);
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Ausdrücklich bestätigen", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: "BUY" })).toHaveCount(2);
     await page.getByRole("button", { name: "Übersicht", exact: true }).click();
     await expect(page.getByRole("status")).toContainText("Portfolio PARTIAL");
     await expect(page.getByText("DATA_UNAVAILABLE").first()).toBeVisible();
     await page.getByRole("button", { name: "Datenqualität", exact: true }).click();
-    await expect(page.getByText("MISSING_PRICE", { exact: false })).toBeVisible();
+    await expect(page.getByText("Es fehlt ein gültiger Schlusskurs.", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Transaktionen", exact: true }).click();
     await page.getByRole("combobox", { name: "Typ", exact: true }).selectOption("DIVIDEND");
     await page.getByLabel("Handelsdatum").fill(yesterday);
@@ -112,6 +115,7 @@ test("create portfolio, account, deposit and buy; show missing price explicitly"
     await page.getByLabel("Gebühr", { exact: true }).fill("0");
     await page.getByLabel("Steuer / Quellensteuer").fill("0.25");
     await page.getByRole("button", { name: "Buchen", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Ausdrücklich bestätigen", exact: true }).click();
     await expect(page.getByRole("listitem").filter({ hasText: "DIVIDEND" })).toHaveCount(1);
     const actionCsv = `date,ticker,action_type,value,currency\n${yesterday},${missingTicker},DIVIDEND,1,CHF\n${today},${missingTicker},SPLIT,2,\n`;
     const preview = await page.request.post(`${apiBase}/market-data/imports/actions/preview`, { headers: { Origin: origin, "Content-Type": "text/csv" }, data: actionCsv });

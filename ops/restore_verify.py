@@ -78,6 +78,8 @@ def main() -> int:
     parser.add_argument("--risk-history-hash")
     parser.add_argument("--recommendation-history-hash")
     parser.add_argument("--intelligence-history-hash")
+    parser.add_argument("--document-removal-history-hash")
+    parser.add_argument("--ui-request-history-hash")
     parser.add_argument("--collections-history-hash")
     parser.add_argument("--validation-history-hash")
     parser.add_argument("--api-image", help="Prebuilt immutable image reference, including @sha256 digest")
@@ -150,6 +152,8 @@ def main() -> int:
         "RESTORE_TEST_PREDICTION_HISTORY_HASH": args.prediction_history_hash or "",
         "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
         "RESTORE_TEST_INTELLIGENCE_HISTORY_HASH": args.intelligence_history_hash or "",
+        "RESTORE_TEST_DOCUMENT_REMOVAL_HISTORY_HASH": args.document_removal_history_hash or "",
+        "RESTORE_TEST_UI_REQUEST_HISTORY_HASH": args.ui_request_history_hash or "",
         "RESTORE_TEST_COLLECTIONS_HISTORY_HASH": args.collections_history_hash or "",
         "RESTORE_TEST_VALIDATION_HISTORY_HASH": args.validation_history_hash or "",
         "RESTORE_TEST_RECOMMENDATION_HISTORY_HASH": args.recommendation_history_hash or "",

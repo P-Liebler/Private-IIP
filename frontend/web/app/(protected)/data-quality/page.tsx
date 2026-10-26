@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import Link from "next/link";
 import { listPortfolios, getValuation } from "@/lib/api/portfolios";
 import { useQueries } from "@tanstack/react-query";
+import { PortfolioDataActions } from "@/components/portfolio-data-actions";
+import { useRouter } from "next/navigation";
 import { ResearchQualityPanel } from "@/components/research-quality";
 import { DatasetQualityPanel } from "@/components/dataset-quality";
 
@@ -17,6 +19,7 @@ function dateTime(value: string | null) {
 }
 
 export default function DataQualityPage() {
+  const router = useRouter();
   const quality = useQuery({ queryKey: ["data-quality"], queryFn: getQualitySummary });
   const operations = useQuery({ queryKey: ["backup-status"],
     queryFn: () => api<OperationalStatus>("/system/backup-status") });
@@ -31,7 +34,7 @@ export default function DataQualityPage() {
     {quality.isError && <p role="alert" className="text-rose-400">{quality.error.message}</p>}
     <section className="space-y-3 rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Portfolio-Bewertungen</h2>
       {portfolios.isError && <p role="alert">{portfolios.error.message}</p>}
-      {portfolios.data?.map((portfolio, index) => <article key={portfolio.id}><Link className="text-emerald-400 underline" href={`/portfolios/${portfolio.id}`}>{portfolio.name}</Link><p>{valuations[index].isPending ? "Wird geprüft…" : valuations[index].data?.status ?? "DATA_UNAVAILABLE"}</p>{valuations[index].isError && <p role="alert">{valuations[index].error.message}</p>}<ul className="text-sm text-amber-400">{valuations[index].data?.issues.map((issue, item) => <li key={item}>{issue.code} · {issue.currency}{issue.instrument_id && <Link href={`/instrument/${issue.instrument_id}`} className="ml-2 underline">Instrument / Quelle prüfen</Link>}</li>)}</ul></article>)}
+      {portfolios.data?.map((portfolio, index) => <article key={portfolio.id}><Link className="text-emerald-400 underline" href={`/portfolios/${portfolio.id}`}>{portfolio.name}</Link><p>{valuations[index].isPending ? "Wird geprüft…" : valuations[index].data?.status ?? "DATA_UNAVAILABLE"}</p>{valuations[index].isError && <p role="alert">{valuations[index].error.message}</p>}{valuations[index].data && <PortfolioDataActions valuation={valuations[index].data!} transactions={() => router.push(`/portfolios/${portfolio.id}?tab=Transaktionen`)} />}</article>)}
     </section>
     <Link href="/data-operations" className="text-emerald-400 underline">Datenversorgung, Backfills und historische Abdeckung</Link>
     <ResearchQualityPanel />

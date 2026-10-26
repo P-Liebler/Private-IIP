@@ -100,6 +100,15 @@ class DocumentChunk(Base):
     )
 
 
+class DocumentRemoval(OwnedRecord, Base):
+    """Append-only withdrawal from the active library; raw audit evidence survives."""
+
+    __tablename__ = "document_removals"
+    __table_args__ = (UniqueConstraint("document_id", name="uq_document_removal_document"),)
+    document_id: Mapped[UUID] = mapped_column(ForeignKey("research_documents.id"), nullable=False)
+    reason: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class ChunkEmbedding(Base):
     __tablename__ = "chunk_embeddings"
     __table_args__ = (

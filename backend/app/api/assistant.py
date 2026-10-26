@@ -26,6 +26,7 @@ from app.models import (
     AssistantToolCall,
     ChunkEmbedding,
     DocumentChunk,
+    DocumentRemoval,
     DocumentRightsReview,
     ResearchDocument,
 )
@@ -260,12 +261,22 @@ async def documents(
         await db.scalars(
             select(ResearchDocument)
             .where(ResearchDocument.user_id == context.user.id)
+            .where(
+                ~select(DocumentRemoval.id)
+                .where(DocumentRemoval.document_id == ResearchDocument.id)
+                .exists()
+            )
             .order_by(ResearchDocument.created_at.desc(), ResearchDocument.id.desc())
             .offset(offset)
             .limit(100)
         )
     ).all()
     return [view(row) for row in rows]
+
+
+@router.delete("/research-documents/{identifier}")
+async def remove_document(identifier: UUID, db: DB, context: Auth) -> dict[str, Any]:
+    return await DocumentService(db, context.user.id).remove(identifier)
 
 
 @router.get("/research-documents/{identifier}")

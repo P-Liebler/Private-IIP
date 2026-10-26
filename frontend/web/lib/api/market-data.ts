@@ -39,6 +39,7 @@ export type PriceRecord = {
 };
 export type PriceHistory = {
   status: string; reason: string | null; as_of: string; prices: PriceRecord[];
+  chart_series?: { date: string; value: string | null }[]; calendar_status?: string; calendar_version?: string | null;
 };
 export type QualitySummary = {
   status: string; price_quality: Record<string, number>;

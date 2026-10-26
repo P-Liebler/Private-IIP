@@ -19,6 +19,7 @@ from app.services.ml_registry import ModelRegistryService
 from app.services.pit_datasets import DatasetBuilder
 from app.services.risk_audit import history_checkpoint
 from app.services.validation_audit import validation_checkpoint
+from app.services.ui_requests import request_checkpoint
 
 
 async def main():
@@ -51,7 +52,7 @@ async def main():
             for checkpoint in (await history_checkpoint(db, user.id, portfolio.id, verify=True),
                                await recommendation_checkpoint(db, user.id),
                                await intelligence_checkpoint(db, user.id),
-                               await collection_checkpoint(db), await validation_checkpoint(db)):
+                               await collection_checkpoint(db), await validation_checkpoint(db), await request_checkpoint(db, user.id)):
                 result.update(checkpoint)
             print(json.dumps(result))
     finally:

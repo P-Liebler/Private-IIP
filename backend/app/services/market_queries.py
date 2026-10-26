@@ -19,6 +19,7 @@ from app.models import (
     PriceDailyVersion,
     RawIngestion,
 )
+from app.services.market_calendar import MarketCalendarService
 
 ACCEPTED = {"ACCEPTED", "MANUAL_OVERRIDE"}
 
@@ -93,11 +94,32 @@ class MarketQueryService:
             if row.resolution in ACCEPTED:
                 by_date.setdefault(row.trading_date, row)
         values = [price_view(row, len(counts[row.trading_date])) for row in by_date.values()]
+        instrument = await self.db.get(Instrument, instrument_id)
+        calendar = MarketCalendarService()
+        calendar_status = "UNAVAILABLE"
+        chart_dates = set(by_date)
+        if instrument is not None and (instrument.mic or instrument.exchange):
+            exchange = instrument.mic or instrument.exchange or ""
+            try:
+                sessions = calendar.sessions_between(exchange, start, min(end, cutoff.date()))
+                chart_dates.update(
+                    day for day in sessions if calendar.session_close(exchange, day) <= cutoff
+                )
+                calendar_status = "AVAILABLE"
+            except (AppError, ValueError):
+                # Unsupported exchange/range: observed points remain visible, no invented sessions.
+                pass
         return {
             "status": "AVAILABLE" if values else "UNAVAILABLE",
             "as_of": cutoff,
             "prices": values,
             "reason": None if values else "NO_VERIFIED_PRICES",
+            "calendar_status": calendar_status,
+            "calendar_version": calendar.version if calendar_status == "AVAILABLE" else None,
+            "chart_series": [
+                {"date": day, "value": by_date[day].close if day in by_date else None}
+                for day in sorted(chart_dates)
+            ],
         }
 
     async def price_versions(

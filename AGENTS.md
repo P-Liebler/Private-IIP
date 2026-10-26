@@ -56,4 +56,9 @@ P1 raw ingestion, P2 identity/source gates and P3 market-data foundation are imp
 
 - PR4 security evidence binds exact image/config digests, scanner and database versions, original SBOM bytes and source/lock/report hashes. A changed build needs its own scan; missing or failed scans are SCAN_INCOMPLETE, never a zero-finding success.
 - Production deployment requires separate documented security, target-host and operator approval of an immutable manifest and starts only its digest-pinned images with --no-build. Local RC evidence cannot authorize production. Unreviewed Critical findings remain blockers; source, model and strategy gates are independent.
+
+- PR6 UI capabilities are visibility hints only; backend source/operator/ownership gates remain authoritative. Theme preference cookies contain no credentials or financial drafts.
+- UI retry receipts and document removals are append-only technical records, separate from financial observations. Commit resource and receipt atomically; a changed payload cannot reuse a completed request key. Retrying a voided booking never resurrects it.
+- Document removal withdraws content from the active library and new retrievals, including historical searches; immutable originals and previous evidence remain retained and the UI must say so. Never rewrite old Intelligence hashes to include a newly introduced table; new receipt/removal hashes are separate restore checks.
+- Risk chart displays derive only from pinned P8 observations using versioned Decimal rules. Incomplete returns suspend the curves; a missing benchmark is not a zero-return benchmark. Never alter a stored risk snapshot to add display fields.
 - Keep MLflow a private authenticated tracking/artifact service. Application training runs in Celery; MLflow server jobs and custom scorer execution remain disabled unless separately reviewed. Never migrate the object store or PostgreSQL major as an automatic security fallback.

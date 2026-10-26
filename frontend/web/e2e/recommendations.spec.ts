@@ -26,7 +26,7 @@ test("P9 profile version, gated evaluation and immutable history", async ({ page
   await page.getByLabel("Profilparameter").fill(JSON.stringify(preferences));
   await page.getByRole("button", { name: "Profilversion speichern" }).click();
   await expect(page.getByRole("status")).toContainText("Profilversion gespeichert");
-  await page.getByLabel("Portfolio", { exact: true }).selectOption(portfolio!);
+  await page.getByRole("combobox", { name: "Portfolio", exact: true }).selectOption(portfolio!);
   await expect(page.getByRole("button", { name: "Eligibility prüfen und speichern" })).toBeEnabled({ timeout: 30000 });
   const evaluationResponse = page.waitForResponse(response => response.url().endsWith("/recommendations/evaluate") && response.request().method() === "POST");
   await page.getByRole("button", { name: "Eligibility prüfen und speichern" }).click();
@@ -40,7 +40,7 @@ test("P9 profile version, gated evaluation and immutable history", async ({ page
   await expect(page.getByLabel("Bewertungsdetails")).toContainText("NO_VALIDATED_PRODUCTION_FORECAST");
   await expect(page.getByRole("heading", { name: "Unveränderliche Bewertungshistorie" })).toBeVisible();
   await page.reload();
-  await page.getByLabel("Portfolio", { exact: true }).selectOption(portfolio!);
+  await page.getByRole("combobox", { name: "Portfolio", exact: true }).selectOption(portfolio!);
   const archived = page.getByRole("button", { name: `${recorded!.generated_at} · ${recorded!.category} · ${recorded!.instrument_id}`, exact: true });
   await expect(archived).toBeVisible();
   const archivedResponse = page.waitForResponse(response => response.url().endsWith(`/recommendations/${recorded!.id}`) && response.request().method() === "GET");

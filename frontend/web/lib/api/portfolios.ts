@@ -10,6 +10,8 @@ export type Transaction = { id: string; account_id: string; instrument_id: strin
 export type Fx = { status: string; rate_date?: string; age_days?: number; derived?: string; rate?: string; source_names?: string[] };
 export type Cash = { account_id: string; currency: string; amount: string; base_amount: string | null; fx: Fx };
 export type Holding = { account_id: string; instrument_id: string; name: string; asset_type: string;
+  ticker?: string | null; isin?: string | null; mic?: string | null;
+  unrealized_pnl_base_at_valuation_fx?: string | null;
   quantity: string; average_cost_native: string | null; cost_basis_native: string | null; currency: string;
   price: string | null; price_date: string | null; price_age_days: number | null;
   price_source_name?: string | null; price_observed_at?: string | null; market_data_state?: string; collection_state?: string;
@@ -34,7 +36,9 @@ export type Performance = { status: string; reason?: string; absolute_return_bas
   benchmark?: { status: string; reason?: string; name?: string; return_base?: string };
   twr: string | null; xirr: string | null; cagr: string | null; fx_contribution_base: string | null;
   series: { date: string; status: string; value_base: string | null }[] };
+export type CsvFormat = { delimiter: "," | ";" | "\t"; date_format: "ISO" | "DMY" | "MDY"; number_format: "POINT" | "COMMA" | "CH" };
 export type ImportPreview = { raw_ingestion_id: string; mapping: Record<string, string>; columns: string[]; row_count: number;
+  format_required?: boolean; detected_format?: CsvFormat;
   ready_count: number; duplicate_count?: number; rows: { line: number; status: string; error?: string; type?: string; trade_date?: string; settlement_date?: string | null; instrument_id?: string | null; instrument_name?: string; currency?: string; quantity?: string | null; price?: string | null; amount?: string | null; fee?: string; tax?: string }[] };
 
 export const listPortfolios = () => api<Portfolio[]>("/portfolios");

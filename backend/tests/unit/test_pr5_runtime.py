@@ -34,7 +34,12 @@ def test_unpatched_document_parser_cannot_start_normal_runtime():
 def test_archived_core_contract_is_preserved_and_rejected_by_patched_api():
     legacy = Path("legacy_contracts/pr4/requirements.lock").read_text(encoding="utf-8")
     patched = Path("requirements.lock").read_text(encoding="utf-8")
-    assert legacy.replace("certifi==2026.7.22", "certifi==2026.10.19") == patched
+    assert (
+        legacy.replace("certifi==2026.7.22", "certifi==2026.10.19").replace(
+            "opentelemetry-api==1.45.0", "opentelemetry-api==1.45.1"
+        )
+        == patched
+    )
     code = {"dependencies": legacy}
     data = json.dumps(
         {"contract": "internal-data-only-model-v1", "configuration": {}, "training_code": code}

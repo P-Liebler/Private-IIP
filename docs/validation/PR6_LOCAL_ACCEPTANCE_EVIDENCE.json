@@ -1,0 +1,77 @@
+{
+  "evidence_date": "2026-10-23",
+  "review_date": "2026-10-26",
+  "scope": "LOCAL_SYNTHETIC_TECHNICAL_EVIDENCE_NOT_PRODUCTION_OR_FINANCIAL_APPROVAL",
+  "backend_tests_passed": 297,
+  "host_tests_passed": 35,
+  "unique_browser_cases_passed": 26,
+  "browser_execution": "25 passed in full run; remaining chart/theme case passed after correcting its accessible-name locator; application build unchanged",
+  "backup_run_id": "20261023T131714Z-50868",
+  "raw_objects": 502,
+  "backup_files_verified": 503,
+  "schema_head": "0021_ui_requests",
+  "document_removals": 5,
+  "ui_request_receipts": 26,
+  "technical_checkpoint_hashes": {
+    "document_removal_history_hash": "c978ef8ed043e850a739ff1d0e6159476ecbdb4befe71b82ed9d5a48e5f8daa8",
+    "ui_request_history_hash": "b9411db6bf57a01cae88079fa063b9eecf59795ee5b001d77bec109554528fef"
+  },
+  "restore": {
+    "started_at": "2026-10-23T13:18:12.994643+00:00",
+    "success": true,
+    "object_store_kind": "seaweed-synthetic",
+    "backup_run_id": "20261023T131714Z-50868",
+    "image_contract": {
+      "api": "private-iip/backend@sha256:3d4e71a2b8bdd5c715f6761f3921f7d6160918720a4cf2f2f945acb1f10e6848",
+      "postgres": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "object_store": "chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d"
+    },
+    "verified_backup_files": 503,
+    "expected_value": "10180",
+    "archive_contracts": {
+      "dataset": "dd5cd6ef97b9248eb148725797470069b9b33635df15f8506d61bf99761ea538",
+      "model": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+      "predictions": "dee7d0b8e9662a34fba5b54022362cda518510a9dbbdbcbf8fff74877115957e",
+      "risk": "38d6143c6d4c9bb8e206c5d05a738a42b3f2231ef9a37c5812510e9ef4b9aabd",
+      "recommendations": "3fe74a07747ae287ba01fe8ed0af26fede8c153b12bf9980b503265383dadc2a",
+      "intelligence": "598fd2a0f080c0f266a1391a0af67bcce9b4a9aec5649aa5e6c234f754675bf0",
+      "collections": "8348fa09db63db4365f8bf9d2b2b505f09cd681d7246c5e323813c53432acf40",
+      "validation": "15554a1626a6b3c2229d527d1a80fb167b7b264e940689affab117cae0ab97a0"
+    },
+    "postgres_environment": {
+      "server_version": "17.11",
+      "lc_collate": "en_US.utf8",
+      "lc_ctype": "en_US.utf8",
+      "vector": "0.8.6"
+    },
+    "postgres_contract_probe": "PASS",
+    "legacy_verification": {
+      "contract": "PR5_LEGACY_VERIFICATION_V1",
+      "verified": true,
+      "artifact_sha256": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+      "core_lock_sha256": "c14c377220680eb75bc180b437cbef659d44666b6700319705622c3e7233aa84",
+      "support_lock_sha256": "e330067d6717e54b203ccfc70ac2c5d082d637be9bcf720c73fa9d5643deefbe",
+      "supporting_archive_contract": "NOT_RECORDED_IN_ARCHIVE",
+      "scope": "ARCHIVED_BYTES_AND_EXACT_INSTALLED_CONTRACT_ONLY_NO_FORECAST_VALIDATION",
+      "image": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "network": "none",
+      "read_only": true,
+      "verifier_sha256": "c8e41f8a48a5cdc9faaf320b35c0791b2521dcc04d7364d8895427b7ee337799"
+    },
+    "completed_at": "2026-10-23T13:20:20.229695+00:00",
+    "cleanup_success": true,
+    "cleanup_completed_at": "2026-10-23T13:20:27.140349+00:00"
+  },
+  "original_evidence_sha256": {
+    "backups/pr6-final-checkpoint.json": "2643b0535049817c8211292c8a7d033c30104a54bdc68d02f5e77fd481090aac",
+    "backups/pr6-final-acceptance/runtime/restore-status.json": "dccdb9a3e83869359934a15e8974c7ed20ac54876a2606e8416ffbcc1dad01c4",
+    "backups/pr6-regression-final-backend.txt": "102b59dce11f8662a4f6685165d42eeb04bf95c223d3eb25a4ef56275f8cef85",
+    "backups/pr6-final-host.txt": "699e96e3e0ea5898fefea3d37e2f153ebd3f8e6a2af70d03bbc3caa2aaf76461",
+    "backups/pr6-frozen-frontend-build.txt": "dd64d492be5b375b83b725f95198e30d6f1b1200557cd814fe2407d10bbdf7bc",
+    "backups/pr6-frozen-browser.txt": "4328d8137cad70b346a6b47f88c16273010803720891a25bc7246609cf030c1c",
+    "backups/pr6-chart-theme-acceptance.txt": "d0364febdef177570609f5012b1a2817af2eb4468cd0ca6bc3fcb05bc1e1e21e",
+    "backups/pr6-real-assistant-service-120s.json": "60299a279f1c134453183ec2ad71d7f2fee59ad2e0714f1f6bc2ae7fb7e438dc",
+    "backups/pr6-real-retrieval.json": "0204fd93a9518ee79b14a81da69f051eeed5d8839b79c7a4e0b4abf4d531ab12",
+    "backups/pr6-real-assistant-outage.json": "57b185f0a4b764f00d93cdeca0b69e64d679cdbf580a7520567aa1da23a367c1"
+  }
+}

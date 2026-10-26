@@ -16,11 +16,27 @@ from app.schemas.risk import RiskInput, ScenarioInput, WhatIfInput
 from app.services.auth import AuthContext
 from app.services.portfolio_risk import PortfolioRiskService
 from app.services.portfolios import PortfolioService
+from app.services.risk_charts import risk_chart_series
 from app.services.risk_simulations import RiskSimulationService
 
 router = APIRouter(prefix="/api/v1", tags=["portfolio-risk"])
 DB = Annotated[AsyncSession, Depends(get_session)]
 Auth = Annotated[AuthContext, Depends(require_user)]
+
+
+@router.get("/portfolios/{portfolio_id}/risk/{snapshot_id}/charts")
+async def chart_data(
+    portfolio_id: UUID, snapshot_id: UUID, db: DB, context: Auth
+) -> dict[str, Any]:
+    snapshot = await PortfolioRiskService(db, context.user.id).owned_snapshot(
+        portfolio_id, snapshot_id
+    )
+    return {
+        "snapshot_id": snapshot.id,
+        "snapshot_content_hash": snapshot.content_hash,
+        "as_of": snapshot.as_of,
+        **risk_chart_series(snapshot.result),
+    }
 
 
 @router.post("/portfolios/{portfolio_id}/risk")

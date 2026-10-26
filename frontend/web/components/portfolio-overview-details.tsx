@@ -13,7 +13,7 @@ export function PortfolioOverviewDetails({ valuation, transactions, allocation }
       {valuation.holdings.length ? <ul className="mt-3 space-y-2">{valuation.holdings.map(h => <li key={`${h.account_id}-${h.instrument_id}`}>{h.name} · {h.quantity} Stück · {money(h.market_value_base, valuation.base_currency)} · {h.valuation_status}</li>)}</ul> : <p>Keine offenen Positionen.</p>}
     </article>
     <article className="rounded-xl border border-zinc-800 p-5"><h2 className="font-semibold">Allokation nach Anlageklasse</h2>
-      {allocation?.status === "COMPLETE" ? <ul className="mt-3">{allocation.by_asset_type?.map(a => <li key={a.asset_type}>{a.asset_type}: {ratio(a.weight)} · {money(a.value, valuation.base_currency)}</li>)}</ul> : <p>Keine vollständige Allokation verfügbar; fehlende Bewertungsdaten zuerst prüfen.</p>}
+      {allocation?.status === "AVAILABLE" ? <ul className="mt-3">{allocation.by_asset_type?.map(a => <li key={a.asset_type}>{a.asset_type}: {ratio(a.weight)} · {money(a.value, valuation.base_currency)}</li>)}</ul> : <p>Keine vollständige Allokation verfügbar; fehlende Bewertungsdaten zuerst prüfen.</p>}
     </article>
     <article className="rounded-xl border border-zinc-800 p-5 sm:col-span-2"><h2 className="font-semibold">Letzte Transaktionen</h2>
       {recent.length ? <ul className="mt-3 space-y-2">{recent.map(t => <li key={t.id}>{t.trade_date} · {t.type} · {t.instrument_name ?? "Cash-Ereignis"} · {t.quantity ? `${t.quantity} Stück · ` : ""}{t.amount !== null ? money(t.amount, t.currency) : t.price !== null ? `${money(t.price, t.currency)} je Stück` : "Betrag nicht verfügbar"} · {t.status}</li>)}</ul> : <p>Noch keine Transaktionen.</p>}

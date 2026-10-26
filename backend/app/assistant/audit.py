@@ -18,6 +18,7 @@ from app.models import (
     DailyBrief,
     DailyBriefConfig,
     DocumentChunk,
+    DocumentRemoval,
     DocumentRightsReview,
     FinancialEventVersion,
     Notification,
@@ -93,8 +94,17 @@ async def intelligence_checkpoint(db: AsyncSession, user_id: UUID) -> dict[str, 
     ]
     for event in content["financial_event_versions"]:
         await raw.get_verified(UUID(str(event["raw_ingestion_id"])))
+    removals = (
+        await db.scalars(
+            select(DocumentRemoval)
+            .where(DocumentRemoval.user_id == user_id)
+            .order_by(DocumentRemoval.id)
+        )
+    ).all()
     return {
         "intelligence_history_hash": digest(content),
+        "document_removal_history_hash": digest([view(row) for row in removals]),
+        "document_removal_count": len(removals),
         "document_count": len(documents),
         "chunk_count": len(chunks),
         "embedding_count": len(embeddings),

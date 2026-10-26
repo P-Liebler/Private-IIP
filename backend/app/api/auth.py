@@ -102,6 +102,22 @@ async def session(
     return SessionResponse(authenticated=True, user=_user_public(context))
 
 
+@router.get("/capabilities")
+async def capabilities(
+    response: Response,
+    context: Annotated[AuthContext, Depends(require_user)],
+) -> dict[str, bool]:
+    """Visibility hints only. Domain endpoints still enforce their own allowlists."""
+    settings = get_settings()
+    username = context.user.username
+    response.headers["Cache-Control"] = "no-store"
+    return {
+        "data_operator": username in settings.data_operator_usernames,
+        "ml_operator": username in settings.ml_operator_usernames,
+        "operations_operator": username in settings.operations_operator_usernames,
+    }
+
+
 @router.post("/logout", status_code=204)
 async def logout(
     request: Request,

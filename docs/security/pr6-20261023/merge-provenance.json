@@ -1,0 +1,72 @@
+{
+  "backend": {
+    ".record.json": {
+      "original": "backups/pr6-final-app-audit/backend.record.json",
+      "sha256": "6a47de392e293d350cec78ba3c6446def43f14070be9128969ca2d6c3f87cddd"
+    },
+    ".trivy.json": {
+      "original": "backups/pr6-final-app-audit/backend.trivy.json",
+      "sha256": "1fae55b80d19ff420eef129e5d57f63176a3c3392171923467020fd01aca20cd"
+    },
+    ".cdx.json": {
+      "original": "backups/pr6-final-app-audit/backend.cdx.json",
+      "sha256": "5360d3537571db2eeed6977f68aba94074bae96f277ed2e47a516b85c17aeed8"
+    }
+  },
+  "web": {
+    ".record.json": {
+      "original": "backups/pr6-final-web-rc4-audit/web.record.json",
+      "sha256": "e57976882d8ec1e59ec07bd40d15e4a6e4a710dd20394ee98ab6d80e767b775d"
+    },
+    ".trivy.json": {
+      "original": "backups/pr6-final-web-rc4-audit/web.trivy.json",
+      "sha256": "e8fa6551782d5909d9383a092c03284a2cd9669eef80e4df9fd77c128da51cb2"
+    },
+    ".cdx.json": {
+      "original": "backups/pr6-final-web-rc4-audit/web.cdx.json",
+      "sha256": "aa81ca3067bbd1c278d90b50237a1ee130e212d16d087b0b750907e8df60bada"
+    }
+  },
+  "postgres": {
+    ".record.json": {
+      "original": "backups/pr6-image-audit/postgres.record.json",
+      "sha256": "a6c887b1a186f8b007ec437629993390a33ba5f5947923ae29116a705dcb6e43"
+    },
+    ".trivy.json": {
+      "original": "backups/pr6-image-audit/postgres.trivy.json",
+      "sha256": "87281abd0d9d7e703235f96b56787a059a30fa775d2f247e2d25ddc941c80912"
+    },
+    ".cdx.json": {
+      "original": "backups/pr6-image-audit/postgres.cdx.json",
+      "sha256": "159d6a1d7b66c6fd3fe9cb5e190da1dbded6e78c7873deeee4f0a8a34c90e8bb"
+    }
+  },
+  "minio": {
+    ".record.json": {
+      "original": "backups/pr6-store-image-audit/minio.record.json",
+      "sha256": "c046e1afc16650627b4af02fdf4a6f2d5e44cede6915c76529242e14f8f100f0"
+    },
+    ".trivy.json": {
+      "original": "backups/pr6-store-image-audit/minio.trivy.json",
+      "sha256": "aa1c8fce926a3f0b397e0ac662195f52ad2c87523e995b96bb95095610b52c1b"
+    },
+    ".cdx.json": {
+      "original": "backups/pr6-store-image-audit/minio.cdx.json",
+      "sha256": "9c6f8327632717e10ee8f3f0fa0320960fccf2031d0b33c591cfcb1e9ebfb421"
+    }
+  },
+  "seaweed": {
+    ".record.json": {
+      "original": "backups/pr6-store-image-audit/seaweed.record.json",
+      "sha256": "ab36f5069df6047adb117c11ff6ced8ca9e5288181965f6a9065110b4612c0d3"
+    },
+    ".trivy.json": {
+      "original": "backups/pr6-store-image-audit/seaweed.trivy.json",
+      "sha256": "2d1f8e4805752241cd645385327fce0fe02c12b40aad8fc7ad65d5fd68da9390"
+    },
+    ".cdx.json": {
+      "original": "backups/pr6-store-image-audit/seaweed.cdx.json",
+      "sha256": "76c44a28012712204594ef9e8af09c7da4e09c6cfad68aabc5944444cf3364d5"
+    }
+  }
+}

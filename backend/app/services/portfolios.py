@@ -62,7 +62,7 @@ class PortfolioService:
             ).all()
         )
 
-    async def create(self, payload: PortfolioCreate) -> Portfolio:
+    async def create(self, payload: PortfolioCreate, *, commit: bool = True) -> Portfolio:
         if payload.benchmark_id and await self.db.get(Benchmark, payload.benchmark_id) is None:
             raise AppError(422, "BENCHMARK_NOT_FOUND", "Benchmark not found")
         record = Portfolio(user_id=self.user_id, **payload.model_dump())
@@ -75,8 +75,9 @@ class PortfolioService:
             resource_id=str(record.id),
             actor_user_id=self.user_id,
         )
-        await self.db.commit()
-        await self.db.refresh(record)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(record)
         return record
 
     async def update(self, portfolio_id: UUID, changes: dict[str, object]) -> Portfolio:
@@ -139,7 +140,9 @@ class PortfolioService:
             raise AppError(404, "ACCOUNT_NOT_FOUND", "Account not found")
         return account
 
-    async def create_account(self, portfolio_id: UUID, payload: AccountCreate) -> PortfolioAccount:
+    async def create_account(
+        self, portfolio_id: UUID, payload: AccountCreate, *, commit: bool = True
+    ) -> PortfolioAccount:
         portfolio = await self.owned(portfolio_id, lock=True)
         if portfolio.archived_at:
             raise AppError(409, "PORTFOLIO_ARCHIVED", "Archived portfolio cannot be modified")
@@ -153,8 +156,9 @@ class PortfolioService:
             resource_id=str(account.id),
             actor_user_id=self.user_id,
         )
-        await self.db.commit()
-        await self.db.refresh(account)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(account)
         return account
 
     async def update_account(
@@ -262,10 +266,40 @@ class PortfolioService:
         raw_id: UUID | None = None,
         source: str = "MANUAL",
         commit: bool = True,
+        idempotency_key: UUID | None = None,
     ) -> Transaction:
         portfolio = await self.owned(portfolio_id, lock=True)
         if portfolio.archived_at:
             raise AppError(409, "PORTFOLIO_ARCHIVED", "Archived portfolio cannot be modified")
+        if idempotency_key is not None:
+            external_id = f"UI_REQUEST:{idempotency_key}"
+            if payload.external_id is not None and payload.external_id != external_id:
+                raise AppError(
+                    409,
+                    "REQUEST_KEY_CONFLICT",
+                    "Client request key cannot replace broker external ID",
+                )
+            payload = payload.model_copy(update={"external_id": external_id})
+            existing = await self.db.scalar(
+                select(Transaction)
+                .where(
+                    Transaction.portfolio_id == portfolio_id, Transaction.external_id == external_id
+                )
+                .order_by(Transaction.created_at, Transaction.id)
+                .limit(1)
+            )
+            if existing is not None:
+                if (
+                    existing.fingerprint != transaction_fingerprint(payload)
+                    or existing.notes != payload.notes
+                ):
+                    raise AppError(
+                        409,
+                        "REQUEST_KEY_CONFLICT",
+                        "This request key already belongs to different booking values",
+                    )
+                # Preserve corrected/voided originals. A retry never resurrects them.
+                return existing
         await self._validate_input(portfolio_id, payload)
         await self._duplicate(portfolio_id, payload)
         row = Transaction(

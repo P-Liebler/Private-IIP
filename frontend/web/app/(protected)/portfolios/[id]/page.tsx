@@ -1,8 +1,9 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { bookingRequestKey, clearBookingRequestKey } from "@/lib/booking-request";
 import { api } from "@/lib/api";
 import { searchInstruments } from "@/lib/api/market-foundation";
 import { PortfolioOverviewDetails } from "@/components/portfolio-overview-details";
@@ -13,7 +14,9 @@ import { money, ratio } from "@/lib/portfolio-format";
 import { AllocationChart, ValueChart } from "@/components/portfolio-charts";
 import { PortfolioRiskPanel } from "@/components/portfolio-risk-panel";
 import { CorporateActionReview } from "@/components/corporate-action-review";
-import { HoldingProvenance, PortfolioDataActions } from "@/components/portfolio-data-actions";
+import { ConfirmationDialog } from "@/components/ui/primitives";
+import { HoldingsTable } from "@/components/holdings-table";
+import { PortfolioDataActions } from "@/components/portfolio-data-actions";
 import { PortfolioOnboarding } from "@/components/portfolio-onboarding";
 import { PortfolioReconciliation } from "@/components/portfolio-reconciliation";
 
@@ -24,7 +27,10 @@ export default function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const cache = useQueryClient();
-  const [tab, setTab] = useState("Übersicht");
+  const requestedTab = useSearchParams().get("tab");
+  const allowedTabs = ["Übersicht", "Positionen", "Performance", "Allokation", "Risiko", "Korrelationen", "Szenarien", "What-if", "Dividenden", "Transaktionen", "Depotabgleich", "Datenqualität"];
+  const tab = requestedTab && allowedTabs.includes(requestedTab) ? requestedTab : "Übersicht";
+  const setTab = (next: string) => { const url = new URL(window.location.href); url.searchParams.set("tab", next); router.replace(url.pathname + url.search, { scroll: false }); };
   const [accountName, setAccountName] = useState("");
   const [accountType, setAccountType] = useState("BROKER");
   const [accountId, setAccountId] = useState("");
@@ -41,6 +47,8 @@ export default function PortfolioDetailPage() {
   const [instrumentId, setInstrumentId] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [bookingReview, setBookingReview] = useState(false);
+  const bookingTrigger = useRef<HTMLButtonElement>(null);
   const [newName, setNewName] = useState("");
   const [historyStart, setHistoryStart] = useState(() => new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10));
   const [historyEnd, setHistoryEnd] = useState(new Date().toISOString().slice(0, 10));
@@ -66,8 +74,8 @@ export default function PortfolioDetailPage() {
     cache.invalidateQueries({ queryKey: ["allocation", id] });
     cache.invalidateQueries({ queryKey: ["performance", id] }); };
   const createAccount = useMutation({ mutationFn: () => api<Account>(`/portfolios/${id}/accounts`, {
-    method: "POST", body: JSON.stringify({ name: accountName, account_type: accountType, default_currency: currency }) }),
-    onSuccess: row => { setAccountName(""); setAccountId(row.id); cache.invalidateQueries({ queryKey: ["accounts", id] }); } });
+    method: "POST", headers: { "Idempotency-Key": bookingRequestKey("account") }, body: JSON.stringify({ name: accountName, account_type: accountType, default_currency: currency }) }),
+    onSuccess: row => { clearBookingRequestKey("account"); setAccountName(""); setAccountId(row.id); cache.invalidateQueries({ queryKey: ["accounts", id] }); } });
   const saveTransaction = useMutation({ mutationFn: () => {
     const security = ["BUY", "SELL", "SPLIT", "DIVIDEND", "OPENING_POSITION"].includes(kind);
     const shares = ["BUY", "SELL", "SPLIT", "OPENING_POSITION"].includes(kind);
@@ -80,8 +88,8 @@ export default function PortfolioDetailPage() {
       amount: trading || kind === "SPLIT" ? null : amount || null,
       fee: chargeable ? fee || "0" : "0", tax: chargeable ? tax || "0" : "0", notes: notes || null };
     return api<Transaction>(editing ? `/transactions/${editing}` : `/portfolios/${id}/transactions`,
-      { method: editing ? "PATCH" : "POST", body: JSON.stringify(body) });
-  }, onSuccess: () => { setEditing(null); setAmount(""); setQuantity(""); setPrice(""); setFee("0"); setTax("0"); setNotes(""); refresh(); } });
+      { method: editing ? "PATCH" : "POST", headers: editing ? undefined : { "Idempotency-Key": bookingRequestKey("booking") }, body: JSON.stringify(body) });
+  }, onSuccess: () => { if (!editing) clearBookingRequestKey("booking"); setEditing(null); setAmount(""); setQuantity(""); setPrice(""); setFee("0"); setTax("0"); setNotes(""); refresh(); } });
   const voidTransaction = useMutation({ mutationFn: (txId: string) => api<Transaction>(`/transactions/${txId}`, { method: "DELETE" }), onSuccess: refresh });
   function selectTransaction(row: Transaction) {
     setNotes(row.notes ?? ""); setEditing(row.id); setAccountId(row.account_id); setKind(row.type); setDay(row.trade_date);
@@ -95,6 +103,7 @@ export default function PortfolioDetailPage() {
   }
   return <main className="space-y-6 py-10">
     <header><h1 className="text-3xl font-semibold">{portfolio?.name ?? "Portfolio"}</h1><p className="mt-2 text-zinc-400">Basiswährung: {portfolio?.base_currency ?? "…"}</p></header>
+    <ConfirmationDialog title={editing ? "Buchungskorrektur prüfen" : "Buchung prüfen"} open={bookingReview} onOpenChange={setBookingReview} returnFocus={bookingTrigger} busy={saveTransaction.isPending} onConfirm={() => saveTransaction.mutateAsync()} description={<><p>{kind} am {day} auf {accounts.data?.find(a => a.id === accountId)?.name ?? "Konto prüfen"}.</p><dl className="mt-3 grid grid-cols-2 gap-2"><dt>Währung</dt><dd>{currency}</dd><dt>Betrag</dt><dd>{amount || "Wird aus Stückzahl und Preis bestimmt, falls fachlich vorgesehen"}</dd><dt>Stückzahl / Preis</dt><dd>{quantity || "Nicht angegeben"} / {price || "Nicht angegeben"}</dd><dt>Gebühr / Steuer</dt><dd>{fee} / {tax}</dd></dl><p className="mt-3">Bitte Instrument, Datum, Konto und alle Werte prüfen. Korrekturen bleiben im Audit sichtbar. Es wird kein Brokerauftrag ausgelöst.</p></>} />
     <PortfolioOnboarding accounts={accounts.data ?? []} transactions={transactions.data ?? []} valuation={valuationData} navigate={navigate} />
     {tab === "Depotabgleich" && <PortfolioReconciliation portfolioId={id} accounts={accounts.data ?? []} holdings={valuationData?.holdings ?? []} baseCurrency={portfolio?.base_currency ?? "CHF"} />}
     <details className="rounded border border-zinc-800 p-4"><summary>Portfolio verwalten</summary>
@@ -116,7 +125,7 @@ export default function PortfolioDetailPage() {
         <section className="sm:col-span-3 rounded-xl border border-zinc-800 p-5"><h2 className="font-semibold">Cash nach Währung</h2>{valuationData.cash.length ? <ul className="mt-3 space-y-1">{valuationData.cash.map((cash, index) => <li key={index}>{money(cash.amount, cash.currency)} → {money(cash.base_amount, valuationData.base_currency)} · FX {cash.fx.rate_date ?? "DATA_UNAVAILABLE"}, Alter {cash.fx.age_days ?? "DATA_UNAVAILABLE"} Tage, {cash.fx.derived ?? "DATA_UNAVAILABLE"}</li>)}</ul> : <p className="mt-2 text-zinc-400">Noch keine Cash-Buchungen.</p>}</section></div>}
       {tab === "Übersicht" && <PortfolioOverviewDetails valuation={valuationData} transactions={transactions.data ?? []} allocation={allocation.data} />}
       {(tab === "Datenqualität" || (tab === "Übersicht" && valuationData.issues.length > 0)) && <PortfolioDataActions valuation={valuationData} transactions={() => navigate("Transaktionen", "transaction-entry")} />}
-      {tab === "Positionen" && <section className="space-y-3">{valuationData.holdings.length === 0 && <p>Keine offenen Positionen.</p>}{valuationData.holdings.map((item, index) => <article key={`${item.account_id}-${item.instrument_id}-${index}`} className="rounded-xl border border-zinc-800 p-5"><h2 className="font-semibold">{item.name}</h2><p className="text-sm text-zinc-400">{item.quantity} Stück · Ø Kosten {money(item.average_cost_native, item.currency)} · Einstand {money(item.cost_basis_native, item.currency)}</p><p className="mt-2">Marktwert: {money(item.market_value_native, item.currency)} · Basis: {money(item.market_value_base, valuationData.base_currency)}</p><p>Realisiert: {money(item.realized_pnl_native, item.currency)} · Unrealisiert: {money(item.unrealized_pnl_native, item.currency)} · Gewicht {ratio(item.weight)}</p><p className="text-sm text-zinc-400">Kurs {item.price ?? "DATA_UNAVAILABLE"} vom {item.price_date ?? "–"} · {item.valuation_status} · FX {item.fx.rate_date ?? "DATA_UNAVAILABLE"}, Alter {item.fx.age_days ?? "DATA_UNAVAILABLE"} Tage</p><HoldingProvenance holding={item} /></article>)}</section>}
+      {tab === "Positionen" && <section className="ui-panel"><HoldingsTable valuation={valuationData} /></section>}
       {tab === "Datenqualität" && <section className="rounded-xl border border-zinc-800 p-5"><h2 className="font-semibold">Bewertungsstatus: {valuationData.status}</h2>{valuationData.issues.length ? <ul className="mt-3 list-disc pl-5">{valuationData.issues.map((issue, index) => <li key={index}>{issue.code}{issue.instrument_id && ` · Instrument ${issue.instrument_id}`}{issue.currency && ` · ${issue.currency}`}{issue.account_id && issue.action_version_ids?.map(actionId => <CorporateActionReview key={actionId} portfolioId={id} accountId={issue.account_id!} versionId={actionId} onApplied={refresh} />)}</li>)}</ul> : <p className="mt-2">Keine offenen Bewertungsprobleme.</p>}</section>}
       {tab === "Dividenden" && <section className="space-y-3"><h2 className="font-semibold">Dividenden und Zinsen</h2>{transactions.data?.filter(row => row.status === "ACTIVE" && ["DIVIDEND", "INTEREST"].includes(row.type)).map(row => <article key={row.id} className="rounded border border-zinc-800 p-4"><p>{row.trade_date} · {row.type} · Instrument {row.instrument_name ?? (row.instrument_id ? "Instrument zuordnen" : "kein Instrument")}</p><p>Brutto: {money(row.amount, row.currency)} · Gebühr: {money(row.fee, row.currency)} · Steuer: {money(row.tax, row.currency)}</p><p className="text-sm text-zinc-400">Quelle: {row.source} · Basis brutto: {money(row.amount_base, valuationData.base_currency)} · Basis netto: {money(row.net_amount_base, valuationData.base_currency)}</p></article>)}</section>}
       {tab === "Allokation" && <section className="space-y-4">{allocation.isPending && <p>Lade Allokation…</p>}{allocation.isError && <p role="alert">{allocation.error.message}</p>}{allocation.data?.status !== "AVAILABLE" && <p>Allokation DATA_UNAVAILABLE, solange der Portfoliowert unvollständig oder null ist.</p>}{allocation.data?.status === "AVAILABLE" && <>
@@ -127,8 +136,8 @@ export default function PortfolioDetailPage() {
       {tab === "Performance" && <section className="space-y-4 rounded-xl border border-zinc-800 p-5"><h2 className="font-semibold">Historische Performance</h2><form onSubmit={event => { event.preventDefault(); setHistoryRequested(true); performance.refetch(); }} className="flex flex-wrap gap-3"><input aria-label="Von" type="date" value={historyStart} onChange={event => { setHistoryStart(event.target.value); setHistoryRequested(false); }} className={input} /><input aria-label="Bis" type="date" value={historyEnd} onChange={event => { setHistoryEnd(event.target.value); setHistoryRequested(false); }} className={input} /><button className="rounded bg-emerald-500 px-4 text-zinc-950">Berechnen</button></form>{performance.isError && <p role="alert">{performance.error.message}</p>}{performance.data && <><p>Status: {performance.data.status} {performance.data.reason}</p><div className="grid gap-3 sm:grid-cols-4"><Tile label="Absoluter Ertrag" value={money(performance.data.absolute_return_base, valuationData.base_currency)} /><Tile label="TWR" value={ratio(performance.data.twr)} /><Tile label="XIRR" value={ratio(performance.data.xirr)} /><Tile label="CAGR" value={ratio(performance.data.cagr)} /></div><p className="text-sm text-zinc-400">FX-Beitrag: {money(performance.data.fx_contribution_base, valuationData.base_currency)}</p><p className="text-sm text-amber-400">Renditen: {performance.data.return_status ?? "DATA_UNAVAILABLE"}</p><ValueChart series={performance.data.series} currency={valuationData.base_currency} /><p>Benchmark (brutto, ohne Wiederanlage) {performance.data.benchmark?.name ?? "NONE"}: {ratio(performance.data.benchmark?.return_base)} · {performance.data.benchmark?.status ?? "DATA_UNAVAILABLE"} {performance.data.benchmark?.reason}</p><ul className="max-h-72 overflow-auto text-sm">{performance.data.series.map(point => <li key={point.date}>{point.date}: {money(point.value_base, valuationData.base_currency)} · {point.status}</li>)}</ul></>}</section>}
     </>}
     {tab === "Transaktionen" && <div className="space-y-6">
-      <section id="account-setup" className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Account anlegen</h2><form onSubmit={(event: FormEvent) => { event.preventDefault(); createAccount.mutate(); }} className="mt-3 flex flex-wrap gap-3"><input aria-label="Account-Name" required value={accountName} onChange={event => setAccountName(event.target.value)} className={input} /><select aria-label="Account-Typ" value={accountType} onChange={event => setAccountType(event.target.value)} className={input}><option value="BROKER">Broker</option><option value="CASH">Cash</option><option value="MANUAL">Manuell</option></select><button className="rounded bg-emerald-500 px-4 text-zinc-950">Account anlegen</button></form>{createAccount.isError && <p role="alert" className="text-rose-400">{createAccount.error.message}</p>}</section>
-      <section id="transaction-entry" className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">{editing ? "Transaktion korrigieren" : "Transaktion erfassen"}</h2><form onSubmit={event => { event.preventDefault(); saveTransaction.mutate(); }} className="mt-4 grid gap-3 sm:grid-cols-2">
+      <section id="account-setup" className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Account anlegen</h2><form onSubmit={(event: FormEvent) => { event.preventDefault(); createAccount.mutate(); }} className="mt-3 flex flex-wrap gap-3"><input aria-label="Account-Name" required value={accountName} onChange={event => setAccountName(event.target.value)} className={input} /><select aria-label="Account-Typ" value={accountType} onChange={event => setAccountType(event.target.value)} className={input}><option value="BROKER">Broker</option><option value="CASH">Cash</option><option value="MANUAL">Manuell</option></select><button disabled={createAccount.isPending} className="rounded bg-emerald-500 px-4 text-zinc-950">Account anlegen</button></form>{createAccount.isError && <p role="alert" className="text-rose-400">{createAccount.error.message}</p>}</section>
+      <section id="transaction-entry" className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">{editing ? "Transaktion korrigieren" : "Transaktion erfassen"}</h2><form onSubmit={event => { event.preventDefault(); setBookingReview(true); }} className="mt-4 grid gap-3 sm:grid-cols-2">
         <label>Account<select required value={accountId} onChange={event => setAccountId(event.target.value)} className={input}><option value="">Auswählen</option>{accounts.data?.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         <label>Typ<select value={kind} onChange={event => setKind(event.target.value)} className={input}>{kinds.map(item => <option key={item}>{item}</option>)}</select></label>
         <label>{kind === "OPENING_POSITION" ? "Bestandsstichtag" : "Handelsdatum"}<input type="date" required value={day} onChange={event => setDay(event.target.value)} className={input} /></label>
@@ -139,10 +148,10 @@ export default function PortfolioDetailPage() {
         {!["BUY", "SELL", "SPLIT"].includes(kind) && <label>{kind === "OPENING_POSITION" ? "Gesamter Einstandswert (optional)" : "Betrag"}<input required={kind !== "OPENING_POSITION"} value={amount} onChange={event => setAmount(event.target.value)} className={input} /></label>}
         {kind === "OPENING_POSITION" && <><p className="sm:col-span-2 text-sm text-amber-400">Eröffnungsposition laut Beleg; kein historischer Kauf und kein Cashflow. Unbekannten Einstand leer lassen. Historische Renditen über diesen Startpunkt sind nicht verfügbar.</p><label className="sm:col-span-2">Herkunft des Startbestands<input required minLength={10} maxLength={1000} value={notes} onChange={event => setNotes(event.target.value)} placeholder="Depot-Auszug, Stichtag und Herkunft" className={input} /></label></>}
         {["BUY", "SELL", "DIVIDEND", "INTEREST"].includes(kind) && <><label>Gebühr<input value={fee} onChange={event => setFee(event.target.value)} className={input} /></label><label>Steuer / Quellensteuer<input value={tax} onChange={event => setTax(event.target.value)} className={input} /></label></>}
-        <button disabled={!accountId || saveTransaction.isPending} className="rounded bg-emerald-500 px-4 py-2 font-semibold text-zinc-950">{editing ? "Korrektur speichern" : "Buchen"}</button>{editing && <button type="button" onClick={() => setEditing(null)} className="rounded border border-zinc-700">Abbrechen</button>}
+        <button ref={bookingTrigger} disabled={!accountId || saveTransaction.isPending} className="rounded bg-emerald-500 px-4 py-2 font-semibold text-zinc-950">{editing ? "Korrektur speichern" : "Buchen"}</button>{editing && <button type="button" onClick={() => setEditing(null)} className="rounded border border-zinc-700">Abbrechen</button>}
       </form>{saveTransaction.isError && <p role="alert" className="mt-3 text-rose-400">{saveTransaction.error.message}</p>}</section>
       <TransactionCsvImport portfolioId={id} accounts={accounts.data ?? []} onImported={refresh} />
-      <section className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Buchungen</h2>{transactions.isError && <p role="alert">{transactions.error.message}</p>}<ul className="mt-3 space-y-2">{transactions.data?.map(row => <li key={row.id} className="rounded border border-zinc-700 p-3"><span className={row.status === "VOIDED" ? "text-zinc-500 line-through" : ""}>{row.trade_date} · {row.type} · Account {accounts.data?.find(item => item.id === row.account_id)?.name ?? row.account_id} · Instrument {row.instrument_name ?? (row.instrument_id ? "Instrument zuordnen" : "kein Instrument")} · Menge {row.quantity ?? "—"} · Preis {money(row.price, row.currency)} · Betrag {money(row.amount, row.currency)} · Gebühr {money(row.fee, row.currency)} · Steuer {money(row.tax, row.currency)} · {row.status}</span>{row.status === "ACTIVE" && !row.action_locked && !row.system_generated && <span className="ml-3 inline-flex gap-3"><button onClick={() => selectTransaction(row)} className="text-emerald-400">Korrigieren</button><button onClick={() => voidTransaction.mutate(row.id)} className="text-rose-400">Stornieren</button></span>}</li>)}</ul>{voidTransaction.isError && <p role="alert" className="text-rose-400">{voidTransaction.error.message}</p>}</section>
+      <section className="rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Buchungen</h2>{transactions.isError && <p role="alert">{transactions.error.message}</p>}<ul className="mt-3 space-y-2">{transactions.data?.map(row => <li key={row.id} className="rounded border border-zinc-700 p-3"><span className={row.status === "VOIDED" ? "text-zinc-500 line-through" : ""}>{row.trade_date} · {row.type} · Account {accounts.data?.find(item => item.id === row.account_id)?.name ?? row.account_id} · Instrument {row.instrument_name ?? (row.instrument_id ? "Instrument zuordnen" : "kein Instrument")} · Menge {row.quantity ?? "—"} · Preis {money(row.price, row.currency)} · Betrag {money(row.amount, row.currency)} · Gebühr {money(row.fee, row.currency)} · Steuer {money(row.tax, row.currency)} · {row.status}</span>{row.status === "ACTIVE" && !row.action_locked && !row.system_generated && <span className="ml-3 inline-flex gap-3"><button onClick={() => selectTransaction(row)} className="text-emerald-400">Korrigieren</button><ConfirmationDialog title="Buchung stornieren?" description="Das Original bleibt im Audit erhalten und wird aus aktiven Beständen herausgerechnet. Bitte die betroffene Buchung ausdrücklich prüfen." trigger={<button disabled={voidTransaction.isPending} className="text-rose-400">Stornieren</button>} onConfirm={() => voidTransaction.mutateAsync(row.id)} /></span>}</li>)}</ul>{voidTransaction.isError && <p role="alert" className="text-rose-400">{voidTransaction.error.message}</p>}</section>
     </div>}
   </main>;
 }
