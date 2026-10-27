@@ -23,6 +23,23 @@ test("PR1 rights remain gated and unavailable history is explicit", async ({ pag
   const yahoo = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: /Yahoo/i }) });
   await expect(yahoo).toContainText("BLOCKED");
   await expect(yahoo).toContainText("Letzter erfolgreicher Import");
+  const openfigi = page.getByRole("region", { name: "Bereitschaft OPENFIGI", exact: true });
+  await expect(openfigi).toContainText("25/min ohne Key");
+  await expect(openfigi).toContainText("keine Operatorfreigabe");
+  let failSources = true;
+  await page.route("**/api/v1/data-sources", route => failSources && route.request().method() === "GET"
+    ? route.fulfill({ status: 503, contentType: "application/json", headers: {
+      "Access-Control-Allow-Origin": process.env.E2E_BASE_URL ?? "http://localhost:3000",
+      "Access-Control-Allow-Credentials": "true",
+    }, body: JSON.stringify({ error: { code: "UNAVAILABLE", message: "Synthetic outage" } }) })
+    : route.continue());
+  await page.getByRole("button", { name: "Quellenstatus aktualisieren", exact: true }).click();
+  await expect(page.locator("#main-content").getByRole("alert")).toContainText("momentan nicht verfügbar", { timeout: 15000 });
+  await expect(yahoo).toHaveCount(0);
+  failSources = false;
+  await page.getByRole("button", { name: "Quellen erneut laden", exact: true }).click();
+  await expect(yahoo).toContainText("BLOCKED");
+  await expect(openfigi).toContainText("Die Rechteentscheidung fehlt");
 });
 
 test("PR1 bounded synthetic CSV job shows provenance and unverified action coverage", async ({ page }) => {

@@ -16,6 +16,16 @@ from pathlib import Path
 from operation_lock import acquire
 
 
+def valuation_cutoff(value: str) -> str:
+    try:
+        stamp = datetime.fromisoformat(value)
+        if stamp.tzinfo is None or stamp > datetime.now(UTC):
+            raise ValueError
+        return stamp.astimezone(UTC).isoformat()
+    except ValueError:
+        raise argparse.ArgumentTypeError("Valuation cutoff must be an observed past UTC instant with timezone") from None
+
+
 def digest(path: Path) -> str:
     value = hashlib.sha256()
     with path.open("rb") as stream:
@@ -69,6 +79,8 @@ def main() -> int:
     parser.add_argument("--portfolio-id", required=True)
     parser.add_argument("--raw-id", required=True)
     parser.add_argument("--expected-value", required=True)
+    parser.add_argument("--valuation-as-of", type=valuation_cutoff)
+    parser.add_argument("--expect-current-issue", choices=["STALE_PRICE", "MISSING_PRICE", "MISSING_FX"])
     parser.add_argument("--dataset-id")
     parser.add_argument("--expected-dataset-hash")
     parser.add_argument("--model-id")
@@ -88,6 +100,8 @@ def main() -> int:
     parser.add_argument("--object-store-kind", choices=["minio", "seaweed-synthetic"], default="minio")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
+    if args.expect_current_issue and not args.valuation_as_of:
+        parser.error("A current missing-data assertion requires a separate pinned valuation cutoff")
     if args.object_store_kind == "seaweed-synthetic" and (
         not args.username.startswith("restore_") or not (args.object_store_image or "").startswith("chrislusf/seaweedfs")
     ):
@@ -144,6 +158,8 @@ def main() -> int:
         "RESTORE_TEST_PORTFOLIO_ID": args.portfolio_id,
         "RESTORE_TEST_RAW_ID": args.raw_id,
         "RESTORE_TEST_VALUE": args.expected_value,
+        "RESTORE_TEST_VALUATION_AS_OF": args.valuation_as_of or "",
+        "RESTORE_TEST_CURRENT_ISSUE": args.expect_current_issue or "",
         "RESTORE_TEST_DATASET_ID": args.dataset_id or "",
         "RESTORE_TEST_DATASET_HASH": args.expected_dataset_hash or "",
         "RESTORE_TEST_MODEL_ID": args.model_id or "",
@@ -182,9 +198,13 @@ def main() -> int:
         "image_contract": {"api": args.api_image, "postgres": args.postgres_image, "object_store": args.object_store_image},
         "verified_backup_files": len(manifest["checksums"]),
         "expected_value": args.expected_value,
+        "valuation_as_of": args.valuation_as_of,
+        "expected_current_issue": args.expect_current_issue,
         "archive_contracts": {"dataset": args.expected_dataset_hash, "model": args.expected_artifact_hash,
                               "predictions": args.prediction_history_hash, "risk": args.risk_history_hash,
                               "recommendations": args.recommendation_history_hash, "intelligence": args.intelligence_history_hash,
+                              "document_removals": args.document_removal_history_hash,
+                              "ui_requests": args.ui_request_history_hash,
                               "collections": args.collections_history_hash, "validation": args.validation_history_hash},
     }
     try:

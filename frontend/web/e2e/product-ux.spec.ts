@@ -8,6 +8,7 @@ async function preserveMeasurement(info: TestInfo, name: string, value: unknown)
 }
 
 const measurementFinishers = new Map<string, () => Promise<void>>();
+const chartPortfolios = new Map<string, string>();
 
 test.beforeEach(async ({ page }, testInfo) => {
   const timings: { action: string; milliseconds: number; status: number }[] = [];
@@ -26,9 +27,15 @@ test.beforeEach(async ({ page }, testInfo) => {
   });
 });
 
-test.afterEach(async ({}, testInfo) => {
+test.afterEach(async ({ page }, testInfo) => {
   await measurementFinishers.get(testInfo.testId)?.();
   measurementFinishers.delete(testInfo.testId);
+  const portfolio = chartPortfolios.get(testInfo.testId);
+  if (portfolio) {
+    const response = await page.request.delete(`${process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1"}/portfolios/${portfolio}`, { headers: { Origin: process.env.E2E_BASE_URL ?? "http://localhost:3000" } });
+    expect(response.ok()).toBe(true);
+    chartPortfolios.delete(testInfo.testId);
+  }
 });
 
 test("PR6 existing routes remain accessible on mobile and desktop", async ({ page }, testInfo) => {
@@ -63,6 +70,10 @@ test("PR6 six areas, responsive themes and keyboard navigation", async ({ page }
   if (!process.env.E2E_USERNAME || !process.env.E2E_PASSWORD) throw new Error("Explicit synthetic fixture required");
   const errors: string[] = [];
   const dashboardStarted = Date.now();
+  let notificationRequests = 0;
+  page.on("request", request => {
+    if (request.method() === "GET" && new URL(request.url()).pathname === "/api/v1/notifications") notificationRequests += 1;
+  });
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/login");
   await page.getByLabel("Benutzername", { exact: true }).fill(process.env.E2E_USERNAME);
@@ -70,6 +81,32 @@ test("PR6 six areas, responsive themes and keyboard navigation", async ({ page }
   await page.getByRole("button", { name: "Anmelden", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/, { timeout: 30000 });
   await expect(page.getByRole("heading", { name: "Ihre Positionen", exact: true })).toBeVisible({ timeout: 30000 });
+  const loginAndPositionsMs = Date.now() - dashboardStarted;
+  await page.waitForLoadState("networkidle");
+  expect(notificationRequests, "Header and dashboard share one private notification request").toBe(1);
+  // A fresh restore fixture has only today's booking and correctly has no curve.
+  // Use a separate, explicitly synthetic CHF cash ledger with two historical
+  // valuation endpoints. Never change the Golden portfolio or mock chart APIs.
+  if (!/^(restore_|test_)/.test(process.env.E2E_USERNAME)) throw new Error("Synthetic chart account required");
+  const base = process.env.E2E_API_BASE_URL ?? "http://localhost:8000/api/v1";
+  const headers = { Origin: process.env.E2E_BASE_URL ?? "http://localhost:3000" };
+  const portfolioResponse = await page.request.post(`${base}/portfolios`, { headers, data: { name: `SYNTHETIC PR7 chart ${Date.now()}`, base_currency: "CHF" } });
+  expect(portfolioResponse.status()).toBe(201);
+  const chartPortfolio = (await portfolioResponse.json()).id;
+  chartPortfolios.set(testInfo.testId, chartPortfolio);
+  const accountResponse = await page.request.post(`${base}/portfolios/${chartPortfolio}/accounts`, { headers, data: { name: "SYNTHETIC chart cash", account_type: "BROKER", default_currency: "CHF" } });
+  expect(accountResponse.status()).toBe(201);
+  const account = await accountResponse.json();
+  const bookingResponse = await page.request.post(`${base}/portfolios/${chartPortfolio}/transactions`, { headers, data: { account_id: account.id, type: "DEPOSIT", trade_date: new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10), currency: "CHF", amount: "250", notes: "SYNTHETIC PR7 chart fixture; reconstructed ledger history only" } });
+  expect(bookingResponse.status()).toBe(201);
+  const historyResponse = page.waitForResponse(response => response.url().includes(`/portfolios/${chartPortfolio}/performance`) && response.request().method() === "GET");
+  await page.reload();
+  await page.getByRole("combobox", { name: /^Portfolio auswählen/ }).selectOption(chartPortfolio);
+  const chartHistory = await historyResponse;
+  expect(chartHistory.status()).toBe(200);
+  const series = (await chartHistory.json()).series;
+  expect(series.length).toBeGreaterThanOrEqual(2);
+  expect(series.every((point: { value_base: string | null }) => point.value_base !== null && Number(point.value_base) === 250)).toBe(true);
   await expect(page.getByRole("status", { name: "Wertentwicklung wird geladen", exact: true })).toHaveCount(0, { timeout: 60000 });
   const periods = page.getByRole("group", { name: "Zeitraum: Portfoliowert", exact: true });
   await expect(periods).toBeVisible();
@@ -77,7 +114,7 @@ test("PR6 six areas, responsive themes and keyboard navigation", async ({ page }
   await expect(periods.getByRole("button", { name: "1W", exact: true })).toHaveAttribute("aria-pressed", "true");
   await periods.getByRole("button", { name: "MAX", exact: true }).click();
   await expect(page.getByRole("img", { name: /^Portfoliowert,/ }).locator("canvas").first()).toBeVisible();
-  await preserveMeasurement(testInfo, "local-dashboard-timing.json", { scope: "LOCAL_SYNTHETIC_STANDALONE_NOT_PRODUCTION_SLA", login_and_dashboard_ms: Date.now() - dashboardStarted, navigation: await page.evaluate(() => performance.getEntriesByType("navigation").map(entry => entry.toJSON())) });
+  await preserveMeasurement(testInfo, "local-dashboard-timing.json", { scope: "LOCAL_SYNTHETIC_STANDALONE_NOT_PRODUCTION_SLA", login_and_positions_ms: loginAndPositionsMs, chart_fixture_setup_excluded: true, navigation: await page.evaluate(() => performance.getEntriesByType("navigation").map(entry => entry.toJSON())) });
   const areas = ["Übersicht", "Portfolio", "Entdecken", "Analysen", "Aktivitäten", "Einstellungen"];
   for (const width of [360, 390, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 960 });

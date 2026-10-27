@@ -1,5 +1,27 @@
 # Private Investment Intelligence Platform
 
+## PR7 – lokale Readiness-Abnahme (27.10.2026)
+
+**306 Backend- und 67 Hosttests bestanden.** Frontend-Lint, Typecheck und
+Standalone-Build bestehen; ein neuer vollständiger Browserlauf besteht mit
+29/29 ohne Skips; Testmodus und Rollen danach zurückgesetzt. Die synthetische Bestandsmigration umfasst
+683 Originalobjekte/Versionseinträge und 323 DB-Referenzen. Der neue isolierte
+Zielrestore prüft 1372 Objektdateien einschließlich Archivkopien und insgesamt
+1381 Dateihashes sowie alle alten Archivverträge. Golden CHF10’180 gilt am
+festgehaltenen Stichtag; heute bleibt ein alter Kurs ausdrücklich veraltet.
+Ein zusätzliches frisches synthetisches Portfolio besteht die aktuelle
+HTTPS-Bewertung mit CHF10’180. Native Erklärung 28,8s nach explizitem Vorwärmen,
+gespeicherte Ersatzantwort bei gestopptem Modell 4,2s. Monitoring geprüft.
+
+**Keine Freigabe für echte private Finanzdaten oder Produktion.** Alle 14
+Imageprüfungen und 14 formalen SBOM-Prüfungen bestehen mit DB vom 27.10.; offene
+Securitybefunde, Quellenentscheidungen, reale Originale, unabhängige Testperson
+und Zielhost/VPN/Client-CA/Backup-/Schlüsselabnahme bleiben getrennte Gates.
+Kein Push, Release oder Modell-/Strategiepromotion.
+[PR7-Abnahme](docs/PR7_ACCEPTANCE_REPORT.md),
+[Quellenmatrix](docs/data/PR7_SOURCE_APPROVAL_MATRIX.md),
+[Storageentscheidung](docs/operations/PR7_STORAGE_DECISION.md).
+
 ## PR6 – Produkt-UX und lokale Abnahme (23.10.2026)
 
 Sechs Hauptbereiche, Light/Dark/System, zugängliche Dialoge, mobile Positionen, CHF-Übersicht, Charts mit expliziten Datenlücken und ein geführter Portfolio-/CSV-Ablauf verwenden die vorhandenen Finanzdienste. Einzelbuchungen erfordern Bestätigung; stabile Anfrageschlüssel schützen Wiederholungen. Dokumente lassen sich unter Beibehaltung unveränderlicher Originalbelege aus aktiver Bibliothek und neuen Suchabrufen zurückziehen.

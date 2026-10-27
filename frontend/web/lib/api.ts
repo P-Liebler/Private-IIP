@@ -19,8 +19,15 @@ function explain(code: string, fallback: string, status: number): string {
   if (code === "INVALID_TOTP") return "Der Bestätigungscode ist ungültig oder abgelaufen. Bitte einen aktuellen Code aus Ihrer Authenticator-App verwenden.";
   if (code === "DOCUMENT_REMOVED") return "Dieses Dokument wurde aus der aktiven Bibliothek entfernt. Frühere Auditbelege bleiben erhalten.";
   if (status === 401) return "Ihre Sitzung ist abgelaufen. Bitte erneut anmelden.";
-  if (status === 403) return "Für diese Aktion fehlt die Berechtigung oder eine erforderliche Freigabe. Eine autorisierte Betreiberperson kann die Voraussetzungen prüfen.";
+  if (code === "SOURCE_RATE_LIMITED" || code === "SOURCE_QUOTA_EXCEEDED") return "Das Abruflimit der Datenquelle ist erreicht. Quote und Wartezeit prüfen und später erneut versuchen; eine erneute Rechtefreigabe löst dieses Limit nicht.";
+  if (code === "SOURCE_TIMEOUT" || code === "SOURCE_UNAVAILABLE") return "Die Datenquelle antwortet momentan nicht zuverlässig. Auftragstatus prüfen und später erneut versuchen oder eine zulässige Originaldatei importieren.";
+  if (code === "SOURCE_RESPONSE_INVALID" || code === "SCHEMA_CHANGED") return "Die Antwort der Datenquelle entspricht nicht dem erwarteten Format. Übernahme angehalten; eine Betreiberperson muss Originalantwort und Adapter prüfen.";
+  if (code === "SOURCE_RESPONSE_TOO_LARGE") return "Die Quellenantwort überschreitet die zulässige Größe. Einen kleineren Datums- oder Instrumentumfang prüfen und neu bestätigen.";
+  if (code === "SOURCE_KEY_REQUIRED") return "Für diese Quelle fehlt ein persönlicher API-Schlüssel. Eine autorisierte Betreiberperson kann ihn in der lokalen Konfiguration hinterlegen; die Quellenfreigabe bleibt zusätzlich erforderlich.";
+  if (code === "SOURCE_ORIGIN_INVALID") return "Die Abrufadresse passt nicht zur freigegebenen Quelle. Eine Betreiberperson muss den Quellenvertrag und Adapter prüfen.";
+  if (code === "SOURCE_REVIEW_CHANGED") return "Die Quellenfreigabe hat sich während des Auftrags geändert. Der Abruf wurde angehalten. Aktuellen Scope unter Datenquellen prüfen und den Auftrag neu bestätigen.";
   if (/SOURCE|RIGHTS|GATE/.test(code)) return "Diese Datenquelle ist für den benötigten Zweck noch nicht freigegeben. Unter Datenquellen die Voraussetzungen prüfen oder eine eigene zulässige Datei importieren.";
+  if (status === 403) return "Für diese Aktion fehlt die Berechtigung oder eine erforderliche Freigabe. Eine autorisierte Betreiberperson kann die Voraussetzungen prüfen.";
   if (status === 429) return "Zu viele Anfragen. Bitte die angezeigte Wartezeit beachten und später erneut versuchen.";
   if (status >= 500) return "Der Dienst ist momentan nicht verfügbar. Ihre zuletzt gespeicherten Daten bleiben erhalten. Bitte später erneut versuchen.";
   return fallback;

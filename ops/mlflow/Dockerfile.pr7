@@ -1,0 +1,10 @@
+# Isolated tracking-server security patch; does not migrate the model runtime.
+ARG BASE_IMAGE=private-iip/mlflow:pr4-rc4@sha256:8c3ecce36e54d53b084ee23f2dd091edcf9ca1c686f01d947ee6e7c0ce27985d
+FROM ${BASE_IMAGE}
+USER root
+RUN pip install --no-cache-dir --no-deps --upgrade \
+    'mlflow[auth]==3.17.2' mlflow-skinny==3.17.2 mlflow-tracing==3.17.2 \
+    gitpython==3.2.1 && pip check
+COPY backend/requirements-mlflow.lock /app/requirements-mlflow.lock
+COPY ops/mlflow/start.py /app/start.py
+USER 10001:10001

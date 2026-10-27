@@ -1,0 +1,6 @@
+# Same maintained Grafana branch, current Alpine security packages.
+FROM grafana/grafana:12.4.13@sha256:41bbc1b5e04416f81891806076db2a2ff60a5d4da5f78d36a88b033a8c199185
+USER root
+ARG SECURITY_REFRESH=2026-10-26
+RUN test -n "$SECURITY_REFRESH" && apk upgrade --no-cache
+USER 472

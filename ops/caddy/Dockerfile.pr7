@@ -1,0 +1,17 @@
+# PR7 maintenance build: same Caddy application, Go x509 and Alpine fixes.
+# Production release still requires the separate manifest and operator gates.
+FROM golang:1.27.3-alpine@sha256:b8c9b82affbbb82a020bbcf998dad2ba9516944ac7e883524642a481a9505e9c AS build
+ENV GOTOOLCHAIN=local CGO_ENABLED=0
+RUN go mod download -json github.com/caddyserver/caddy/v2@v2.11.7 > /tmp/module.json
+RUN cp -a /go/pkg/mod/github.com/caddyserver/caddy/v2@v2.11.7 /src && chmod -R u+w /src
+WORKDIR /src
+RUN go mod edit -require=golang.org/x/net@v0.60.0 \
+    && go mod tidy \
+    && go build -trimpath -ldflags='-s -w -X github.com/caddyserver/caddy/v2.CustomVersion=v2.11.7-pr7.1' -o /out/caddy ./cmd/caddy
+
+FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+ARG SECURITY_REFRESH=2026-10-26
+RUN test -n "$SECURITY_REFRESH" && apk upgrade --no-cache
+COPY --from=build /out/caddy /usr/bin/caddy
+COPY --from=build /src/go.mod /usr/share/caddy-build/go.mod
+COPY --from=build /src/go.sum /usr/share/caddy-build/go.sum

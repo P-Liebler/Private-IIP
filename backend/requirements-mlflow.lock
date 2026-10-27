@@ -82,7 +82,7 @@ frozenlist==1.8.0
     #   aiosignal
 gitdb==4.0.12
     # via gitpython
-gitpython==3.2.0
+gitpython==3.2.1
     # via mlflow-skinny
 google-auth==2.62.0
     # via databricks-sdk
@@ -132,11 +132,11 @@ markupsafe==3.0.4
     #   wtforms
 matplotlib==3.11.2
     # via mlflow
-mlflow[auth]==3.17.1
+mlflow[auth]==3.17.2
     # via -r requirements-mlflow.txt
-mlflow-skinny==3.17.1
+mlflow-skinny==3.17.2
     # via mlflow
-mlflow-tracing==3.17.1
+mlflow-tracing==3.17.2
     # via mlflow
 multidict==7.1.0
     # via

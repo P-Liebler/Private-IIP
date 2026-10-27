@@ -18,6 +18,14 @@ from redact_test_artifacts import redact
 
 
 class PreflightTests(unittest.TestCase):
+    def test_backup_keeps_stage_overrides_and_private_environment_in_command(self):
+        with patch("backup.subprocess.run") as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = b"synthetic dump"
+            result = backup.compose([Path("base.yml"), Path("stage.yml")], Path("private.env"), "exec", "-T", "postgres", "pg_dump")
+        self.assertEqual(run.call_args.args[0], ["docker", "compose", "-f", "base.yml", "-f", "stage.yml", "--env-file", "private.env", "exec", "-T", "postgres", "pg_dump"])
+        self.assertEqual(result, b"synthetic dump")
+
     def test_browser_diagnostics_redact_session_and_auth_headers(self):
         value = "cookie: investment_session=private-token\nauthorization: Bearer private-token\nnormal result"
         self.assertNotIn("private-token", redact(value))

@@ -1,4 +1,4 @@
 # P10 supporting packages; no numerical dependency upgrades are permitted here.
 # Install after requirements.lock with --no-deps; verify the combined environment.
 pgvector==0.5.1
-pypdf==6.21.1
+pypdf==6.21.2

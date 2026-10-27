@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.assistant.documents import DocumentService, cutoff_time
 from app.assistant.metrics import observe
-from app.assistant.runtime import LLMProvider, provider
+from app.assistant.runtime import SELECTION_CONTRACT, LLMProvider, provider
 from app.assistant.safety import redact, render_answer, safe_value, validate_selection
 from app.assistant.tools import ToolRegistry, evidence
 from app.core.config import get_settings
@@ -226,6 +226,7 @@ class AssistantService:
                         "citations": citations,
                         "tool_call_ids": calls,
                         "selection": selection.model_dump(mode="json"),
+                        "selection_contract": SELECTION_CONTRACT,
                         "information_cutoff": cutoff.isoformat(),
                         "answer_policy": (
                             "EVIDENCE_SELECTION_AND_FIXED_EXPLANATIONS_NO_MODEL_GENERATE"

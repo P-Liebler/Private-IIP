@@ -1,0 +1,20 @@
+{
+  "contract": "PR7_TRIVY_DB_V1",
+  "status": "DATABASE_READY",
+  "attempts": [],
+  "scanner_version": "0.76.0",
+  "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+  "maximum_database_age_seconds": 172800,
+  "scope": "DATABASE_ACQUISITION_ONLY_NOT_SECURITY_APPROVAL",
+  "transport": "VERIFIED_CACHE",
+  "metadata": {
+    "Version": 2,
+    "NextUpdate": "2026-10-27T07:15:18.945936953Z",
+    "UpdatedAt": "2026-10-26T07:15:18.945937093Z",
+    "DownloadedAt": "2026-10-26T09:41:40.4948997Z"
+  },
+  "age_seconds": 9276,
+  "database_sha256": "d941f76c20fd916816fd04fa80d67bcd8dec6a5f68d353cb0c00be3fd3c9d2f8",
+  "metadata_sha256": "f0a30b937d4ff32187935101942798f6ac89ccd544367ea65c155d0131c299b2",
+  "recorded_at": "2026-10-26T09:49:59.759107+00:00"
+}

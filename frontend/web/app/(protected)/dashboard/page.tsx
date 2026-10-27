@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Wallet, CircleDollarSign, ChartNoAxesCombined } from "lucide-react";
 import { api } from "@/lib/api";
+import { getNotifications, notificationQueryKey } from "@/lib/api/notifications";
 import { listPortfolios, listTransactions, getValuation, getPerformance, getAllocation } from "@/lib/api/portfolios";
 import { PortfolioCard } from "@/components/portfolio-card";
 import { AllocationChart, ValueChart } from "@/components/portfolio-charts";
@@ -16,7 +17,6 @@ import { DataFreshness, EmptyState, ErrorState, FinancialMetric, LoadingSkeleton
 
 type Group = { base_currency: string; status: string; total_value_base: string | null; known_value_base: string; cash_value_base: string | null; daily_change_base: string | null; total_return_base: string | null; ytd_return_base: string | null };
 type Dashboard = { groups: Group[]; chf_summary?: Group | null; as_of?: string };
-type Notice = { id: string; read_at: string | null; payload: { title: string; url: string } };
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const firstBooking = transactions.data?.filter(t => t.status === "ACTIVE").map(t => t.trade_date).sort()[0];
   const historyStart = firstBooking && firstBooking > start ? firstBooking : start;
   const performance = useQuery({ queryKey: ["performance", id, historyStart, end], queryFn: () => getPerformance(id, historyStart, end), enabled: !!id && !!firstBooking });
-  const notices = useQuery({ queryKey: ["notifications"], queryFn: () => api<{ items: Notice[]; unread_count: number }>("/notifications") });
+  const notices = useQuery({ queryKey: notificationQueryKey, queryFn: getNotifications });
   const chf = dashboard.data?.chf_summary;
   const recent = [...(transactions.data ?? [])].sort((a, b) => b.trade_date.localeCompare(a.trade_date)).slice(0, 6);
   return <main className="space-y-8">

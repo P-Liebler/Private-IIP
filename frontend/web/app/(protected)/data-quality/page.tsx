@@ -10,6 +10,7 @@ import { PortfolioDataActions } from "@/components/portfolio-data-actions";
 import { useRouter } from "next/navigation";
 import { ResearchQualityPanel } from "@/components/research-quality";
 import { DatasetQualityPanel } from "@/components/dataset-quality";
+import { EmptyState, ErrorState } from "@/components/ui/primitives";
 
 type OperationalStatus = { backup: { status: string; completed_at: string | null };
   restore_test: { status: string; completed_at: string | null } };
@@ -23,17 +24,21 @@ export default function DataQualityPage() {
   const quality = useQuery({ queryKey: ["data-quality"], queryFn: getQualitySummary });
   const operations = useQuery({ queryKey: ["backup-status"],
     queryFn: () => api<OperationalStatus>("/system/backup-status") });
-  const data = quality.data;
+  const data = quality.isError ? undefined : quality.data;
   const portfolios = useQuery({ queryKey: ["portfolios"], queryFn: listPortfolios });
   const valuations = useQueries({ queries: (portfolios.data ?? []).map(portfolio => ({
     queryKey: ["valuation", portfolio.id], queryFn: () => getValuation(portfolio.id),
   })) });
   return <main className="space-y-7 py-10">
     <header><h1 className="text-3xl font-semibold">Datenqualität</h1><p className="mt-2 text-zinc-400">Stand der validierten Markt- und FX-Daten. Fehlende Werte werden ausdrücklich angezeigt.</p></header>
-    {quality.isPending && <p>Lade Datenqualität…</p>}
-    {quality.isError && <p role="alert" className="text-rose-400">{quality.error.message}</p>}
+    <section aria-label="Marktdatenqualität">
+      {quality.isPending && <p role="status">Lade Datenqualität…</p>}
+      {quality.isError && <ErrorState error={quality.error} retry={() => { void quality.refetch(); }} />}
+    </section>
     <section className="space-y-3 rounded-xl border border-zinc-800 p-5"><h2 className="text-xl font-semibold">Portfolio-Bewertungen</h2>
-      {portfolios.isError && <p role="alert">{portfolios.error.message}</p>}
+      {portfolios.isPending && <p role="status">Portfolios werden geladen…</p>}
+      {portfolios.isError && <ErrorState error={portfolios.error} retry={() => { void portfolios.refetch(); }} />}
+      {portfolios.data?.length === 0 && <EmptyState title="Noch kein Portfolio" description="Erstellen Sie ein Portfolio, um seine Bewertung und Datenlücken zu prüfen." action={<Link href="/portfolios" className="underline">Portfolio erstellen</Link>} />}
       {portfolios.data?.map((portfolio, index) => <article key={portfolio.id}><Link className="text-emerald-400 underline" href={`/portfolios/${portfolio.id}`}>{portfolio.name}</Link><p>{valuations[index].isPending ? "Wird geprüft…" : valuations[index].data?.status ?? "DATA_UNAVAILABLE"}</p>{valuations[index].isError && <p role="alert">{valuations[index].error.message}</p>}{valuations[index].data && <PortfolioDataActions valuation={valuations[index].data!} transactions={() => router.push(`/portfolios/${portfolio.id}?tab=Transaktionen`)} />}</article>)}
     </section>
     <Link href="/data-operations" className="text-emerald-400 underline">Datenversorgung, Backfills und historische Abdeckung</Link>

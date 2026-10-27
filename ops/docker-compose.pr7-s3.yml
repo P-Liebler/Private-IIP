@@ -1,0 +1,44 @@
+# Combine with docker-compose.pr5-s3.yml under the explicit NEW PR7 project.
+# Candidate contract test only; no production endpoint or original volume.
+name: private-iip-pr7-s3
+services:
+  source:
+    image: chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    command: [server, -s3, -dir=/data, -ip=source, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64, -master.telemetry=false]
+    networks: !override [storage]
+    volumes: !override
+      - type: volume
+        source: source
+        target: /data
+        volume: {nocopy: true}
+      - type: bind
+        source: ${S3_TEST_CONFIG:?synthetic config}
+        target: /etc/seaweed/s3.json
+        read_only: true
+  target:
+    image: chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    command: [server, -s3, -dir=/data, -ip=target, -s3.config=/etc/seaweed/s3.json, -volume.max=8, -master.volumeSizeLimitMB=64, -master.telemetry=false]
+    networks: !override [storage]
+    volumes: !override
+      - type: volume
+        source: target
+        target: /data
+        volume: {nocopy: true}
+      - type: bind
+        source: ${S3_TEST_CONFIG:?synthetic config}
+        target: /etc/seaweed/s3.json
+        read_only: true
+  tls:
+    networks: !override
+      storage: {}
+      client:
+        aliases: [source-tls, target-tls]
+  core-probe:
+    image: private-iip/backend:pr7-rc2@sha256:42fc008415d65d50c3584c007e807705b266ed1c7174300c1af982c256642260
+    networks: !override [client]
+  probe:
+    image: private-iip/mlflow:pr7-rc1@sha256:d5852fbf485db217c53a3e75d5e230b70f2ab58628a4a5feabd6d3690e4a8656
+    networks: !override [client]
+networks:
+  storage: {internal: true}
+  client: {internal: true}

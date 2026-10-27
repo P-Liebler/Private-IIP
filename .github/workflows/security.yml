@@ -30,15 +30,37 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
+          trap 'echo SCANNER_INSTALL_FAILED; printf "%s\n" "{\"status\":\"SCANNER_INSTALL_FAILED\"}" > "$RUNNER_TEMP/scanner-status.json"' ERR
           mkdir -p "$RUNNER_TEMP/pr4-tools"
-          curl --fail --location --retry 2 https://github.com/aquasecurity/trivy/releases/download/v0.76.0/trivy_0.76.0_Linux-64bit.tar.gz -o "$RUNNER_TEMP/pr4-tools/trivy.tar.gz"
+          curl --fail --location --retry 2 --retry-all-errors --connect-timeout 15 --max-time 120 https://github.com/aquasecurity/trivy/releases/download/v0.76.0/trivy_0.76.0_Linux-64bit.tar.gz -o "$RUNNER_TEMP/pr4-tools/trivy.tar.gz"
           echo "e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7  $RUNNER_TEMP/pr4-tools/trivy.tar.gz" | sha256sum -c -
           tar -xzf "$RUNNER_TEMP/pr4-tools/trivy.tar.gz" -C "$RUNNER_TEMP/pr4-tools"
           echo "SCANNER=$RUNNER_TEMP/pr4-tools/trivy" >> "$GITHUB_ENV"
           echo "SCANNER_SHA=$(sha256sum "$RUNNER_TEMP/pr4-tools/trivy" | cut -d ' ' -f 1)" >> "$GITHUB_ENV"
-          "$RUNNER_TEMP/pr4-tools/trivy" image --download-db-only --cache-dir "$RUNNER_TEMP/pr4-cache" --db-repository public.ecr.aws/aquasecurity/trivy-db:2
+      - name: Restore vulnerability database cache (validated before use)
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ${{ runner.temp }}/pr4-cache/db/trivy.db
+            ${{ runner.temp }}/pr4-cache/db/metadata.json
+            ${{ runner.temp }}/pr4-cache/db/acquisition.json
+          key: trivy-0.76.0-db-v2-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: trivy-0.76.0-db-v2-${{ runner.os }}-
+      - name: Verify or acquire current vulnerability database
+        id: database
+        run: |
+          python3 ops/prepare_vulnerability_db.py --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/vulnerability-db.json"
+      - name: Save validated DB only (no credentials, results or application data)
+        if: ${{ steps.database.outcome == 'success' && github.event_name != 'pull_request' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ${{ runner.temp }}/pr4-cache/db/trivy.db
+            ${{ runner.temp }}/pr4-cache/db/metadata.json
+            ${{ runner.temp }}/pr4-cache/db/acquisition.json
+          key: trivy-0.76.0-db-v2-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Offline contracts and source secrets
+        id: contracts
         run: |
           python3 -m unittest discover -s ops/tests -v
           python3 ops/create_security_ci_env.py "$RUNNER_TEMP/security.env"
@@ -46,17 +68,29 @@ jobs:
           docker compose -f docker-compose.prod.yml --env-file "$RUNNER_TEMP/security.env" --profile '*' config --quiet
           python3 ops/scan_source_secrets.py --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --output "$RUNNER_TEMP/pr4-source"
       - name: Dependency audit
+        id: dependencies
         shell: bash
         run: |
           set -euo pipefail
           trap 'echo DEPENDENCY_SECURITY_NOT_PASSED' ERR
           python3 -m venv "$RUNNER_TEMP/audit-venv"
           "$RUNNER_TEMP/audit-venv/bin/pip" install pip-audit==2.10.1 jsonschema==4.26.0
-          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements.lock -r backend/requirements-assistant.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-core-dependencies.json"
-          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements-mlflow.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-mlflow-dependencies.json"
-          docker build -f frontend/web/Dockerfile --target dependencies -t private-iip-security-npm .
-          docker run --rm private-iip-security-npm npm audit --omit=dev --json > "$RUNNER_TEMP/pr4-npm-dependencies.json"
+          core_result=0
+          mlflow_result=0
+          npm_result=0
+          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements.lock -r backend/requirements-assistant.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-core-dependencies.json" || core_result=$?
+          "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements-mlflow.lock --disable-pip --no-deps --format json --output "$RUNNER_TEMP/pr4-mlflow-dependencies.json" || mlflow_result=$?
+          if docker build -f frontend/web/Dockerfile --target dependencies -t private-iip-security-npm .; then
+            docker run --rm private-iip-security-npm npm audit --omit=dev --json > "$RUNNER_TEMP/pr4-npm-dependencies.json" || npm_result=$?
+          else
+            npm_result=2
+          fi
+          if (( core_result != 0 || mlflow_result != 0 || npm_result != 0 )); then
+            echo DEPENDENCY_SECURITY_NOT_PASSED
+            exit 1
+          fi
       - name: Build core production images and scan
+        id: images
         shell: bash
         run: |
           set -euo pipefail
@@ -64,17 +98,33 @@ jobs:
           python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-images" --core-only
           "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-images/inventory.json" --output "$RUNNER_TEMP/pr4-core-sbom-validation.json"
       - name: Critical package gate (not release approval)
+        id: critical
         run: python3 ops/security_policy.py "$RUNNER_TEMP/pr4-images/inventory.json" --required api web --critical-only
       - name: Recorded full-release critical gate (does not replace a fresh full scan)
+        id: historical
         run: python3 ops/security_policy.py docs/security/pr4-20261021/inventory-final.json --required caddy postgres valkey minio backend web prometheus grafana mlflow ollama --critical-only
       - name: Full inventory operator audit
-        if: ${{ always() && inputs.full_inventory && steps.scanner.outcome == 'success' }}
+        id: full
+        if: ${{ always() && inputs.full_inventory && steps.database.outcome == 'success' && steps.dependencies.outcome == 'success' }}
         run: |
           set -euo pipefail
           trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
           python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-full-images"
           "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --output "$RUNNER_TEMP/pr4-full-sbom-validation.json"
           python3 ops/security_policy.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --required api worker scheduler ml-worker web postgres valkey minio caddy prometheus grafana mlflow ollama
+      - name: Record machine-readable security outcome
+        if: always()
+        env:
+          SECURITY_SCANNER_STEP: ${{ steps.scanner.outcome }}
+          SECURITY_DATABASE_STEP: ${{ steps.database.outcome }}
+          SECURITY_CONTRACTS_STEP: ${{ steps.contracts.outcome }}
+          SECURITY_DEPENDENCIES_STEP: ${{ steps.dependencies.outcome }}
+          SECURITY_IMAGES_STEP: ${{ steps.images.outcome }}
+          SECURITY_CRITICAL_STEP: ${{ steps.critical.outcome }}
+          SECURITY_HISTORICAL_STEP: ${{ steps.historical.outcome }}
+          SECURITY_FULL_STEP: ${{ steps.full.outcome }}
+          SECURITY_FULL_REQUESTED: ${{ inputs.full_inventory }}
+        run: python3 ops/security_ci_status.py --root "$RUNNER_TEMP" --output "$RUNNER_TEMP/security-status.json"
       - name: Preserve public evidence (no raw scanner configuration or secret matches)
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -83,6 +133,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           path: |
+            ${{ runner.temp }}/security-status.json
+            ${{ runner.temp }}/scanner-status.json
+            ${{ runner.temp }}/vulnerability-db.json
             ${{ runner.temp }}/pr4-images/*.record.json
             ${{ runner.temp }}/pr4-images/inventory.json
             ${{ runner.temp }}/pr4-images/*.cdx.json

@@ -1,0 +1,7 @@
+# Supporting document parser patch only; numerical model dependencies unchanged.
+ARG BASE_IMAGE=private-iip/backend:pr6-rc3@sha256:3d4e71a2b8bdd5c715f6761f3921f7d6160918720a4cf2f2f945acb1f10e6848
+FROM ${BASE_IMAGE}
+USER root
+RUN pip install --no-cache-dir --no-deps --upgrade pypdf==6.21.2 && pip check
+COPY backend/ /app/
+USER 10001:10001

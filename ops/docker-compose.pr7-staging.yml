@@ -1,0 +1,121 @@
+# Combine with docker-compose.prod.yml in a NEW, synthetic-only PR7 project.
+# No production cutover; provide immutable API/web image references explicitly.
+name: ${COMPOSE_PROJECT_NAME:-private-iip-pr7-staging}
+x-pr7-backend: &pr7-backend
+  APP_ENV: staging
+  ASSISTANT_TEST_MODE: "false"
+  DATA_COLLECTION_ENABLED: "false"
+  FORWARD_SHADOW_ENABLED: "false"
+  DATA_OPERATOR_USERNAMES: "[]"
+  ML_OPERATOR_USERNAMES: "[]"
+  SEC_ENABLED: "false"
+  ALPHA_VANTAGE_API_KEY: ""
+  FRED_API_KEY: ""
+  FRONTEND_ORIGIN: https://localhost:9443
+  API_PUBLIC_ORIGIN: https://localhost:9443
+services:
+  ollama:
+    image: private-iip/ollama@sha256:076ea5eecb2c074d0148e52e103489799eed87bfb461473751ba2f21cf18edbc
+    volumes: !override [ollama_data:/models:ro]
+    environment:
+      OLLAMA_MODELS: /models/models
+      OLLAMA_NOPRUNE: "true"
+      HOME: /tmp
+  api:
+    image: ${PR7_API_IMAGE:?immutable PR7 API candidate}
+    environment: *pr7-backend
+    networks: !override
+      platform:
+        aliases: [pr7-stage-api]
+  worker:
+    image: ${PR7_API_IMAGE:?immutable PR7 API candidate}
+    environment: *pr7-backend
+  scheduler:
+    image: ${PR7_API_IMAGE:?immutable PR7 API candidate}
+    environment: *pr7-backend
+  ml-worker:
+    image: ${PR7_API_IMAGE:?immutable PR7 API candidate}
+    environment: *pr7-backend
+  web:
+    image: ${PR7_WEB_IMAGE:?immutable PR7 standalone web candidate}
+    networks: !override
+      platform:
+        aliases: [pr7-stage-web]
+  postgres:
+    image: private-iip/postgres:pr5-rc3@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f
+  mlflow:
+    image: private-iip/mlflow:pr7-rc1@sha256:d5852fbf485db217c53a3e75d5e230b70f2ab58628a4a5feabd6d3690e4a8656
+    environment: *pr7-backend
+  minio:
+    image: chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    entrypoint: [weed]
+    user: "10001:10001"
+    command: [server, -s3, -s3.port=9000, -dir=/data, -ip=minio, -s3.config=/etc/seaweed/s3.json, -volume.max=16, -master.volumeSizeLimitMB=64, -master.telemetry=false]
+    environment: !reset {}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    networks: !override
+      storage:
+        aliases: [pr7-target-store]
+    volumes: !override
+      - type: volume
+        source: seaweed_data
+        target: /data
+        volume: {nocopy: true}
+      - type: bind
+        source: ${PR7_S3_CONFIG:?private synthetic S3 identities}
+        target: /etc/seaweed/s3.json
+        read_only: true
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 9000"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  storage-init:
+    profiles: [ops]
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    user: "0:0"
+    entrypoint: [sh, -ec]
+    command: ["chown 10001:10001 /stage-data"]
+    volumes:
+      - type: volume
+        source: seaweed_data
+        target: /stage-data
+        volume: {nocopy: true}
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN]
+    security_opt: [no-new-privileges:true]
+  caddy:
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    ports: !override ["127.0.0.1:9443:443"]
+    networks: !override [platform, storage, legacy-source]
+    environment:
+      PR7_SOURCE_HOST: ${PR7_SOURCE_HOST:?explicit local synthetic source container}
+    volumes:
+      - ./ops/pr7-staging.Caddyfile:/etc/caddy/Caddyfile:ro
+  ca-export:
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+  prometheus:
+    image: prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
+    ports: !reset []
+  grafana:
+    image: private-iip/grafana@sha256:7c157e9ac8f746e1fef157e4ca50a60f8f9d5a13a5f25a4b9d7ddfe79f338208
+    ports: !reset []
+  backup:
+    environment:
+      MC_HOST_local: https://${MINIO_ACCESS_KEY:?synthetic access}:${MINIO_SECRET_KEY:?synthetic secret}@caddy:9002
+      MC_CONFIG_DIR: /tmp/.mc
+    volumes: !override
+      - ${BACKUP_ROOT:?private staging backup}:/backup
+      - caddy_ca:/tmp/.mc/certs/CAs:ro
+networks:
+  platform: {internal: true}
+  storage: {internal: true}
+  legacy-source:
+    external: true
+    name: ${PR7_SOURCE_NETWORK:?explicit local synthetic source network}
+volumes:
+  seaweed_data: {}

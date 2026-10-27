@@ -1,5 +1,66 @@
 # Implementation status
 
+## PR7 – laufende Readiness-Abnahme (27.10.2026)
+
+**306 Backend-/67 Hosttests**, Ruff/Format/Mypy und aktueller Frontend-Lint/
+Typecheck/Standalone-Build bestanden. Ein vollständiger neuer Browserlauf besteht mit 29/29 ohne Skips;
+Testmodus, Testrollen und Automatikschalter danach im Normalzustand verifiziert. Alle 212 Masterabschnitte und numerischen Core-Pins erhalten.
+HEAD und erneut gefetchtes origin/main unverändert 26f701edce992be60a98c75c76eaa0c914245619.
+Keine Änderung gepusht; Remote-CI bleibt der bekannte fehlgeschlagene Baselinelauf.
+
+Scannerbeschaffung mit offiziellen Registries, begrenzten Versuchen und
+validiertem Cache repariert. Frischer Download am 27.10. im ersten GHCR-Versuch
+verifiziert; UpdatedAt 27.10.07:13 UTC. Alle 14 exakten Images neu gescannt und alle 14 SBOMs formal validiert.
+Backend/MLflow 44 High, Grafana 8 High, bisheriges MinIO 9 Critical/125 High;
+Web/PG/Valkey/Seaweed/Caddy/Prometheus/CPU-Ollama 0 Critical/0 High.
+Auch Medium/Low/Unknown bleiben im Originalinventar sichtbar. Supporting-Patches pypdf6.21.2, MLflow3.17.2/GitPython3.2.1, Zod4.6.7;
+historische PR6-Locks separat, alte Modelle/Manifeste und Dokumentchunks
+unverändert. **SECURITY NOT APPROVED**; Counts und Grenzen im Securitybericht.
+
+Vollständige synthetische S3-Migration:683 Originalobjekte/Versionseinträge,
+323 DB-Referenzen, unveränderte Quelle, neuer Prozess nach Unterbrechung,
+idempotente Wiederholung und vollständige Zielrereads bestanden. Native
+Versions-/Retentionsemantik, negative gRPC-/PUT-/POST-Tests, authentisierter
+MLflow-Roundtrip, echte Appfactory Quelle→Ziel→Quelle und native RAG-Prüfung
+mit Ollama0.40.11 bestehen. Eigene PostgreSQL17-/Storage-/CA-Volumes und
+Credentials; keine produktive Migration oder Endpointumschaltung.
+
+Neues Zielbackup20261027T073831Z-54136:1372 Objektdateien einschließlich
+Archivkopien, acht bytegenaue Migrations-/Checkpointbelege und DB-Dump,
+**1381 gehashte Dateien**, vollständiger isolierter Restore und Cleanup bestanden.
+Vorherige Fehlerbelege erhalten. Nach QA wurden genau eine synthetische
+Dokumentquelle und eine Kursversion ergänzt; ein Vergleich mit separat
+restauriertem eingefrorenem Quelldump bestätigt sämtliche alten Collection-
+Zeilen unverändert. Neuer globaler Checkpoint samt Delta im Backup; alle
+anderen alten Hashverträge unverändert. Der explizite Stichtag26.10.15:18 UTC
+ergibt CHF10’180. Der heutige alte Bestand bleibt korrekt PARTIAL/STALE_PRICE
+mit fehlendem Gesamtwert; kein frischer Kurs und kein Nullwert erfunden.
+Ein frisches synthetisches Portfolio besteht separat die aktuelle HTTPS-
+Browserbewertung mit CHF10’180. Private Grafana-/Prometheus-Verträge geprüft.
+
+Der native Selektor verwendet PR7_COMPACT_LABEL_SELECTION_V1: nur vorhandene
+IDs/Labels/Typen, maximal24 Kontextbelege/6000 Zeichen, höchstens zwei native
+Auswahl-IDs/zwei feste Erklärungsschlüssel. Pflichtgrenzen ergänzt der Server;
+vollständige Originalwerte/Herkunft bleiben archiviert und werden serverseitig
+gerendert. Warm: erstes Ereignis2064ms, archivierter Abschluss28’783ms;
+explizites Vorladen separat25’010ms. Mit gestopptem LLM gespeicherte Ersatzantwort
+4249ms. Das120s-Limit bleibt bestehen. Frühere langsame/fehlgeschlagene Antworten
+bleiben gespeichert. Kein kalter Produktions-SLA daraus abgeleitet.
+
+Source-UI-Recovery und unveränderlicher Quellenreview pro Retry ergänzt;
+keine Quelle aktiviert oder live aufgerufen. CSV-Drop/überprüfbare Erkennung,
+Vorschauwechsel-/Commit-Schutz und Read-Recovery für News/Datenqualität im
+neuen29/29-Browserlauf bestanden. Benachrichtigungen teilen einen benutzerspezifisch isolierten
+Querykey; Messungen samt Last-/Cachegrenzen dokumentiert.
+
+[Abnahme](PR7_ACCEPTANCE_REPORT.md), [Security](PR7A_SECURITY_CI_REPORT.md),
+[Storage](PR7B_STORAGE_READINESS_REPORT.md), [Daten](PR7C_REAL_DATA_REPORT.md),
+[UX](PR7D_PRODUCT_USABILITY_REPORT.md), [Pilot](PR7E_PRIVATE_PILOT_REPORT.md).
+Externe Gates: Quellenoperator, reale Brokeroriginale, unabhängige Testperson,
+Zielhost/VPN/Client-CA und unabhängiger Backup-/Schlüsselplan. Browser-QA mit
+ausdrücklicher Test-CA-Ausnahme ersetzt kein OS-Clientvertrauen; Python prüfte
+die eigene CA separat strikt. Keine reale Forecast-/Recommendation-Validierung.
+
 ## PR6 – lokale Regression und Restore bestanden (Abgleich 26.10.2026)
 
 Basis f05cb70; Remote verify SUCCESS, Security Dependency-Audit FAILURE. Originales CI-Artefakt per SHA256 verifiziert: opentelemetry-api1.45.0/CVE-2026-114603. Gezielter Patch1.45.1 mit separatem PR5-Lockarchiv und neuem Runtimeguard; numerische Pins unverändert. Core-/Assistant- und npm-Produktionsaudit vom 23.10. ohne bekannte Befunde. Next16.4.2; fünf Highs im Entwicklungsbaum bleiben offen. **297 Backendtests / 35 Hosttests / 26 unterschiedliche Browserfälle**, Ruff/Format/Mypy und Frontend-Lint/Typecheck/Standalone-Build bestanden. Browser: 25 im Gesamtlauf plus gezielte erfolgreiche Chart-/Theme-Nachprüfung bei unverändertem Anwendungsbuild. Frische Migration **0021_ui_requests / 78 Tabellen**, keine Drift. 31 Routen/215 API-Deklarationen inventarisiert. Diese vollständigen Nachweise stammen vom 23.10.; kein neuer Remote-Pass.

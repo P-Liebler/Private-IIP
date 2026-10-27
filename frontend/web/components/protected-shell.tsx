@@ -6,7 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Activity, Bell, ChartNoAxesCombined, ChevronRight, Compass, LayoutDashboard, LogOut, Menu, Settings2, Sparkles, Wallet, X, ShieldCheck } from "lucide-react";
-import { api, type User } from "@/lib/api";
+import { type User } from "@/lib/api";
+import { getNotifications, notificationQueryKey } from "@/lib/api/notifications";
 import { logout as endSession } from "@/lib/auth";
 import { navigation, areaFor, destinationFor } from "@/lib/product-navigation";
 import { QueryProvider } from "@/components/query-provider";
@@ -38,7 +39,7 @@ function AppShell({ user, children }: { user: User; children: ReactNode }) {
   const path = usePathname(); const active = areaFor(path); const destination = destinationFor(path);
   const { permissions, pending } = useCapabilities();
   const blocked = destination?.operator && !permissions[destination.operator];
-  const notifications = useQuery({ queryKey: ["notifications", user.id], queryFn: () => api<{ unread_count: number }>("/notifications"), refetchInterval: 60000 });
+  const notifications = useQuery({ queryKey: notificationQueryKey, queryFn: getNotifications, refetchInterval: 60000 });
   const [error, setError] = useState("");
   async function logout() {
     try {

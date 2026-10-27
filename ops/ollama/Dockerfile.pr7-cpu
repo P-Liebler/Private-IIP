@@ -1,0 +1,31 @@
+# Isolated CPU candidate. Official binaries, original model bytes, no GPU payload.
+# The complete upstream archive checksum is verified before selective extraction.
+ARG UBUNTU_IMAGE=ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+FROM ${UBUNTU_IMAGE} AS payload
+ARG TARGETARCH
+RUN test "$TARGETARCH" = amd64 && apt-get update && apt-get install -y --no-install-recommends ca-certificates python3 zstd \
+    && rm -rf /var/lib/apt/lists/*
+ADD --checksum=sha256:7bedab90dd122661be78798e9f0edf37fccf0cccf2699d2c58ea1a3afdc04b6d https://github.com/ollama/ollama/releases/download/v0.40.11/ollama-linux-amd64.tar.zst /release.tar.zst
+COPY ops/ollama/extract_cpu.py /extract_cpu.py
+RUN python3 /extract_cpu.py /release.tar.zst /payload
+
+FROM ${UBUNTU_IMAGE}
+ARG SECURITY_REFRESH=2026-10-26
+RUN test -n "$SECURITY_REFRESH" && apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends ca-certificates libstdc++6 libgomp1 libopenblas0 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=payload /payload/bin/ollama /usr/bin/ollama
+COPY --from=payload /payload/lib/ollama /usr/lib/ollama
+COPY --from=payload /payload/cpu-files.json /usr/share/ollama-build/cpu-files.json
+ADD --checksum=sha256:5934ed2ce0d15154bcdb9c85203210abac0da4314af34081e36df4599f90b226 https://raw.githubusercontent.com/ollama/ollama/v0.40.11/LICENSE /usr/share/licenses/ollama/LICENSE
+LABEL org.opencontainers.image.version="0.40.11" \
+    org.opencontainers.image.title="Private-IIP Ollama CPU candidate" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.source="https://github.com/ollama/ollama"
+ENV OLLAMA_HOST=0.0.0.0:11434 OLLAMA_NO_CLOUD=true \
+    OLLAMA_MODELS=/models/models HOME=/tmp LD_LIBRARY_PATH=/usr/lib/ollama
+USER 10001:10001
+EXPOSE 11434
+ENTRYPOINT ["/usr/bin/ollama"]
+CMD ["serve"]

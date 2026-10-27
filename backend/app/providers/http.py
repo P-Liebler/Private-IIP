@@ -91,6 +91,18 @@ def retry_delay(value: str | None, attempt: int) -> int:
     return int(max(seconds, 2**attempt))
 
 
+def review_contract(source: DataSource) -> tuple[object, ...]:
+    """An in-flight request cannot inherit a later operator's different scope."""
+    return (
+        source.checked_at,
+        source.terms_url,
+        source.scope,
+        source.next_review_at,
+        source.decision_by,
+        tuple(sorted(source.allowed_uses)),
+    )
+
+
 async def fetch_response(
     db: AsyncSession,
     raw_service: RawIngestionService,
@@ -111,6 +123,7 @@ async def fetch_response(
     content_types: tuple[str, ...] = ("application/json",),
 ) -> RawIngestion:
     SourceGate.require_enabled(source, use)  # Before DNS/client creation.
+    approved_contract = review_contract(source)
     parsed = urlsplit(url)
     if (
         parsed.scheme != "https"
@@ -129,6 +142,12 @@ async def fetch_response(
         for attempt in range(3):
             await db.refresh(source)
             SourceGate.require_enabled(source, use)
+            if review_contract(source) != approved_contract:
+                raise AppError(
+                    403,
+                    "SOURCE_REVIEW_CHANGED",
+                    "Source review changed; validate a new request against the current scope",
+                )
             await limiter(source)
             base_metadata["source_review_at"] = (
                 source.checked_at.isoformat() if source.checked_at else "UNKNOWN"

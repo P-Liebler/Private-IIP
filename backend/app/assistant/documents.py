@@ -27,7 +27,7 @@ from app.schemas.assistant import DocumentMetadata, DocumentRightsInput, Retriev
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
 
-PIPELINE = "pypdf-6.21.1:plain-text-no-ocr:chunk600-overlap80-v2"
+PIPELINE = "pypdf-6.21.2:plain-text-no-ocr:chunk600-overlap80-v3"
 
 
 def require_data_operator(user: User) -> None:

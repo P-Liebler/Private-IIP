@@ -58,7 +58,9 @@ async def main() -> None:
         fx_csv = f"date,base_currency,quote_currency,rate\n{today},USD,CHF,0.9\n".encode()
         fx_preview = await market.preview("fx", fx_csv, "restore-fx.csv")
         fx_result = await market.commit("fx", fx_preview["raw_ingestion_id"], fx_preview["mapping"])
-        assert fx_result["inserted"] == 1
+        # Re-running a synthetic fixture on the same UTC day may reuse the exact
+        # already archived FX row. A duplicate is valid; corrections are not.
+        assert fx_result["inserted"] + fx_result["unchanged"] == 1
         portfolios = PortfolioService(db, user.id)
         portfolio = await portfolios.create(
             PortfolioCreate(name="Disposable restore test", base_currency="CHF")

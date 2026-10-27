@@ -20,8 +20,16 @@ export default function AssistantPage() {
   const [citations, setCitations] = useState<Citation[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const [runtime, setRuntime] = useState<unknown>(null);
   const controller = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (!busy) return;
+    const started = performance.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((performance.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [busy]);
   useEffect(() => {
     api<Conversation[]>("/assistant/conversations").then(setConversations).catch(e => setError(String(e)));
     api("/assistant/status").then(setRuntime).catch(e => setError(String(e)));
@@ -39,14 +47,22 @@ export default function AssistantPage() {
   async function remove() {
     try { await api(`/assistant/conversations/${conversation}`, { method: "DELETE" }); setConversations(r => r.filter(c => c.id !== conversation)); setMessages([]); setConversation(""); setText(""); setCitations([]); } catch (e) { setError(String(e)); }
   }
+  async function refreshMessages() {
+    if (!conversation || busy || refreshing) return;
+    setRefreshing(true); setError("");
+    try { setMessages(await api<Message[]>(`/assistant/conversations/${conversation}/messages`)); setProgress("Gespeicherter Verlauf aktualisiert."); }
+    catch (e) { setError(String(e)); }
+    finally { setRefreshing(false); }
+  }
   async function ask() {
+    setElapsed(0); setProgress("Anfrage läuft. Belegte Ergebnisse werden angefordert…");
     setBusy(true); setError(""); setText(""); setCitations([]);
     const abort = new AbortController(); controller.current = abort;
     try {
       const response = await fetch(`${API_BASE}/assistant/conversations/${conversation}/messages`, { method: "POST", credentials: "include", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, portfolio_id: portfolio || null, instrument_id: instrument || null }), signal: abort.signal });
       if (!response.ok) throw new Error((await response.json()).error?.message ?? "Analyse fehlgeschlagen");
       if (!response.body) throw new Error("Kein Antwortstrom");
-      const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = "";
+      const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = ""; let completed = false;
       while (true) {
         const { done, value } = await reader.read(); if (done) break;
         buffer += decoder.decode(value, { stream: true });
@@ -56,20 +72,25 @@ export default function AssistantPage() {
           if (!frame.startsWith("data: ")) continue;
           const event = JSON.parse(frame.slice(6));
           if (event.type === "text") setText(t => t + event.delta);
-          else if (event.type === "done") { setCitations(event.citations); setProgress(`${event.status} · ${event.model_version ?? "Strukturierte Daten ohne LLM"}`); }
-          else if (event.type === "error") throw new Error(event.message + " · " + event.code);
-          else setProgress(`${event.type} · ${event.name ?? ""} · ${event.status}`);
+          else if (event.type === "done") { completed = true; setCitations(event.citations); setProgress("Antwort im Verlauf gespeichert. Daten- und Modellgrenzen stehen bei der Antwort."); }
+          else if (event.type === "error") throw new Error(event.code === "ASSISTANT_TIMEOUT" ? "Die Analyse hat ihr Zeitlimit erreicht. Verlauf prüfen und mit einer engeren Frage erneut versuchen; andere Funktionen bleiben nutzbar." : event.message + " · " + event.code);
+          else if (event.type === "model") setProgress(event.status === "UNAVAILABLE"
+            ? "Das lokale Modell ist nicht verfügbar oder seine Ausgabe war nicht verifizierbar. Die Antwort wird aus vorhandenen strukturierten Belegen erstellt."
+            : "Das lokale Modell verarbeitet vorhandene Belege. Dies kann bei größerem Kontext länger dauern.");
+          else if (event.type === "tool") setProgress(event.status === "RUNNING" ? "Fachdaten werden abgefragt…" : "Fachdatenabfrage abgeschlossen; fehlende Grundlagen bleiben sichtbar.");
+          else if (event.type === "retrieval") setProgress("Dokumentenabruf abgeschlossen. Die Antwort kann ohne zusätzliche Dokumentbelege fortfahren.");
         }
       }
+      if (!completed) throw new Error("Der Antwortstrom wurde vorzeitig beendet. Gespeicherten Verlauf prüfen, bevor Sie die Anfrage erneut senden.");
       setMessages(await api<Message[]>(`/assistant/conversations/${conversation}/messages`));
       setText(""); setQuestion("");
-    } catch (e) { if (abort.signal.aborted) setProgress("Abgebrochen"); else setError(String(e)); }
+    } catch (e) { if (abort.signal.aborted) setProgress("Abbruch angefordert. Gespeicherten Verlauf aktualisieren, um den endgültigen Stand zu prüfen."); else setError(String(e)); }
     finally { setBusy(false); controller.current = null; }
   }
   return <main className="space-y-5 py-8"><h1 className="text-2xl">Lokaler Assistent</h1><p>Quantitative Dienste liefern Fakten. Das lokale Modell waehlt belegte Inhalte zur Erklaerung. Keine Handelsausfuehrung.</p><Link className="text-emerald-400" href="/documents">Dokumente und Quellen verwalten</Link><details><summary>Lokaler Modellstatus</summary><Result value={runtime} /></details>
-    {error && <p role="alert" className="text-rose-400">{error}</p>}<div className="flex flex-wrap gap-3"><select aria-label="Unterhaltung" className={field} disabled={busy} value={conversation} onChange={e => { setMessages([]); setConversation(e.target.value); setText(""); setCitations([]); }}><option value="">Unterhaltung waehlen</option>{conversations.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}</select><button className={field} disabled={busy} onClick={create}>Neue Unterhaltung</button><button className={field} disabled={!conversation || busy} onClick={remove}>Unterhaltung loeschen</button></div>
+    {error && <p role="alert" className="text-rose-400">{error}</p>}<div className="flex flex-wrap gap-3"><select aria-label="Unterhaltung" className={field} disabled={busy || refreshing} value={conversation} onChange={e => { setMessages([]); setConversation(e.target.value); setText(""); setCitations([]); }}><option value="">Unterhaltung waehlen</option>{conversations.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}</select><button className={field} disabled={busy || refreshing} onClick={create}>Neue Unterhaltung</button><button className={field} disabled={!conversation || busy || refreshing} onClick={remove}>Unterhaltung loeschen</button></div>
     <PortfolioSelect value={portfolio} onChange={setPortfolio} /><label className="block">Instrument-ID <input className={field} aria-label="Instrument-ID" value={instrument} onChange={e => setInstrument(e.target.value)} /></label>
     <section aria-label="Nachrichten" className="space-y-4">{messages.map(m => <article key={m.id} className="rounded border border-zinc-800 p-4"><h2>{m.role} · {m.status}</h2><p className="whitespace-pre-wrap">{m.content}</p>{m.model_version && <p className="text-xs">{m.model_version}</p>}{m.evidence.citations?.map(c => <p key={c.chunk_id}><a className="text-emerald-400" target="_blank" rel="noreferrer" href={`${new URL(API_BASE, window.location.origin).origin}${c.url}`}>{c.title}</a> - {c.chunk_id} - {c.content_hash}</p>)}{m.role === "ASSISTANT" && <details><summary>Fakten, Werkzeuge und Quellen</summary><Result value={m.evidence} /></details>}</article>)}{text && <p className="whitespace-pre-wrap">{text}</p>}</section>
-    <label className="block">Frage<textarea aria-label="Frage" className={`${field} block w-full`} maxLength={2000} value={question} onChange={e => setQuestion(e.target.value)} /></label><button className={field} disabled={!conversation || !question || busy} onClick={ask}>Analyse starten</button> <button className={field} disabled={!busy} onClick={() => controller.current?.abort()}>Abbrechen</button><p role="status">{progress}</p>
+    <label className="block">Frage<textarea aria-label="Frage" className={`${field} block w-full`} maxLength={2000} value={question} onChange={e => setQuestion(e.target.value)} /></label><button className={field} disabled={!conversation || !question || busy || refreshing} onClick={ask}>Analyse starten</button> <button className={field} disabled={!busy} onClick={() => controller.current?.abort()}>Abbrechen</button><button className={field} disabled={!conversation || busy || refreshing} onClick={refreshMessages}>Verlauf aktualisieren</button><p role="status" aria-label="Analysefortschritt">{progress}{busy ? ` · seit ${elapsed} s` : ""}</p>
     <ul>{citations.map(c => <li key={c.chunk_id}><a className="text-emerald-400" target="_blank" rel="noreferrer" href={`${new URL(API_BASE, window.location.origin).origin}${c.url}`}>{c.title}</a> · {c.published_at ?? "Publikationsdatum unbekannt"} · {c.chunk_id} · {c.content_hash}</li>)}</ul><p className="text-sm text-zinc-400">Gespeicherte Unterhaltungen werden nach der konfigurierten Aufbewahrungsfrist geloescht. Keine Passwoerter oder Zugangsdaten eingeben.</p></main>;
 }

@@ -179,12 +179,30 @@ async def main() -> None:
             "/api/v1/auth/login", json={"username": username, "password": password}
         )
         assert login.status_code == 200, "Restored login failed"
-        value = await client.get(f"/api/v1/portfolios/{portfolio_id}/valuation")
+        cutoff = os.environ.get("RESTORE_TEST_VALUATION_AS_OF")
+        current_issue = os.environ.get("RESTORE_TEST_CURRENT_ISSUE")
+        if current_issue:
+            current = await client.get(f"/api/v1/portfolios/{portfolio_id}/valuation")
+            assert current.status_code == 200
+            current_payload = current.json()
+            assert current_payload["status"] != "COMPLETE"
+            assert current_payload["total_value_base"] is None
+            assert current_issue in {issue["code"] for issue in current_payload["issues"]}
+            print("Current missing/stale-data gate preserved: no complete or zero valuation")
+        value = await client.get(
+            f"/api/v1/portfolios/{portfolio_id}/valuation",
+            params={"as_of": cutoff} if cutoff else None,
+        )
         assert value.status_code == 200, "Restored valuation request failed"
         payload = value.json()
         assert payload["status"] == "COMPLETE", "Restored valuation incomplete"
         assert Decimal(payload["total_value_base"]) == expected, "Restored value mismatch"
-    print("Isolated restore verified: migration, raw hash, login and portfolio valuation")
+    print(
+        "Isolated restore verified: migration, raw hash, login "
+        "and explicitly pinned portfolio valuation"
+        if cutoff
+        else "Isolated restore verified: migration, raw hash, login and current portfolio valuation"
+    )
 
 
 if __name__ == "__main__":

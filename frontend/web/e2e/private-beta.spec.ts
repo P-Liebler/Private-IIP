@@ -25,6 +25,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   const portfolioName = `SYNTHETIC PR5 Portfolio ${stamp}`;
   const ticker = `P5${stamp}`;
   const figi = `P5${stamp.padStart(10, "0").slice(-10)}`;
+  const figiB = `Q5${stamp.padStart(10, "0").slice(-10)}`;
   const day = new Date().toISOString().slice(0, 10);
   await page.goto("/login");
   await page.getByLabel("Benutzername").fill(username!);
@@ -45,7 +46,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
     const instrument = await result.json(); createdInstruments.push(instrument.id);
   }
   await createInstrument(nameA, "USD", "XNYS", figi);
-  await createInstrument(nameB, "CHF", "XSWX", `Q5${stamp.padStart(10, "0").slice(-10)}`);
+  await createInstrument(nameB, "CHF", "XSWX", figiB);
   await page.goto("/portfolios");
   await page.getByLabel("Portfolio-Name").fill(portfolioName);
   await page.getByLabel("Basiswährung").selectOption("CHF");
@@ -82,17 +83,31 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   await expect(page.getByRole("status").filter({ hasText: "0 Buchungen übernommen" })).toBeVisible();
   await page.getByRole("link", { name: "Kurs- oder FX-Datei importieren", exact: true }).click();
   async function importMarket(kind: string, data: string) {
-    await page.getByLabel("Datentyp").selectOption(kind);
-    await page.getByLabel("UTF-8-CSV (max. 5 MB)").setInputFiles({ name: `SYNTHETIC-${kind}.csv`, mimeType: "text/csv", buffer: Buffer.from(data) });
+    // Start with the wrong type: detection is a proposal still reviewed below.
+    await page.getByLabel("Datentyp").selectOption(kind === "prices" ? "fx" : "prices");
+    if (kind === "prices") {
+      const transfer = await page.evaluateHandle(({ content, name }) => {
+        const value = new DataTransfer(); value.items.add(new File([content], name, { type: "text/csv" })); return value;
+      }, { content: data, name: "SYNTHETIC-dropped-prices.csv" });
+      await page.getByLabel("CSV-Dateiabgabe", { exact: true }).dispatchEvent("drop", { dataTransfer: transfer });
+      await transfer.dispose();
+    } else {
+      await page.getByLabel("UTF-8-CSV (max. 5 MB)").setInputFiles({ name: `SYNTHETIC-${kind}.csv`, mimeType: "text/csv", buffer: Buffer.from(data) });
+      await expect(page.getByRole("heading", { name: "Vorschau und Bestätigung" })).toHaveCount(0);
+    }
+    await expect(page.getByLabel("Datentyp")).toHaveValue(kind);
+    await expect(page.getByRole("status").filter({ hasText: "Erkannter Datentyp" })).toBeVisible();
     await page.getByRole("button", { name: "Vorschau erstellen", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Vorschau und Bestätigung" })).toBeVisible({ timeout: 30000 });
+    if (kind === "prices") await expect(page.getByText(/^2 Zeilen · 0 ungültig · \d+ mit Warnung$/)).toBeVisible();
     await page.getByRole("checkbox", { name: "Datei, Zuordnung und Ergebnis geprüft", exact: true }).check();
     const response = page.waitForResponse(r => r.url().includes(`/imports/${kind}/commit`) && r.request().method() === "POST");
     await page.getByRole("button", { name: "Explizit übernehmen", exact: true }).click();
     expect((await response).status()).toBe(200);
     await expect(page.getByRole("status").filter({ hasText: "Übernommen:" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Explizit übernehmen", exact: true })).toBeDisabled();
   }
-  await importMarket("prices", `date,figi,close,currency\n${day},${figi},120,USD\n`);
+  await importMarket("prices", `date,figi,close,currency\n${day},${figi},120,USD\n${day},${figiB},95,CHF\n`);
   await importMarket("fx", `date,base_currency,quote_currency,rate\n${day},USD,CHF,0.9\n`);
   await page.goto(`/portfolios/${portfolio}`);
   await expect(page.getByText("Gesamtwert", { exact: true }).locator("..")).toContainText("934.20 CHF");

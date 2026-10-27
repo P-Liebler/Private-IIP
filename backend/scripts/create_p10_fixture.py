@@ -16,7 +16,7 @@ from app.models import DataSource, Portfolio, ResearchDocument, User
 from app.schemas.assistant import AlertRuleInput, DocumentMetadata, DocumentRightsInput
 from app.services.alerts import AlertEvaluationService
 from app.services.daily_brief import DailyBriefService
-from tests.unit.test_p10_contracts import pdf_bytes
+from scripts.synthetic_pdf import pdf_bytes
 
 
 async def main() -> None:

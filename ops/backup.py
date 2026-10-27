@@ -27,8 +27,9 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def compose(file: Path, env_file: Path | None, *args: str, stdout=None) -> bytes | None:
-    command = ["docker", "compose", "-f", str(file)]
+def compose(file: Path | list[Path], env_file: Path | None, *args: str, stdout=None) -> bytes | None:
+    files = file if isinstance(file, list) else [file]
+    command = ["docker", "compose", *[item for path in files for item in ("-f", str(path))]]
     if env_file:
         command += ["--env-file", str(env_file)]
     command += list(args)
@@ -43,6 +44,48 @@ def atomic_json(path: Path, payload: dict[str, object]) -> None:
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     temporary.replace(path)
+
+
+def migration_evidence(folder: Path) -> dict[str, bytes]:
+    """Read explicit receipts; never sweep configs/credentials into backups."""
+    from s3_migrate import validate_manifest
+
+    names = ["migration-manifest.json", "migration-journal.json", "references.json"]
+    optional = ("migration-result.json", "source-checkpoint.json", "target-checkpoint.json",
+                "target-post-qa-checkpoint.json", "target-qa-collection-delta.json")
+    names.extend(name for name in optional if (folder / name).exists())
+    payloads = {}
+    for name in names:
+        path = folder / name
+        if path.is_symlink() or not path.is_file() or path.stat().st_size > 16 * 1024 * 1024:
+            raise RuntimeError("Migration evidence file unavailable or unsafe")
+        payloads[name] = path.read_bytes()
+    parsed = {name: json.loads(data) for name, data in payloads.items()}
+    manifest = parsed["migration-manifest.json"]
+    contract = validate_manifest(manifest)
+    journal = parsed["migration-journal.json"]
+    result = parsed.get("migration-result.json")
+    if (journal.get("status") != "COPY_VERIFIED_NO_APPLICATION_CUTOVER"
+            or journal.get("identity", {}).get("manifest") != manifest["sha256"]
+            or (result is not None and result.get("manifest_sha256") != manifest["sha256"])
+            or contract["references"] != parsed["references.json"]):
+        raise RuntimeError("Migration evidence identity or completion mismatch")
+    baseline = parsed.get("source-checkpoint.json")
+    initial = parsed.get("target-checkpoint.json")
+    later = parsed.get("target-post-qa-checkpoint.json")
+    delta = parsed.get("target-qa-collection-delta.json")
+    if baseline and initial:
+        if any(initial.get(key) != value for key, value in baseline.items() if key.endswith('_hash')):
+            raise RuntimeError("Initial migration archive baseline mismatch")
+    if later is not None:
+        if not baseline or not delta or delta.get('status') != 'FROZEN_COLLECTION_ROWS_PRESERVED_WITH_EXPLICIT_QA_ADDITIONS':
+            raise RuntimeError("Post-QA checkpoint lacks its reviewed baseline delta")
+        if (delta.get('source_collections_hash') != baseline['collections_history_hash']
+                or delta.get('post_qa_collections_hash') != later['collections_history_hash']
+                or any(later.get(key) != value for key, value in baseline.items()
+                       if key.endswith('_hash') and key != 'collections_history_hash')):
+            raise RuntimeError("Post-QA archive baseline changed")
+    return payloads
 
 
 def prune(root: Path) -> None:
@@ -87,12 +130,16 @@ def prune(root: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--compose-file", type=Path, default=Path("docker-compose.yml"))
+    parser.add_argument("--compose-override", type=Path, action="append", default=[])
     parser.add_argument("--env-file", type=Path)
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     parser.add_argument("--bucket", default=os.environ.get("MINIO_BUCKET_RAW", "raw-ingestions"))
     parser.add_argument("--database", default=None)
+    parser.add_argument("--migration-evidence-dir", type=Path)
     parser.add_argument("--prune", action="store_true")
     args = parser.parse_args()
+    if args.compose_override:
+        args.compose_file = [args.compose_file, *args.compose_override]
     root = args.root.resolve()
     root.mkdir(parents=True, exist_ok=True)
     if (root / "sets").exists() and (root / "sets").resolve().parent != root:
@@ -116,6 +163,16 @@ def main() -> int:
         "run_id": run_id,
     }
     try:
+        if args.migration_evidence_dir:
+            try:
+                receipts = migration_evidence(args.migration_evidence_dir)
+            except (ValueError, KeyError, TypeError, AttributeError):
+                raise RuntimeError("Migration evidence schema invalid") from None
+            evidence_root = destination / "migration-evidence"
+            evidence_root.mkdir()
+            for name, data in receipts.items():
+                (evidence_root / name).write_bytes(data)
+            status["migration_evidence_files"] = len(receipts)
         database_bytes = compose(
             args.compose_file,
             args.env_file,
@@ -156,7 +213,8 @@ def main() -> int:
             f"local/{args.bucket}",
             f"/backup/sets/{run_id}/raw",
         )
-        files = [dump, *sorted((destination / "raw").rglob("*"))]
+        files = [dump, *sorted((destination / "raw").rglob("*")),
+                 *sorted((destination / "migration-evidence").glob("*.json"))]
         if any(path.is_symlink() or not path.resolve().is_relative_to(destination) for path in files):
             raise RuntimeError("Backup artifact escaped its set")
         checksums = {

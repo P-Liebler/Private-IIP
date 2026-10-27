@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
 
 const username = process.env.E2E_USERNAME;
 const password = process.env.E2E_PASSWORD;
@@ -12,6 +12,53 @@ async function login(page: Page) {
   await page.getByRole("button", { name: "Anmelden", exact: true }).click();
   await page.waitForURL("**/dashboard", { timeout: 30000 });
 }
+
+test("PR7 assistant waiting and user cancellation remain explicit without fabricated output", async ({ page }) => {
+  if (!username || !password) throw new Error("Explicit synthetic fixture required");
+  await login(page);
+  await page.goto("/assistant");
+  await page.getByRole("button", { name: "Neue Unterhaltung", exact: true }).click();
+  const selector = page.getByLabel("Unterhaltung", { exact: true });
+  await expect.poll(() => selector.inputValue()).not.toBe("");
+  const conversation = await selector.inputValue();
+  const pending: Route[] = [];
+  // Hold transport before the server receives the POST. No invented model text
+  // or financial response; server-side cancellation audit has its own DB test.
+  await page.route(`**/assistant/conversations/${conversation}/messages`, route => {
+    if (route.request().method() === "POST") { pending.push(route); return; }
+    return route.continue();
+  });
+  await page.getByLabel("Frage", { exact: true }).fill("SYNTHETIC UI waiting and cancellation only");
+  await page.getByRole("button", { name: "Analyse starten", exact: true }).click();
+  const progress = page.getByRole("status", { name: "Analysefortschritt", exact: true });
+  await expect(progress).toContainText("Anfrage läuft");
+  await expect.poll(() => pending.length).toBe(1);
+  await expect(progress).toContainText(/seit [1-9][0-9]* s/);
+  await page.getByRole("button", { name: "Abbrechen", exact: true }).click();
+  await expect(progress).toContainText("Abbruch angefordert");
+  await expect(page.getByRole("button", { name: "Abbrechen", exact: true })).toBeDisabled();
+  for (const route of pending) await route.abort().catch(() => undefined);
+  await page.getByRole("button", { name: "Verlauf aktualisieren", exact: true }).click();
+  await expect(progress).toContainText("Gespeicherter Verlauf aktualisiert");
+  await expect(page.getByLabel("Nachrichten", { exact: true }).getByRole("article")).toHaveCount(0);
+  await expect(page.getByLabel("Frage", { exact: true })).toHaveValue("SYNTHETIC UI waiting and cancellation only");
+  await page.unroute(`**/assistant/conversations/${conversation}/messages`);
+  // A transport ending without a done receipt must not look successful.
+  await page.route(`**/assistant/conversations/${conversation}/messages`, route => {
+    if (route.request().method() !== "POST") return route.continue();
+    return route.fulfill({ status: 200, headers: {
+      "Content-Type": "text/event-stream",
+      "Access-Control-Allow-Origin": new URL(page.url()).origin,
+      "Access-Control-Allow-Credentials": "true",
+    }, body: 'data: {"type":"model","status":"RUNNING"}\n\ndata: {"type":"model","status":"UNAVAILABLE","reason":"LLM_UNAVAILABLE"}\n\n' });
+  });
+  await page.getByRole("button", { name: "Analyse starten", exact: true }).click();
+  await expect(page.locator("#main-content").getByRole("alert")).toContainText("vorzeitig beendet");
+  await expect(progress).toContainText("aus vorhandenen strukturierten Belegen");
+  await expect(page.getByLabel("Frage", { exact: true })).toHaveValue("SYNTHETIC UI waiting and cancellation only");
+  await expect(page.getByLabel("Nachrichten", { exact: true }).getByRole("article")).toHaveCount(0);
+  await page.getByRole("button", { name: "Unterhaltung loeschen", exact: true }).click();
+});
 
 test("P10 assistant preserves financial gates, private history and source evidence", async ({ page }) => {
   test.skip(!username || !password || !portfolio || !instrument, "Explicit synthetic local fixture required");

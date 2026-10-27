@@ -1,0 +1,14 @@
+{
+  "contract": "PR7_GIT_VISIBLE_SOURCE_SCAN_V1",
+  "status": "NO_KNOWN_SECRET_FINDINGS",
+  "finding_count": 0,
+  "scanner": "Trivy 0.76.0",
+  "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+  "private_original_report_sha256": "32e581c12c6b1ac85dfe425c9411f85b0a6e19fb1c3673fe70869af084053981",
+  "source_files_manifest_sha256": "23cfa17b4da5dd68f5854c5fb63f2bcbc99bc7df37f985b39b94c9d1c45add8c",
+  "files_hashed": 883,
+  "scope": "GIT_VISIBLE_TRACKED_AND_UNTRACKED_EXCLUDING_IGNORED_OPERATOR_DATA",
+  "generated_receipt_is_a_separate_artifact": true,
+  "new_secret_exceptions": false,
+  "production_approval": false
+}
