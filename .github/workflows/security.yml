@@ -97,12 +97,14 @@ jobs:
           trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
           python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-images" --core-only
           "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-images/inventory.json" --output "$RUNNER_TEMP/pr4-core-sbom-validation.json"
-      - name: Critical package gate (not release approval)
+      - name: High and Critical package gate (not release approval)
         id: critical
-        run: python3 ops/security_policy.py "$RUNNER_TEMP/pr4-images/inventory.json" --required api web --critical-only
-      - name: Recorded full-release critical gate (does not replace a fresh full scan)
+        run: python3 ops/security_policy.py "$RUNNER_TEMP/pr4-images/inventory.json" --required api web --package-only
+      - name: Preserve historical PR4 policy result (never active release evidence)
         id: historical
-        run: python3 ops/security_policy.py docs/security/pr4-20261021/inventory-final.json --required caddy postgres valkey minio backend web prometheus grafana mlflow ollama --critical-only
+        if: always()
+        run: |
+          python3 ops/release_scope.py historical docs/security/pr4-20261021/inventory-final.json --output "$RUNNER_TEMP/pr4-historical-policy.json"
       - name: Full inventory operator audit
         id: full
         if: ${{ always() && inputs.full_inventory && steps.database.outcome == 'success' && steps.dependencies.outcome == 'success' }}
@@ -134,6 +136,7 @@ jobs:
           retention-days: 14
           path: |
             ${{ runner.temp }}/security-status.json
+            ${{ runner.temp }}/pr4-historical-policy.json
             ${{ runner.temp }}/scanner-status.json
             ${{ runner.temp }}/vulnerability-db.json
             ${{ runner.temp }}/pr4-images/*.record.json

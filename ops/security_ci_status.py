@@ -32,6 +32,9 @@ def dependency_findings(root):
 def classify(root, steps, full=False):
     record = {"scope": "FULL" if full else "CORE", "steps": steps,
               "release_status": "NOT_APPROVED", "status": "SCAN_INCOMPLETE"}
+    # Historical evidence is retained independently. It cannot describe the
+    # images built in this run; current findings below still fail closed.
+    record["historical_inventory_step"] = steps.get("historical", "unknown")
     if steps.get("scanner") != "success":
         record["status"] = "SCANNER_INSTALL_FAILED"
         return record
@@ -77,9 +80,6 @@ def classify(root, steps, full=False):
             return record
         if name == "npm" and value.get("metadata", {}).get("vulnerabilities", {}).get("total") != 0:
             return record
-    if steps.get("historical") != "success":
-        record.update(status="IMAGE_VULNERABLE", reason="HISTORICAL_RELEASE_GATE_NOT_PASSED_NOT_A_NEW_SCAN")
-        return record
     record["status"] = "SECURITY_CHECK_PASSED"
     # This checks the requested automated scope, never target-host/operator approval.
     return record

@@ -17,11 +17,13 @@ def main():
     parser.add_argument('--fixture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--assistant', choices=('native', 'unavailable'))
+    parser.add_argument('--origin', choices=('https://localhost:9443', 'https://localhost'), default='https://localhost:9443')
+    parser.add_argument('--require-script-nonce', action='store_true')
     args = parser.parse_args()
     fixture = json.loads(args.fixture.read_text())
     assert fixture['username'].startswith('restore_')
     password = os.environ['RESTORE_TEST_PASSWORD']
-    origin = 'https://localhost:9443'
+    origin = args.origin
     jar = http.cookiejar.CookieJar()
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPSHandler(
         context=ssl.create_default_context(cafile=str(args.ca))), urllib.request.HTTPCookieProcessor(jar))
@@ -45,6 +47,9 @@ def main():
         policy = response.headers.get('Content-Security-Policy', '')
         assert "object-src 'none'" in policy and "frame-ancestors 'none'" in policy
         assert response.headers.get('X-Frame-Options') == 'DENY'
+        scripts = next(part for part in policy.split(';') if part.strip().startswith('script-src '))
+        if args.require_script_nonce:
+            assert "'nonce-" in scripts and "'unsafe-inline'" not in scripts and "'unsafe-eval'" not in scripts
     try:
         request('/api/v1/auth/login', {'username': fixture['username'], 'password': password + 'invalid'})
         raise AssertionError('INVALID_CREDENTIALS_ACCEPTED')
@@ -66,6 +71,7 @@ def main():
     result = {'status': 'SYNTHETIC_HTTPS_APP_VERIFIED', 'strict_ca': True,
         'secure_httponly_cookie': True, 'golden_chf': '10180', 'internal_metrics_blocked': True,
         'csp_unsafe_inline_present': "'unsafe-inline'" in policy,
+        'script_nonce_required': args.require_script_nonce,
         'client_os_ca_acceptance': False, 'security_approval': False}
     if args.assistant:
         with request('/api/v1/assistant/conversations', {'title': 'SYNTHETIC PR7 native runtime'}) as response:

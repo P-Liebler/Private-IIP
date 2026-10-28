@@ -52,7 +52,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("inventory", type=Path)
     parser.add_argument("--required", nargs="+", required=True)
-    parser.add_argument("--critical-only", action="store_true", help="CI critical-package gate only; never release approval")
+    gate = parser.add_mutually_exclusive_group()
+    gate.add_argument("--critical-only", action="store_true", help="Legacy CI critical-package gate only; never release approval")
+    gate.add_argument("--package-only", action="store_true", help="High/Critical package gate; runtime/operator approval remains separate")
     args = parser.parse_args()
     try:
         value = json.loads(args.inventory.read_text(encoding="utf-8"))
@@ -62,6 +64,8 @@ def main():
     print(status)
     if args.critical_only and status != "SCAN_INCOMPLETE":
         return 1 if any(f["severity"] == "CRITICAL" for image in value["images"] for f in image["findings"]) else 0
+    if args.package_only and status == "SECURITY_REVIEW_REQUIRED":
+        return 0
     return 2 if status == "SCAN_INCOMPLETE" else 1
 
 

@@ -8,13 +8,44 @@ import json
 import subprocess
 from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from release_manifest import main as create_manifest, validate_artifacts, validate_manifest, source_snapshot
+from release_manifest import main as create_manifest, validate_artifacts, validate_manifest, source_snapshot, validate_scoped_restore
 from deploy import reviewed_images
 from security_audit import sha256
 from preflight import read_env, validate_config
 
 
 class ReleaseManifestTests(unittest.TestCase):
+    def test_core_restore_must_use_every_scoped_runtime_and_recovery_image(self):
+        expected = {name: "synthetic/" + name + "@sha256:" + "a" * 64
+                    for name in ("api", "postgres", "minio", "backup", "legacy-verifier")}
+        restore = {"image_contract": {name: expected[service] for name, service in
+                   (("api", "api"), ("postgres", "postgres"), ("object_store", "minio"), ("s3_client", "backup"))},
+                   "legacy_verification": {"verified": True, "image": expected["legacy-verifier"],
+                                           "network": "none", "read_only": True}}
+        validate_scoped_restore(expected, restore)
+        for field in restore["image_contract"]:
+            for replacement in (None, "synthetic/old@sha256:" + "b" * 64):
+                changed = json.loads(json.dumps(restore))
+                if replacement is None:
+                    del changed["image_contract"][field]
+                else:
+                    changed["image_contract"][field] = replacement
+                with self.subTest(field=field, replacement=replacement), self.assertRaisesRegex(
+                    ValueError, "RELEASE_SCOPE_RESTORE_MISMATCH"
+                ):
+                    validate_scoped_restore(expected, changed)
+        for field, replacement in (("verified", False), ("image", "synthetic/old@sha256:" + "b" * 64),
+                                   ("network", "platform"), ("read_only", False)):
+            changed = json.loads(json.dumps(restore))
+            changed["legacy_verification"][field] = replacement
+            with self.subTest(field=field), self.assertRaisesRegex(
+                ValueError, "RELEASE_SCOPE_LEGACY_RESTORE_MISMATCH"
+            ):
+                validate_scoped_restore(expected, changed)
+        del restore["legacy_verification"]
+        with self.assertRaisesRegex(ValueError, "RELEASE_SCOPE_LEGACY_RESTORE_MISMATCH"):
+            validate_scoped_restore(expected, restore)
+
     def test_generated_ci_environment_passes_production_configuration_contract(self):
         with tempfile.TemporaryDirectory() as folder:
             target = Path(folder) / "ci.env"

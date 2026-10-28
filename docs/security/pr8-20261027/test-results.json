@@ -1,0 +1,231 @@
+{
+  "contract": "PR8_CORE_LOCAL_ACCEPTANCE_V1",
+  "recorded_at": "2026-10-27T15:30:51.405969+00:00",
+  "scope": "LOCAL_SYNTHETIC_ONLY",
+  "production_approval": false,
+  "regression": {
+    "backend": {
+      "passed": 306,
+      "failed": 0,
+      "evidence": {
+        "reference": "backups/pr8-backend-v2.txt",
+        "sha256": "9c417873489357542a69186b3f16b0fbf1f92777a52c8b41e442a21607a794a8"
+      }
+    },
+    "host": {
+      "passed": 82,
+      "failed": 0,
+      "expected_policy_status": "SECURITY_BLOCKED",
+      "evidence": {
+        "reference": "backups/pr8-host-final-v3.txt",
+        "sha256": "d312a8d8b51f7d86ccfbeca0bcb0c162b229e67d16ecfba96d9567505f747b6e"
+      }
+    },
+    "browser": {
+      "passed": 30,
+      "failed": 0,
+      "normal_mode_restored": true,
+      "evidence": {
+        "reference": "backups/pr8-browser-v2-status.json",
+        "sha256": "479111eb8c7f9a08ffd79b94a46d5c73ccec36b633f759dc93ee95357612df97"
+      },
+      "log": {
+        "reference": "backups/pr8-browser-v2.txt",
+        "sha256": "9f74d06c433b0f7c2da375304b63128cac054493c67e695c65fcd94f1025950c"
+      }
+    },
+    "frontend": {
+      "lint": {
+        "status": "PASS",
+        "evidence": {
+          "reference": "backups/pr8-frontend-lint.txt",
+          "sha256": "ec1599965637fae40df73a434030f839c0baee245810ce3e26cc75aa6784a658"
+        }
+      },
+      "typecheck": {
+        "status": "PASS",
+        "evidence": {
+          "reference": "backups/pr8-frontend-typecheck.txt",
+          "sha256": "f31b7138dbcd5149303192a8d793d0e52e8f278e4442b825249b1417ca6d9d81"
+        }
+      },
+      "build": {
+        "status": "PASS",
+        "evidence": {
+          "reference": "backups/pr8-frontend-build.txt",
+          "sha256": "a1f324e877dc3d735179056fea493839bff6a4f77f4f99196fe33b7009609206"
+        }
+      }
+    },
+    "backend_static_checks": {
+      "ruff": "PASS",
+      "ruff_format": "PASS_309_FILES",
+      "mypy": "PASS_203_FILES",
+      "observed_via": "docker compose exec -T api",
+      "backend_code_unchanged_after_full_regression": true
+    }
+  },
+  "full_restore": {
+    "success": true,
+    "cleanup_success": true,
+    "verified_backup_files": 1383,
+    "image_contract": {
+      "api": "private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6",
+      "postgres": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "object_store": "chrislusf/seaweedfs@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8",
+      "s3_client": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f"
+    },
+    "postgres_contract_probe": "PASS",
+    "postgres_environment": {
+      "server_version": "17.11",
+      "lc_collate": "en_US.utf8",
+      "lc_ctype": "en_US.utf8",
+      "vector": "0.8.6",
+      "collation_provider": "c",
+      "recorded_collation_version": null,
+      "actual_collation_version": null,
+      "timezone_contract": "UTC_INSTANT_PRESERVED"
+    },
+    "archive_contract_names": [
+      "collections",
+      "dataset",
+      "document_removals",
+      "intelligence",
+      "model",
+      "predictions",
+      "recommendations",
+      "risk",
+      "ui_requests",
+      "validation"
+    ],
+    "legacy_image": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+    "legacy_network_none": true,
+    "legacy_read_only": true,
+    "evidence": {
+      "reference": "backups/s8-v1/runtime/restore-status.json",
+      "sha256": "c9caaa383ef705d3e7498fbd63360fb0502c2b98b9199843fb0b24e013909b47"
+    }
+  },
+  "core_operations": {
+    "backup": {
+      "reference": "backups/pr8-core-stage-v1/mc-backup-v4-status.json",
+      "sha256": "2d50a9c50a5f9f0393b6a7fbb8b0327a4b9f5664287b96b5c5f5e300e4ea03e3"
+    },
+    "s3_contract": {
+      "reference": "backups/pr8-s3-contract-v1/status.json",
+      "sha256": "cd9f52f286e2006b9bb9948c8e8a52271f3d64f2dd58fc21e8976cd326044bef"
+    },
+    "https": {
+      "reference": "backups/pr8-core-stage-v1/https-core-v4.json",
+      "sha256": "c30965d956653c06d26ba3e91a4e8932cd98596ad41a6f368f0554820d81489d"
+    },
+    "intelligence_delta": {
+      "reference": "backups/pr8-core-stage-v1/intelligence-append-delta-v2.json",
+      "sha256": "d110a0ade7ff26b7f0a33489b7ea0661b13d311391c81f146a470fec84b4bcc8"
+    },
+    "collection_delta": {
+      "reference": "backups/pr8-core-stage-v1/collection-append-delta.json",
+      "sha256": "e44d2b47fbced94c4a98a060dd188a88ffd76e5a42cb561e15e362f3f853f967"
+    },
+    "strict_tls_client_stat": true,
+    "actual_prometheus_target_up": true,
+    "disposable_projects_stopped": true
+  },
+  "final_normal_state": {
+    "evidence": {
+      "reference": "backups/pr8-final-normal-state-v2.json",
+      "sha256": "d8ed1a14366cbdbeded850d834e766d1002f67731662a162cf29a1e3875768ff"
+    },
+    "passed": true,
+    "app_env": "local",
+    "assistant_test_mode": false,
+    "data_operator_count": 0,
+    "ml_operator_count": 0,
+    "data_collection_enabled": false,
+    "forward_shadow_enabled": false,
+    "external_sources": [
+      {
+        "slug": "ALPHAVANTAGE",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "COMPANY_IR",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "ECB",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "NEWS_RSS",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "OPENFIGI",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "SEC_EDGAR",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "SNB",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "STOOQ",
+        "enabled": false,
+        "gate_status": "UNKNOWN"
+      },
+      {
+        "slug": "YAHOO",
+        "enabled": false,
+        "gate_status": "BLOCKED"
+      }
+    ],
+    "manual_csv": [
+      {
+        "slug": "MANUAL_CSV",
+        "enabled": true,
+        "gate_status": "APPROVED"
+      }
+    ],
+    "migration_head": "0021_ui_requests",
+    "mapped_table_count": 79,
+    "physical_table_count": 80,
+    "model_schema_matches": true,
+    "baseline_count_note": "Prompt states 78; observed 79 mapped domain tables plus alembic_version. Models and migrations unchanged in PR8."
+  },
+  "security": {
+    "status": "SECURITY_BLOCKED",
+    "sbom_validation": {
+      "reference": "docs/security/pr8-20261027/core-rc3/sbom-validation.json",
+      "sha256": "b043290f535c2efb683aeea1d32e0098d5d4092b34a9ae7a6d095d55fdd0b1d9"
+    },
+    "current_inventory": {
+      "reference": "docs/security/pr8-20261027/core-rc3/inventory.json",
+      "sha256": "05f78966eab269dd4712694cb9a69cc3ad6cadf9f563bca1d3256bae69219522"
+    },
+    "remote_dependency_audit_evidence": {
+      "reference": "docs/security/pr8-20261027/remote-ci.json",
+      "sha256": "0e1f0ab19d04ee82fac2e4a3577a1ab792218f6e03a0c61cd482bd8319d0d525"
+    },
+    "source_and_lock_changes": "Backend numerical and supporting locks and frontend package lock unchanged"
+  },
+  "open_external_gates": [
+    "SECURITY_APPROVAL",
+    "BACKUP_FREE_SPACE_BELOW_5_GIB",
+    "TARGET_HOST_NOT_VERIFIED",
+    "SOURCE_APPROVAL",
+    "REAL_PORTFOLIO_ORIGINALS",
+    "INDEPENDENT_BEGINNER_TEST",
+    "OPERATOR_APPROVAL"
+  ]
+}

@@ -1,0 +1,13 @@
+# Local QA only; no target-host or production acceptance.
+x-origin: &local-origin
+  FRONTEND_ORIGIN: https://localhost:9443
+  API_PUBLIC_ORIGIN: https://localhost:9443
+services:
+  caddy:
+    ports: !override ["127.0.0.1:9443:443"]
+  api:
+    environment: *local-origin
+  worker:
+    environment: *local-origin
+  scheduler:
+    environment: *local-origin

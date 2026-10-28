@@ -28,9 +28,14 @@ services:
 
   mc:
     profiles: [ops]
-    image: coollabsio/minio:RELEASE.2025-10-15T17-29-55Z
+    image: ${RESTORE_CLIENT_IMAGE:-coollabsio/minio:RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9}
     entrypoint: ["mc"]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     environment:
+      MC_CONFIG_DIR: /tmp/.mc
       MC_HOST_restored: http://restore_user:${RESTORE_MINIO_PASSWORD:?set RESTORE_MINIO_PASSWORD}@minio:9000
     volumes:
       - "${RESTORE_BACKUP_ROOT:?set RESTORE_BACKUP_ROOT}:/backup:ro"
@@ -86,7 +91,7 @@ services:
     networks: [isolated]
 
   valkey:
-    image: valkey/valkey:8.1.10-alpine
+    image: valkey/valkey:8.1.10-alpine@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507
     command: ["valkey-server"]
     networks: [isolated]
 

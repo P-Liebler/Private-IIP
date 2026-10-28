@@ -1,5 +1,69 @@
 # Implementation status
 
+## PR8 – Private Core V1 lokal geprüft (27.10.2026)
+
+Private Core V1 bleibt **NOT_RELEASED / SECURITY_BLOCKED**. Ausgangscommit und
+origin/main sind `f848dc55afd2cbafeaea5a5a08f0840d27585ca7`. Der angeforderte
+GitHub-Lauf 40475316877 ist abgeschlossen: Verify success, Security failure;
+die lokalen PR8-Änderungen sind nicht gepusht.
+
+- Neues digestgebundenes Core-Profil mit getrenntem Proxy-Edge-/App-/Storage-Netz,
+  ausgeschalteten ML-/LLM-Optionen und vollständigem Recovery-Scope.
+- Historischer PR4-Befund bleibt unverändert und getrennt vom aktiven Gate.
+  Aktive High/Critical-Prüfung bleibt strikt; fehlende/abweichende/stale Scans
+  führen nicht zu einem sauberen Sicherheitsstatus.
+- Web mit frischen Skript-Nonces, Core-Proxy erhält die CSP. Styles-Ausnahme
+  bleibt ein offener Reviewpunkt. Neuer Parser-Injektionstest; letzter
+  vollständiger Browserlauf **30/30**, Normalmodus danach wiederhergestellt.
+- Backend **306/306**, Hostverträge **82/82**; Frontend-Lint, Typecheck und
+  Standalone-Build bestanden. Ein Forschungs-Test
+  suchte vorher sein Fixture fälschlich unter den ersten zehn globalen
+  Treffern; eindeutiger Fixturefilter behebt dies ohne Produktänderung.
+- Aktuelle Holdings-Vorschau über vorhandene APIs; Quell-/Operatorgates und
+  persistente vorhandene Jobs bleiben maßgeblich. Keine Liveprovider aktiviert.
+- Core-HTTPS, tatsächlicher Prometheus-Scrape und strukturierter
+  `LLM_UNAVAILABLE`-Fallback ohne gestartetes Ollama geprüft. MLflow,
+  ML-Worker und Grafana bleiben ebenfalls ausgeschaltet. Neuer S3-Vertragslauf
+  auf dem endgültigen Storage-Digest bestanden und gestoppt.
+- Isolierter abschließender Restore mit **1383 Dateihashes** auf PG17 und
+  SeaweedFS 4.51 erfolgreich, Cleanup bestätigt. Alte P6-/Modell-/Archiv- und
+  UI-/Entfernungsverträge erhalten. Golden CHF 10’180 gilt am belegten
+  26.10.2026 15:18:05.987683 UTC; heute prüft derselbe Restore ausdrücklich
+  `STALE_PRICE` und fehlenden Gesamtwert. Separate aktuelle Fixturebewertung
+  via HTTPS ebenfalls CHF 10’180.
+- Ein erster Archivhash unterschied sich
+  wegen 42 fortgeschriebener Alert-`last_checked_at`-Werte. Der getrennte
+  Frozen-DB-Vergleich belegt die engen operativen Änderungen; alte Inhalte,
+  Regeln/Versionen und historische Checkpoints wurden nicht umgeschrieben.
+- Separater MC-Client ersetzt das alte MinIO-Gesamtimage im Core-Backup- und
+  Restorepfad; tatsächlicher TLS-/Backup-/Restorevertrag bestanden. Scan:
+  0 Critical/High/Medium, 1 Unknown. Alter MinIO-Bestand bleibt ausschließlich
+  Entwicklungs-/Migrationsquelle. Der unveränderte historische Modell-Verifier
+  bleibt erforderlicher isolierter Recoverybestand mit **1 Critical/47 High**;
+  das gemeinsame Backendimage behält **44 High**.
+- Endgültiger RC3-Scope: **13 Services / 9 unterschiedliche Images**, 13 formal
+  gültige SBOMs. Kandidatenmanifest `ops/releases/pr8-core-v1-rc3-manifest.json`:
+  **LOCAL_SYNTHETIC_VERIFIED / NOT_RELEASED**, keine erfundenen Freigaben.
+  Auch die tatsächlichen Restore-Images einschließlich S3-Client und
+  isoliertem Archiv-Verifier müssen zum Scope passen.
+- Abschließende normale Instanz: Testmodus aus, keine Data-/ML-Operatorrollen,
+  alle externen Quellen deaktiviert; manueller CSV-Pfad weiter genehmigt.
+  Tatsächlich 79 Modelltabellen plus Alembic-Tabelle, insgesamt 80 statt der
+  im Auftrag genannten 78; vollständige Modell-/Schemaübereinstimmung,
+  Head `0021_ui_requests`, keine PR8-Modell-/Migrationsänderung.
+- Read-only Preflight ausgeführt, nichts gestartet. Einziger
+  Konfigurationsfehler: `BACKUP_FREE_SPACE_BELOW_5_GIB` bei 3’915’988’992 freien
+  Bytes; unabhängige Security-/Host-/Operatorgates bleiben gesperrt.
+
+Zielhost, echte Depotoriginale, unabhängige Anfängerperson und explizite
+Quellen-/Security-/Operatorfreigaben fehlen weiterhin. Forecasts und reale
+Empfehlungen bleiben unabhängig davon unvalidiert/gesperrt.
+
+Berichte: [Security](PR8A_SECURITY_RELEASE_REPORT.md),
+[Deployment](PR8B_DEPLOYMENT_REPORT.md), [Quellen](PR8C_DATA_PROVIDER_REPORT.md),
+[Pilot](PR8D_REAL_PORTFOLIO_REPORT.md), [technische Core-Abnahme](PR8E_CORE_ACCEPTANCE_REPORT.md)
+und [Gesamtabnahme mit konkreten Operatoraktionen](PR8_ACCEPTANCE_REPORT.md).
+
 ## PR7 – laufende Readiness-Abnahme (27.10.2026)
 
 **306 Backend-/67 Hosttests**, Ruff/Format/Mypy und aktueller Frontend-Lint/

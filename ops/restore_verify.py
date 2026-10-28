@@ -98,15 +98,18 @@ def main() -> int:
     parser.add_argument("--postgres-image", help="Reviewed PostgreSQL 17 candidate, including @sha256 digest")
     parser.add_argument("--object-store-image", help="Reviewed MinIO image, including @sha256 digest")
     parser.add_argument("--object-store-kind", choices=["minio", "seaweed-synthetic"], default="minio")
+    parser.add_argument("--client-image", help="Separately reviewed immutable S3 backup/restore client")
     parser.add_argument("--root", type=Path, default=Path(os.environ.get("BACKUP_ROOT", "backups")))
     args = parser.parse_args()
     if args.expect_current_issue and not args.valuation_as_of:
         parser.error("A current missing-data assertion requires a separate pinned valuation cutoff")
+    if args.object_store_kind == "seaweed-synthetic" and not args.client_image:
+        parser.error("Seaweed restore requires an explicit reviewed immutable S3 client image")
     if args.object_store_kind == "seaweed-synthetic" and (
         not args.username.startswith("restore_") or not (args.object_store_image or "").startswith("chrislusf/seaweedfs")
     ):
         parser.error("Seaweed candidate requires explicit synthetic restore fixture and image")
-    for image in (args.api_image, args.postgres_image, args.object_store_image, args.legacy_image):
+    for image in (args.api_image, args.postgres_image, args.object_store_image, args.legacy_image, args.client_image):
         if image and not re.fullmatch(r"[A-Za-z0-9_./:-]+@sha256:[0-9a-f]{64}", image):
             parser.error("Restore image overrides require an immutable digest")
     if bool(args.dataset_id) != bool(args.expected_dataset_hash):
@@ -177,6 +180,9 @@ def main() -> int:
     }
     s3_config = None
     environment.pop("RESTORE_S3_CONFIG", None)
+    environment.pop("RESTORE_CLIENT_IMAGE", None)
+    if args.client_image:
+        environment["RESTORE_CLIENT_IMAGE"] = args.client_image
     if args.object_store_kind == "seaweed-synthetic":
         s3_config = root / "runtime" / (project + "-synthetic-s3.json")
         s3_config.parent.mkdir(parents=True, exist_ok=True)
@@ -195,7 +201,8 @@ def main() -> int:
         "success": False,
         "object_store_kind": args.object_store_kind,
         "backup_run_id": backup.name,
-        "image_contract": {"api": args.api_image, "postgres": args.postgres_image, "object_store": args.object_store_image},
+        "image_contract": {"api": args.api_image, "postgres": args.postgres_image,
+                           "object_store": args.object_store_image, "s3_client": args.client_image},
         "verified_backup_files": len(manifest["checksums"]),
         "expected_value": args.expected_value,
         "valuation_as_of": args.valuation_as_of,

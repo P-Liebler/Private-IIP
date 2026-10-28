@@ -68,7 +68,11 @@ def test_pit_restatement_and_research_api_flow(monkeypatch: pytest.MonkeyPatch) 
                 country="US",
             )
             swiss = Instrument(
-                id=uuid4(), name="Synthetic P5 CH", asset_type="STOCK", currency="CHF", country="CH"
+                id=uuid4(),
+                name=f"Synthetic P5 CH {uuid4().hex}",
+                asset_type="STOCK",
+                currency="CHF",
+                country="CH",
             )
             db.add_all([source, instrument, swiss])
             await db.commit()
@@ -228,7 +232,10 @@ def test_pit_restatement_and_research_api_flow(monkeypatch: pytest.MonkeyPatch) 
                     assert response.json()["scores"]["Quality"]["score"] is None
                     refresh = await client.post(f"/api/v1/research/instruments/{swiss.id}/refresh")
                     assert refresh.status_code == 200, refresh.text
-                    screen = await client.get("/api/v1/research/instruments?country=CH&limit=10")
+                    screen = await client.get(
+                        "/api/v1/research/instruments",
+                        params={"country": "CH", "q": swiss.name, "limit": 10},
+                    )
                     assert screen.status_code == 200, screen.text
                     assert any(
                         row["instrument"]["id"] == str(swiss.id) for row in screen.json()["items"]

@@ -1,0 +1,119 @@
+# PR8 candidate overlay. Combine with docker-compose.prod.yml from repo root.
+# No existing volumes or legacy network. NOT a deployment authorization.
+name: ${COMPOSE_PROJECT_NAME:?explicit isolated project}
+services:
+  legacy-verifier:
+    profiles: [ops]
+    image: private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    # Recovery uses verify_legacy_model.py's bounded read-only invocation.
+    # This service records its required image; it is never started by Core up.
+    entrypoint: [python, -c]
+    command: ["raise SystemExit('Use the isolated archive verifier')"]
+  api:
+    build: !reset null
+    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+  worker:
+    build: !reset null
+    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+  scheduler:
+    build: !reset null
+    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+  web:
+    build: !reset null
+    image: private-iip/web@sha256:1e052d82ea7df9743c724d8f40d42f69456b2c5a671e329c735280ccee790945
+  postgres:
+    build: !reset null
+    image: private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f
+  minio:
+    image: chrislusf/seaweedfs@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    entrypoint: [weed]
+    user: "10001:10001"
+    command: [server, -s3, -s3.port=9000, -dir=/data, -ip=minio, -s3.config=/etc/seaweed/s3.json, -volume.max=16, -master.volumeSizeLimitMB=64, -master.telemetry=false]
+    environment: !reset {}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    networks: !override [storage]
+    volumes: !override
+      - type: volume
+        source: core_seaweed_data
+        target: /data
+        volume: {nocopy: true}
+      - ${CORE_S3_CONFIG:?private S3 identities}:/etc/seaweed/s3.json:ro
+    healthcheck:
+      test: [CMD-SHELL, "nc -z 127.0.0.1 9000"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  storage-init:
+    profiles: [ops]
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    entrypoint: [sh, -ec]
+    command: ["chown 10001:10001 /stage-data"]
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN]
+    security_opt: [no-new-privileges:true]
+    network_mode: none
+    volumes:
+      - type: volume
+        source: core_seaweed_data
+        target: /stage-data
+        volume: {nocopy: true}
+  caddy:
+    build: !reset null
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    networks: !override [edge, platform, storage]
+    volumes:
+      - ./ops/caddy/Core.Caddyfile:/etc/caddy/Caddyfile:ro
+  ca-export:
+    build: !reset null
+    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+  prometheus:
+    image: prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
+    ports: !reset []
+  valkey:
+    image: valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507
+  backup:
+    image: private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f
+    entrypoint: [/usr/local/bin/iip-mc]
+    # Separately built and scanned client; no legacy MinIO server binary.
+    environment:
+      S3_CA_REQUIRED: "true"
+      MC_HOST_local: https://${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}:${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}@caddy:9002
+      MC_CONFIG_DIR: /tmp/.mc
+    volumes: !override
+      - ${BACKUP_ROOT:?absolute independent backup root}:/backup
+      - caddy_ca:/trusted-ca:ro
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  ml-worker:
+    build: !reset null
+    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+  mlflow:
+    build: !reset null
+    image: private-iip/mlflow:pr7-rc1@sha256:d5852fbf485db217c53a3e75d5e230b70f2ab58628a4a5feabd6d3690e4a8656
+  ollama:
+    image: private-iip/ollama@sha256:076ea5eecb2c074d0148e52e103489799eed87bfb461473751ba2f21cf18edbc
+    volumes: !override [ollama_data:/models:ro]
+    environment:
+      OLLAMA_MODELS: /models/models
+      OLLAMA_NOPRUNE: "true"
+      HOME: /tmp
+  grafana:
+    profiles: [monitoring-ui]
+    image: private-iip/grafana@sha256:7c157e9ac8f746e1fef157e4ca50a60f8f9d5a13a5f25a4b9d7ddfe79f338208
+    ports: !reset []
+networks:
+  edge: {}
+  platform: {internal: true}
+  storage: {internal: true}
+volumes:
+  core_seaweed_data: {}

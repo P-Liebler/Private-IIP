@@ -1,0 +1,83 @@
+{
+  "recorded_at": "2026-10-27T15:07:02.368841+00:00",
+  "scanner": "Trivy 0.76.0",
+  "scanner_database": {
+    "Version": 2,
+    "NextUpdate": "2026-10-28T07:13:33.504286922Z",
+    "UpdatedAt": "2026-10-27T07:13:33.504287223Z",
+    "DownloadedAt": "2026-10-27T07:52:02.6847486Z"
+  },
+  "security_status": "SECURITY_REVIEW_REQUIRED",
+  "images": [
+    {
+      "component": "backup",
+      "image_reference": "private-iip/mc@sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946",
+      "scan_status": "SCANNED_EXACT_IMAGE",
+      "security_status": "SECURITY_REVIEW_REQUIRED",
+      "scanner_version": "0.76.0",
+      "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+      "scanner_database": {
+        "Version": 2,
+        "NextUpdate": "2026-10-28T07:13:33.504286922Z",
+        "UpdatedAt": "2026-10-27T07:13:33.504287223Z",
+        "DownloadedAt": "2026-10-27T07:52:02.6847486Z"
+      },
+      "scanner_database_sha256": "d56c43f48dcae3239a456ca23ef2350a72aa7353582f9cf65dfcee0473f775a5",
+      "image_id": "sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946",
+      "repo_digests": [
+        "private-iip/mc@sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946"
+      ],
+      "architecture": "amd64",
+      "os": "linux",
+      "configured_user": "10001:10001",
+      "config_digest": "sha256:b5facd000b7df0859eb6b17ed90685362ebdcbd6d69c236ca2ee41082e0fa635",
+      "archive_sha256": "95d499728744bf9efed4f327b1dce4b3c21280bb387212848790110f5ae5f0a1",
+      "sbom_sha256": "295d351a8344f6ff99a5b7b1087905fa12038f32d24e7f7be133ddfe79c5abc2",
+      "sbom_file": "backup.cdx.json",
+      "scan_sha256": "ab1e51549ca56431f63278821437dcbae3a96829be1d1167cae7868a2347311c",
+      "findings": [
+        {
+          "component": "backup",
+          "image_reference": "private-iip/mc@sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946",
+          "image_id": "sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946",
+          "image_repository": "private-iip/mc",
+          "image_tag": null,
+          "image_digest": "sha256:12db73ebdc62a99f67a397bbfcdfb60f397c3e4a8e9bb8c9787998913a4ee946",
+          "package": "golang.org/x/crypto",
+          "package_path": "usr/bin/mc",
+          "package_type": "gobinary",
+          "installed_version": "v0.57.0",
+          "cve": "GO-2026-5932",
+          "severity": "UNKNOWN",
+          "fixed_version": null,
+          "advisory": null,
+          "official_advisory": "https://pkg.go.dev/vuln/GO-2026-5932",
+          "status": "FIX_UNAVAILABLE",
+          "remediation_status": "REQUIRES_OPERATOR_REVIEW",
+          "exploitability_status": "REQUIRES_OPERATOR_REVIEW",
+          "reachability_status": "REQUIRES_OPERATOR_REVIEW",
+          "exploitability": "NOT_ESTABLISHED",
+          "reachability": "REQUIRES_OPERATOR_REVIEW",
+          "runtime_usage": "Not dismissed from package presence alone",
+          "exposure": "See component remediation matrix; network isolation is not a patch",
+          "proposed_remediation": "Evaluate supported patch/rebuild, rescan and run compatibility gates",
+          "residual_risk": "Unreviewed findings remain open; no approved exception",
+          "reviewer": null,
+          "review_date": null,
+          "reviewed_at": null
+        }
+      ],
+      "severity_counts": {
+        "UNKNOWN": 1,
+        "LOW": 0,
+        "MEDIUM": 0,
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "initial_attempt_status": "SCANNED_EXACT_IMAGE",
+      "source_transport": "DOCKER_ARCHIVE",
+      "revalidated_at": "2026-10-27T15:07:02.366287+00:00"
+    }
+  ],
+  "scope": "Full image package scans; transport recorded per image. Supported package analyzers do not establish exploitability or arbitrary native binary coverage."
+}

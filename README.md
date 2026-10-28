@@ -1,5 +1,36 @@
 # Private Investment Intelligence Platform
 
+## PR8 – Private Core V1 lokal geprüft (27.10.2026)
+
+**LOCAL_SYNTHETIC_VERIFIED / NOT_RELEASED.** Digestgebundenes Core-Profil mit
+privatem HTTPS, PG17, SeaweedFS, Queue/Jobs und Grundmonitoring. MLflow, Ollama,
+ML-Worker und Grafana bleiben optional ausgeschaltet. Der Assistent liefert
+ohne Modell eine gespeicherte strukturierte Ausfallantwort.
+
+**306 Backend-, 82 Host- und 30/30 Browserfälle bestanden.** Frontend-Lint,
+Typecheck und Standalone-Build bestanden; Testmodus und Rollen zurückgesetzt.
+Der endgültige separate S3-Client besteht TLS, Zielbackup und isolierten
+Restore mit **1383 Dateihashes** und erhaltenen alten Archivverträgen.
+Golden CHF 10’180 gilt am belegten Stichtag; heutige veraltete Kurse bleiben
+unvollständig. Eine separate frische synthetische HTTPS-Bewertung besteht.
+
+**Keine Produktionsfreigabe.** RC3 umfasst 13 Services / 9 unterschiedliche
+Images mit 13 formal validierten SBOMs. Backend-Highs, der erforderliche alte
+Modell-Verifier mit einem Critical und die Style-CSP bleiben offene
+Securitypunkte. Der neue MC-Client hat keine Critical/High/Medium-Befunde;
+altes MinIO ist ausschließlich Entwicklungs-/Migrationsquelle. Letzter
+Preflight stoppt zusätzlich bei weniger als 5 GiB freiem Backupplatz.
+Zielhost/VPN/Client-CA, unabhängiger Backupzeitplan/Schlüssel-Recovery,
+Quellenrechte, echte Originale, unabhängige Testperson und Operatorfreigabe
+stehen aus. Forecasts und Empfehlungen bleiben unvalidiert und gesperrt.
+Remote-Lauf 40475316877: Verify erfolgreich, Security fehlgeschlagen; lokale
+PR8-Änderungen wurden nicht gepusht.
+
+[PR8-Abnahme und nächste Operatoraktionen](docs/PR8_ACCEPTANCE_REPORT.md),
+[Core-Deployment](docs/PR8B_DEPLOYMENT_REPORT.md),
+[Quellen und Aktualisierung](docs/PR8C_DATA_PROVIDER_REPORT.md),
+[Security](docs/PR8A_SECURITY_RELEASE_REPORT.md).
+
 ## PR7 – lokale Readiness-Abnahme (27.10.2026)
 
 **306 Backend- und 67 Hosttests bestanden.** Frontend-Lint, Typecheck und

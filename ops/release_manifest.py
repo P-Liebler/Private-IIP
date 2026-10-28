@@ -48,6 +48,23 @@ def validate_artifacts(manifest, root):
             raise ValueError("RELEASE_ARTIFACT_MISMATCH")
 
 
+def validate_scoped_restore(expected, restore):
+    """A successful restore of another candidate cannot establish this scope."""
+    restored = restore.get("image_contract", {})
+    aliases = {"api": "api", "postgres": "postgres", "object_store": "minio", "s3_client": "backup"}
+    if not isinstance(restored, dict) or any(
+        restored.get(name) != expected.get(service) or not expected.get(service)
+        for name, service in aliases.items()
+    ):
+        raise ValueError("RELEASE_SCOPE_RESTORE_MISMATCH")
+    if "legacy-verifier" in expected:
+        legacy = restore.get("legacy_verification", {})
+        if (not isinstance(legacy, dict) or legacy.get("verified") is not True
+                or legacy.get("image") != expected["legacy-verifier"]
+                or legacy.get("network") != "none" or legacy.get("read_only") is not True):
+            raise ValueError("RELEASE_SCOPE_LEGACY_RESTORE_MISMATCH")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--id", required=True)
@@ -57,6 +74,7 @@ def main():
     parser.add_argument("--restore-status", type=Path, required=True)
     parser.add_argument("--migration-head", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--release-scope", type=Path, help="PR8 exact runtime and recovery scope")
     args = parser.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9._-]{1,80}", args.id):
         raise ValueError("INVALID_RC_ID")
@@ -68,6 +86,9 @@ def main():
     references = [args.inventory, args.security_report, args.restore_status, *args.test_report,
                   Path("backend/requirements.lock"), Path("backend/requirements-assistant.lock"),
                   Path("backend/requirements-mlflow.lock"), Path("frontend/web/package-lock.json")]
+    if args.release_scope:
+        references.extend([args.release_scope, Path("docker-compose.prod.yml"),
+                           Path("ops/docker-compose.core.yml"), Path("ops/caddy/Core.Caddyfile")])
     artifacts = {}
     for reference in references:
         resolved = reference.resolve()
@@ -88,6 +109,23 @@ def main():
         repository = reference.rsplit(":", 1)[0] if ":" in reference.rsplit("/", 1)[-1] else reference
         for service in aliases.get(image["component"], (image["component"],)):
             service_images[service] = repository + "@" + image["image_id"]
+    scope_fields = {}
+    if args.release_scope:
+        from release_scope import active_services
+        scope = json.loads(args.release_scope.read_text(encoding="utf-8"))
+        expected = {name: row["image"] for name, row in active_services(scope).items()}
+        by_component = {row["component"]: row for row in inventory["images"]}
+        if set(by_component) != set(expected) or any(
+            by_component[name].get("image_reference") != reference
+            or by_component[name].get("image_id") != reference.split("@")[1]
+            for name, reference in expected.items()
+        ):
+            raise ValueError("RELEASE_SCOPE_INVENTORY_MISMATCH")
+        validate_scoped_restore(expected, restore)
+        service_images = expected
+        scope_fields = {"release_scope_reference": args.release_scope.resolve().relative_to(root).as_posix(),
+                        "release_scope_sha256": sha256(args.release_scope),
+                        "configuration_contract_version": "PRIVATE_CORE_SCOPE_V1"}
     output_name = args.output.resolve().relative_to(root).as_posix()
     sources = source_snapshot(root, (output_name,))
     payload = {
@@ -113,6 +151,7 @@ def main():
         "real_data_status": "REAL_DATA_LIMITED",
         "recommendation_status": "RECOMMENDATIONS_GATED",
     }
+    payload.update(scope_fields)
     validate_artifacts(payload, root)
     payload["content_sha256"] = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     write_new(args.output, payload)

@@ -1,0 +1,32 @@
+# Isolated client candidate, not an approved maintained upstream distribution.
+# Official archived source is fixed by commit and exact archive checksum.
+FROM golang:1.27.3-alpine@sha256:b8c9b82affbbb82a020bbcf998dad2ba9516944ac7e883524642a481a9505e9c AS build
+ENV GOTOOLCHAIN=local CGO_ENABLED=0
+ADD --checksum=sha256:167415edd21bc29f5360943dac64272aa5cda0a39f3070b15cfeca671c43d975 https://codeload.github.com/minio/mc/tar.gz/77f82e18b5401a65958f1619df6ebb994634bd88 /tmp/mc.tar.gz
+RUN mkdir /src && tar -xzf /tmp/mc.tar.gz -C /src --strip-components=1
+WORKDIR /src
+RUN go mod edit \
+      -require=github.com/klauspost/compress@v1.18.7 \
+      -require=github.com/prometheus/prometheus@v0.311.3 \
+      -require=golang.org/x/crypto@v0.55.0 \
+      -require=golang.org/x/net@v0.60.0 \
+      -require=golang.org/x/text@v0.41.0 \
+      -require=google.golang.org/grpc@v1.83.2 \
+    && go mod tidy \
+    && GOMAXPROCS=2 go build -p 2 -trimpath -ldflags='-s -w' -o /out/mc .
+
+FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f
+USER root
+RUN rm -f /usr/bin/caddy && apk upgrade --no-cache
+COPY --from=build /out/mc /usr/bin/mc
+COPY --from=build /src/LICENSE /usr/share/mc/LICENSE
+COPY --from=build /src/go.mod /usr/share/mc/go.mod
+COPY --from=build /src/go.sum /usr/share/mc/go.sum
+COPY ops/mc/entrypoint.sh /usr/local/bin/iip-mc
+RUN chmod 755 /usr/local/bin/iip-mc
+LABEL org.opencontainers.image.source="https://github.com/minio/mc" \
+      org.opencontainers.image.revision="77f82e18b5401a65958f1619df6ebb994634bd88"
+ENV MC_CONFIG_DIR=/tmp/.mc
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/iip-mc"]
+CMD ["--version"]

@@ -44,5 +44,9 @@ class SecurityCIStatusTests(unittest.TestCase):
             (root / "pr4-npm-dependencies.json").write_text(json.dumps({"metadata": {"vulnerabilities": {"total": 0}}}))
             self.assertEqual(classify(root, steps)["status"], "SECURITY_CHECK_PASSED")
             self.assertEqual(classify(root, steps)["release_status"], "NOT_APPROVED")
+            steps["historical"] = "failure"
+            current = classify(root, steps)
+            self.assertEqual(current["status"], "SECURITY_CHECK_PASSED")
+            self.assertEqual(current["historical_inventory_step"], "failure")
             (root / "pr4-core-dependencies.json").write_text(json.dumps({"dependencies": [{"vulns": [{"id": "SYNTHETIC"}]}]}))
             self.assertEqual(classify(root, steps)["status"], "DEPENDENCY_VULNERABLE")
