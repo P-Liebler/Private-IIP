@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-10-29T13:44:58.919702+00:00",
+  "run_id": 40883463238,
+  "head_sha": "dd601be4bf916550932c9d9067bad1cf7c10c2c6",
+  "url": "https://github.com/P-Liebler/Private-IIP/actions/runs/40883463238",
+  "verify": "SUCCESS",
+  "security_job": "SUCCESS",
+  "dependency_audit": "SUCCESS",
+  "scanner_and_database": "SUCCESS",
+  "api_web_package_gate": "SUCCESS",
+  "source_secrets": "NO_KNOWN_SECRET_FINDINGS",
+  "full_runtime_recovery_audit": "SKIPPED_NOT_REQUESTED_NOT_VERIFIED",
+  "release_approval": false,
+  "artifact_id": 12901522614,
+  "artifact_sha256": "084183d6d3abf3b782bed11e4b26b13f85c1f68c4d62906daf46575cfde3b3d9",
+  "original_artifact_members_sha256": {
+    "security-status.json": "32fcc88bcf4c0b1997669944c1c08d221e0292c9e41f3b9fc558e56294627f16",
+    "vulnerability-db.json": "f4bede1c80fe73f0c8d3a0cda2a0fe18d2f19d1b7500155925b3ee34085044d1",
+    "pr4-historical-policy.json": "7579f125aa0e2209a07f0ac37760a3fb591cc068985946f563c5164e082378a3",
+    "pr4-images/api.cdx.json": "0e86e9a08d685671f62ff0368ea0432555b58a80dcf7d963fc5bd2d1fb676216",
+    "pr4-images/api.record.json": "1c9a2d890ec3067ec04a665e6536540475a26f1c7ee1f4c8760001f86b5d0e1e",
+    "pr4-images/inventory.json": "c5005d85923f59a0b715218f5ba38b959edc46f618472c3dd88f1f9c0c39b7f0",
+    "pr4-images/web.cdx.json": "50382a87339eb587497db7b849eed4adaa2456c1526bbc1811b83fdabff703fb",
+    "pr4-images/web.record.json": "19ab752bfe018d11b8147e450f90779cf02ac2a3dab2802b24083cdb8a430305",
+    "pr4-source/source-security.json": "419e633530c665c13e6bf7801c132d745ecdae3a8c46e72dc1ee9cd22b3c2c32",
+    "pr4-core-dependencies.json": "5d9c1af895e6fa70e8b94db1717b5e4b86b9c2dd390569c71a99392fab897d0f",
+    "pr4-mlflow-dependencies.json": "165b8e21c8f88cd8c28e094d13633dffc2642c89fc754bf91da553f4f8a5bda8",
+    "pr4-npm-dependencies.json": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3",
+    "pr4-core-sbom-validation.json": "f44e39be9f56a9590cb7e510b01c9c945ab938c956a82c6e882eca827c97982a"
+  },
+  "reported_baseline": {
+    "backend": 306,
+    "host": 155,
+    "browser": 31
+  }
+}

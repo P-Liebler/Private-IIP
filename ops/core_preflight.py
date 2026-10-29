@@ -15,7 +15,7 @@ from core_install_plan import configuration_hashes, startup_commands
 
 
 def check(scope, config, values, mode, image_ids, free_bytes):
-    errors = validate_config(values, mode) + validate_compose(config, values)
+    errors = validate_config(values, mode) + validate_compose(config, values, core=True)
     required = active_services(scope)
     services = config.get("services", {})
     if set(required) != set(services):
@@ -52,7 +52,7 @@ def check(scope, config, values, mode, image_ids, free_bytes):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, required=True)
-    parser.add_argument("--scope", type=Path, default=Path("ops/releases/pr9-core-v1-scope.json"))
+    parser.add_argument("--scope", type=Path, default=Path("ops/releases/pr10-core-v1-scope.json"))
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--mode", choices=["STAGING", "PRODUCTION"], default="STAGING")
     parser.add_argument("--output", type=Path, required=True)

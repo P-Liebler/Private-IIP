@@ -9,12 +9,14 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
+from app.models import DataSource
 from app.services.market_validation import validate_fx
 from app.services.raw_ingestion import RawIngestionService
 from app.services.sources import SourceGate, SourceService
 
 ECB_ORIGIN = "https://data-api.ecb.europa.eu"
 ECB_PATH = "/service/data/EXR/D.CHF+USD.EUR.SP00.A"
+ECB_INPUT_SCOPE = "fx_inputs=EXR.D.CHF.EUR.SP00.A,EXR.D.USD.EUR.SP00.A"
 
 
 def parse_ecb_csv(data: bytes) -> list[dict[str, object]]:
@@ -67,6 +69,35 @@ def parse_ecb_csv(data: bytes) -> list[dict[str, object]]:
 class EcbFxCollector:
     parser_version = "ecb-exr-csv-v2"
 
+    @staticmethod
+    def require_scope(source: DataSource, start: date, end: date) -> None:
+        """Every ECB path needs the same explicit two-leg archival contract.
+
+        Old free-text reviews remain evidence; a new append-only review must
+        attest this exact request rather than silently broadening that review.
+        """
+        for use in ("fx_rates", "raw_archive", "derived_analysis"):
+            SourceGate.require_enabled(source, use)
+        tokens = (source.scope or "").split()
+        inputs = [token for token in tokens if token.startswith("fx_inputs=")]
+        ranges = [
+            token.removeprefix("fx_coverage=")
+            for token in tokens
+            if token.startswith("fx_coverage=")
+        ]
+        try:
+            if inputs != [ECB_INPUT_SCOPE] or len(ranges) != 1:
+                raise ValueError("Explicit ECB input/range contract required")
+            first, last = ranges[0].split("|")
+            if not date.fromisoformat(first) <= start <= end <= date.fromisoformat(last):
+                raise ValueError("ECB request outside the reviewed range")
+        except ValueError:
+            raise AppError(
+                403,
+                "SOURCE_NOT_APPROVED",
+                "ECB requires reviewed input series, date coverage and archival/analysis rights",
+            ) from None
+
     def __init__(
         self,
         db: AsyncSession,
@@ -91,7 +122,7 @@ class EcbFxCollector:
         if start > end or (end - start).days > 31 or end > datetime.now(UTC).date():
             raise AppError(422, "DATE_RANGE_INVALID", "ECB range must be at most 32 past days")
         source = await SourceService(self.db).get("ECB")
-        SourceGate.require_enabled(source, "fx_rates")
+        self.require_scope(source, start, end)
         key = digest((ECB_PATH, start, end, self.parser_version))
         state = await sync_state(self.db, source, key)
         raw = await fetch_response(
@@ -103,6 +134,7 @@ class EcbFxCollector:
             allowed_host="data-api.ecb.europa.eu",
             resource="ecb_fx",
             client=self.client,
+            scope_validator=lambda current: self.require_scope(current, start, end),
             params={
                 "startPeriod": start.isoformat(),
                 "endPeriod": end.isoformat(),

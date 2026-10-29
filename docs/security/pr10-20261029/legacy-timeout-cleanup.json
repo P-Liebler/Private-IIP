@@ -1,0 +1,61 @@
+{
+  "contract": "PR10_LEGACY_LIFECYCLE_TIMEOUT_PROBE_V1",
+  "started_at": "2026-10-29T13:52:25.682855+00:00",
+  "completed_at": "2026-10-29T13:52:29.782449+00:00",
+  "passed": true,
+  "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+  "historical_image_executed": false,
+  "synthetic_sleep_program_sha256": "92a1825dd7748fa5edf4c515a2a8325e6c81d6f9f3b3d5a88141b2de03d248e2",
+  "synthetic_program": "stdlib time.sleep(30), no model/provider code or financial data",
+  "attached_client_timeout_seconds": 2,
+  "daemon_force_removal_observed": true,
+  "absence_queries_succeeded": true,
+  "runtime_verifier_file_sha256": "6b17c27fcc5d48b25eb21e2a1499bfa73e8c4de43fe1e0907ec4d500de56f00c",
+  "embedded_historical_program_sha256": "c8e41f8a48a5cdc9faaf320b35c0791b2521dcc04d7364d8895427b7ee337799",
+  "events": [
+    {
+      "operation": [
+        "create",
+        "--pull"
+      ],
+      "returncode": 0
+    },
+    {
+      "operation": [
+        "start",
+        "--attach"
+      ],
+      "timeout": true
+    },
+    {
+      "operation": [
+        "container",
+        "ls"
+      ],
+      "returncode": 0
+    },
+    {
+      "operation": [
+        "container",
+        "rm"
+      ],
+      "returncode": 0
+    },
+    {
+      "operation": [
+        "container",
+        "ls"
+      ],
+      "returncode": 0
+    },
+    {
+      "operation": [
+        "container",
+        "ls"
+      ],
+      "returncode": 0
+    }
+  ],
+  "security_approval": false,
+  "scope": "Actual Docker cleanup lifecycle only; modern existing image, no legacy runtime authorization"
+}

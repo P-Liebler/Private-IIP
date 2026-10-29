@@ -15,13 +15,13 @@ services:
     command: ["raise SystemExit('Use the isolated archive verifier')"]
   api:
     build: !reset null
-    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    image: private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869
   worker:
     build: !reset null
-    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    image: private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869
   scheduler:
     build: !reset null
-    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    image: private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869
     healthcheck:
       test: [CMD, python, -c, "import os,pathlib; os.kill(int(pathlib.Path('/tmp/celerybeat.pid').read_text().strip()),0)"]
   web:
@@ -59,7 +59,19 @@ services:
     profiles: [ops]
     image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
     entrypoint: [sh, -ec]
-    command: ["chown 10001:10001 /stage-data"]
+    # Only a new empty CA-export root may be initialized. Never repair/chown
+    # old root-created CA contents implicitly; use an operator-reviewed copy
+    # into new volumes and preserve the original CA bytes.
+    command:
+      - |
+        if test "$$(stat -c %u:%g /stage-ca)" != "10001:10001"; then
+          if test -n "$$(find /stage-ca -mindepth 1 -maxdepth 1 -print -quit)"; then
+            echo 'Existing CA export ownership requires operator-reviewed migration to new volumes' >&2
+            exit 2
+          fi
+          chown 10001:10001 /stage-ca
+        fi
+        chown 10001:10001 /stage-data
     user: "0:0"
     read_only: true
     cap_drop: [ALL]
@@ -71,15 +83,26 @@ services:
         source: core_seaweed_data
         target: /stage-data
         volume: {nocopy: true}
+      - type: volume
+        source: caddy_ca
+        target: /stage-ca
+        volume: {nocopy: true}
   caddy:
     build: !reset null
     image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
+    user: "10001:10001"
+    environment:
+      HOME: /tmp
+    ports: !override
+      - "${VPN_BIND_ADDRESS:-127.0.0.1}:80:8080"
+      - "${VPN_BIND_ADDRESS:-127.0.0.1}:443:8443"
     networks: !override [edge, platform, storage]
     volumes:
       - ./ops/caddy/Core.Caddyfile:/etc/caddy/Caddyfile:ro
   ca-export:
     build: !reset null
     image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
+    user: "10001:10001"
   prometheus:
     image: prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
     ports: !reset []
@@ -102,7 +125,7 @@ services:
     security_opt: [no-new-privileges:true]
   ml-worker:
     build: !reset null
-    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    image: private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869
     healthcheck:
       test: [CMD, python, -c, "import socket; from app.jobs.celery_app import celery_app; name='ml@'+socket.gethostname(); assert any(r.get(name,{}).get('ok')=='pong' for r in celery_app.control.ping(destination=[name],timeout=5))"]
   mlflow:

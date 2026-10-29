@@ -1,5 +1,57 @@
 # Implementation status
 
+## PR10 – Lokaler Abschluss, echte Nutzung weiter gesperrt (29.10.2026)
+
+**TECHNICALLY_VERIFIED (lokal synthetisch) / SECURITY_BLOCKED / NOT_RELEASED.**
+Angeforderten tatsächlichen CI-Lauf 40883463238 @ `dd601be…` ausgewertet:
+Verify/Security erfolgreich, vollständiger Core-/Recovery-Scope nicht angefordert.
+Keine PR10-Arbeitsbytes remote verifiziert, kein Push/Release.
+
+Behoben: ECB-Collector/Backfill prüft konkrete Serien, gesamten Datumsbereich
+und Roharchiv-/Analyserechte vor jedem Netzwerkversuch; 15 neue Offlinefälle.
+Caddy sperrt interne Routen vor dem Frontendproxy, Compose-Caddy/CA-Export
+läuft als Nonroot mit hohen Containerports; alte root-owned CA-Volumes werden
+nicht implizit verändert. Legacyrunner garantiert versuchsbezogene daemonseitige
+Bereinigung oder scheitert geschlossen. Additive moderne Archivprüfung und
+ADR-028 trennen Integrität, bloßen Berichtsvergleich und historische Ausführung.
+Normative Ablösung und sämtliche Securityausnahmen bleiben offen.
+
+**321 Backendtests je neuem Core-/normalem Produktionsbuild, 192 Hosttests,
+31/31 Standalone-Browserfälle**, Ruff/Format/Mypy, Frontend-Lint/Typecheck/Build,
+native Proben und beide Fresh-/Drift-Migrationen bestanden. Neue exakte
+13-Service-/9-Image-Scans und 13 formale SBOMs, separater Produktionsbuildscan.
+Beide Backends 0 Critical/0 High; vollständiger Scope weiterhin **1 Critical /
+48 High-Paketzeilen über unterschiedliche Images**, keine aktiven Ausnahmen.
+
+Neuer isolierter Core mit acht erfolgreichen Prüfbereichen ohne optionale
+ML-/LLM-Dienste, anschließend quiesziertes Backup. Zwei getrennte vollständige
+Restores mit **je 1’387 tatsächlich verifizierten Dateihashes**, zehn erhaltenen
+Archivhashverträgen, historischem CHF-10’180-Stichtag und heutigem `STALE_PRICE`.
+Originale PR9-Belege/Archive/Scope/Manifest, alle numerischen Locks und
+Migrationen unverändert. Masterplan weiterhin 212 Hauptabschnitte.
+
+Neuer geschützter Preflight und Installationsplan technisch konsistent,
+**NOT_APPROVED / NO_SERVICES_STARTED**. OpenShift-/Argo-CD-Entwürfe erhalten,
+aktuelle API tatsächlich arbitrary-UID-geprüft, vier lokale Render; kein Cluster.
+ECB/OpenFIGI in tatsächlicher read-only Registry weiterhin UNKNOWN/deaktiviert.
+Collection/Forward/Testmodus/temporäre Operatorrollen zurückgesetzt.
+
+Externe Voraussetzungen: autorisierter Legacy-/Caddy-/Restsecurityentscheid,
+realer primärer Zielbetrieb und echte Clients, unabhängiger verschlüsselter
+Recoverybetrieb/Schlüssel/Tagesjob/Alarmempfang, konkrete Quellenfreigabe und
+getrennte Liveereignisse, echte private Originale mit Depotabgleich sowie
+unabhängige Testperson (**PENDING_USER_TEST**). Keine Produktivinstallation,
+Quellenaktivierung, Modell-/Strategiepromotion oder echter Portfolioimport.
+Keine weitere Architektur als Ersatz für diese Voraussetzungen.
+
+[PR10-Gesamtentscheidung](PR10_ACCEPTANCE_REPORT.md),
+[Security](PR10A_SECURITY_DECISION_REPORT.md),
+[Zielbetrieb](PR10B_TARGET_ACCEPTANCE_REPORT.md),
+[Daten](PR10C_LIVE_DATA_REPORT.md),
+[Pilot](PR10D_REAL_PORTFOLIO_REPORT.md),
+[Bedienbarkeit](PR10E_USABILITY_REPORT.md),
+[Regressionsbeleg](security/pr10-20261029/regression-final.json).
+
 ## PR9 – Releaseblocker bearbeitet, reale Freigaben offen (29.10.2026)
 
 Zusätzlich ist **OpenShift mit Red Hat OpenShift GitOps / Argo CD Applications**

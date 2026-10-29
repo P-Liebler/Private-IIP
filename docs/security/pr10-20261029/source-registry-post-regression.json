@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-10-29T15:08:38.200483+00:00",
+  "scope": "READ_ONLY_LOCAL_REGISTRY_NOT_SOURCE_APPROVAL",
+  "sources": [
+    {
+      "slug": "ECB",
+      "gate_status": "UNKNOWN",
+      "enabled": false,
+      "scope_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review_present": false,
+      "next_review_present": false,
+      "current_requested_use_gate": "SOURCE_NOT_APPROVED"
+    },
+    {
+      "slug": "OPENFIGI",
+      "gate_status": "UNKNOWN",
+      "enabled": false,
+      "scope_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review_present": false,
+      "next_review_present": false,
+      "current_requested_use_gate": "SOURCE_NOT_APPROVED"
+    }
+  ],
+  "assistant_test_mode": false,
+  "collection_enabled": false,
+  "forward_shadow_enabled": false,
+  "data_and_ml_operator_overrides_empty": true,
+  "provider_requests": false,
+  "registry_mutations": false
+}

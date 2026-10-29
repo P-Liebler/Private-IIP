@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+from uuid import uuid4
 
 from security_audit import write_new
 
@@ -52,20 +53,69 @@ print(json.dumps({"contract":"PR5_LEGACY_VERIFICATION_V1", "verified":True,
 '''
 
 
+def _containers(label: str) -> list[str]:
+    result = subprocess.run(
+        ["docker", "container", "ls", "--all", "--quiet", "--no-trunc", "--filter", label],
+        capture_output=True, timeout=30, check=False,
+    )
+    if result.returncode or len(result.stdout) > 16000:
+        raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED")
+    ids = result.stdout.decode("ascii").split()
+    if len(ids) > 1 or any(not re.fullmatch(r"[0-9a-f]{64}", item) for item in ids):
+        raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED")
+    return ids
+
+
+def _cleanup(session: str, identity: str | None) -> None:
+    """Remove only this attempt's labelled container; prove daemon-side absence."""
+    owned = "label=iip.legacy-verifier-session=" + session
+    try:
+        ids = _containers(owned)
+        if identity is not None and any(item != identity for item in ids):
+            raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED")
+        for container in ids:
+            # A force-remove kills the daemon-side process, including when the
+            # attached Docker client has already timed out or disconnected.
+            subprocess.run(["docker", "container", "rm", "--force", container],
+                           capture_output=True, timeout=30, check=False)
+        if _containers(owned):
+            raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED")
+        if identity is not None and _containers("id=" + identity):
+            raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED")
+    except (subprocess.SubprocessError, OSError, UnicodeError) as error:
+        raise ValueError("LEGACY_CONTAINER_CLEANUP_UNCONFIRMED") from error
+
+
 def verify(envelope: bytes, image: str) -> dict:
     if len(envelope) > MAX_ENVELOPE:
         raise ValueError("LEGACY_INPUT_LIMIT")
     if not re.fullmatch(r"[A-Za-z0-9_./:-]+@sha256:[0-9a-f]{64}", image):
         raise ValueError("LEGACY_IMMUTABLE_IMAGE_REQUIRED")
+    # Create first so the exact daemon-side identity is known before execution.
     # No env propagation, mounts, host networking, sockets or writable root.
-    result = subprocess.run(
-        ["docker", "run", "--rm", "--pull", "never", "--network", "none",
-         "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
-         "--user", "10001:10001", "--pids-limit", "32", "--memory", "512m",
-         "--cpus", "1", "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
-         "-i", image, "python", "-I", "-B", "-c", VERIFIER],
-        input=envelope, capture_output=True, timeout=90, check=False,
-    )
+    session, identity = uuid4().hex, None
+    try:
+        created = subprocess.run(
+            ["docker", "create", "--pull", "never", "--network", "none",
+             "--name", "iip-legacy-verify-" + session,
+             "--label", "iip.legacy-verifier-session=" + session,
+             "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+             "--user", "10001:10001", "--pids-limit", "32", "--memory", "512m",
+             "--cpus", "1", "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
+             "-i", image, "python", "-I", "-B", "-c", VERIFIER],
+            capture_output=True, timeout=30, check=False,
+        )
+        if created.returncode or not re.fullmatch(rb"[0-9a-f]{64}\s*", created.stdout):
+            raise ValueError("LEGACY_CONTAINER_CREATE_FAILED")
+        identity = created.stdout.decode("ascii").strip()
+        result = subprocess.run(
+            ["docker", "start", "--attach", "--interactive", identity],
+            input=envelope, capture_output=True, timeout=90, check=False,
+        )
+    except (subprocess.SubprocessError, OSError) as error:
+        raise ValueError("LEGACY_VERIFICATION_FAILED") from error
+    finally:
+        _cleanup(session, identity)
     if result.returncode or len(result.stdout) > 16000:
         # Never print model bytes or archive metadata from a failed process.
         raise ValueError("LEGACY_VERIFICATION_FAILED")
@@ -74,7 +124,9 @@ def verify(envelope: bytes, image: str) -> dict:
     if value.get("verified") is not True or value.get("artifact_sha256") != expected["artifact_sha256"]:
         raise ValueError("LEGACY_RESULT_MISMATCH")
     return value | {"image": image, "network": "none", "read_only": True,
-                    "verifier_sha256": hashlib.sha256(VERIFIER.encode()).hexdigest()}
+                    "verifier_sha256": hashlib.sha256(VERIFIER.encode()).hexdigest(),
+                    "container_cleanup_verified": True,
+                    "container_isolation_contract": "PR10_OWNED_LEGACY_CONTAINER_V1"}
 
 
 def main():

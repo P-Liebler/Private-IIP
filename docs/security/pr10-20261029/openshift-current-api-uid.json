@@ -1,0 +1,11 @@
+{
+  "recorded_at": "2026-10-29T14:51:54.423272+00:00",
+  "image": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+  "uid": 1000720000,
+  "gid": 0,
+  "passed": true,
+  "network": "none",
+  "read_only_root": true,
+  "scope": "LOCAL_SYNTHETIC_API_CELERY_NATIVE_IMPORT_TMP_ONLY_NOT_CLUSTER_SCC_CSI_OR_RELEASE",
+  "other_unchanged_images": "Prior PR9 probes remain historical exact-image evidence; not rerun or relabelled"
+}

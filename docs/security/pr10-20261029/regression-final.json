@@ -1,0 +1,198 @@
+{
+  "recorded_at": "2026-10-29T15:08:13.991692+00:00",
+  "scope": "FINAL_LOCAL_SYNTHETIC_REGRESSION_NOT_REAL_PORTFOLIO_OR_TARGET_ACCEPTANCE",
+  "passed": true,
+  "git_head": "dd601be4bf916550932c9d9067bad1cf7c10c2c6",
+  "backend": [
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "1debc41c71ccb61bb64b39b7c938d8fe4096b4efad4844c93912c1d09debdada"
+    },
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "f93bae2625d1b977aa4b11ecc42c0f92cea4bc96a4f3b270d80b7ea4521fd361"
+    }
+  ],
+  "host": {
+    "tests": 192,
+    "passed": true,
+    "original_full_quality_passed": false,
+    "original_failure": "One unused test import; removed and supplemental Ruff plus9 legacy tests passed. Original receipt preserved.",
+    "original_receipt_sha256": "4b9d175ab089aece0a2dd4ae57e0ab48d698dbfa4bd6154baec54118643e3982",
+    "supplemental_receipt_sha256": "9cc6023ea543743be21f2ab4025400e837266d829ca91b70accffb5d0bd1a30e"
+  },
+  "static_backend": {
+    "ruff": 0,
+    "format": 0,
+    "mypy": 0
+  },
+  "frontend": {
+    "lint": 0,
+    "typecheck": 0,
+    "standalone_build": 0,
+    "source_changed_after_build": false
+  },
+  "browser": {
+    "passed": true,
+    "tests": 31,
+    "normal_mode_restored": true,
+    "log_sha256": "28cf2981d563535e4f1e2bfa97b40ca8d5f3bbc7b504c1019c3cc63bb7ba8fd6",
+    "protocol": "ops/docker-compose.e2e.yml completed standalone build; no concurrent backend integration run"
+  },
+  "native_runtime_probe": {
+    "core": 0,
+    "standard_production": 0
+  },
+  "migration": {
+    "head": "0021_ui_requests",
+    "required_table_subset_count": 78,
+    "core_fresh": 0,
+    "core_drift": 0,
+    "standard_fresh": 0,
+    "standard_drift": 0,
+    "migrations_changed": false
+  },
+  "core_staging": {
+    "scope": "ISOLATED_FINAL_CORE_SYNTHETIC_ONLY",
+    "passed": true,
+    "stopped": true,
+    "source_backup_run_id": "20261028T143410Z-29768",
+    "checks": {
+      "all_original_archive_hashes_preserved": true,
+      "optional_services_absent_core_healthy": true,
+      "scheduler_only_monotonic_progress": true,
+      "strict_https_nonce_auth_valuation_and_llm_absence": true,
+      "unapproved_refresh_abstains": true,
+      "actual_prometheus_scrape_up": true,
+      "original_collection_rows_preserved": true,
+      "quiesced_target_backup": true
+    },
+    "backup": {
+      "completed_at": "2026-10-29T14:16:45.113243+00:00",
+      "completed_timestamp": 1793283405,
+      "database": "investment",
+      "database_artifact": "postgres.dump",
+      "duration_seconds": 54.275831,
+      "migration_evidence_files": 8,
+      "raw_object_count": 1378,
+      "raw_prefix": "raw/",
+      "run_id": "20261029T141550Z-8532",
+      "size_bytes": 6542584,
+      "source_bucket": "raw-ingestions",
+      "started_at": "2026-10-29T14:15:50.837412+00:00",
+      "success": true
+    },
+    "evidence_log_sha256": "58d044e25763b6a3e1c210be12f3d7b01087e5aeabac5d6b492a0951c14cb9b7",
+    "evidence_scope": "ISOLATED_LOCAL_SYNTHETIC_NOT_TARGET_HOST"
+  },
+  "security_scan": {
+    "passed": true,
+    "core_services": 13,
+    "core_unique_images": 9,
+    "additional_standard_image": "private-iip/backend@sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+    "release_approval": false
+  },
+  "sbom": {
+    "core_valid": 13,
+    "core_required": 13,
+    "unique_core_images": 9,
+    "additional_standard_valid": 1
+  },
+  "restore": {
+    "core": {
+      "reference": "docs/security/pr10-20261029/restore-core.json",
+      "sha256": "00b473770c11eba1784651cf115bc66d3377f237ec63bc48968cdf986874d2fe",
+      "verified_backup_files": 1387,
+      "success": true,
+      "cleanup_success": true,
+      "legacy_cleanup_verified": true
+    },
+    "standard_production": {
+      "reference": "docs/security/pr10-20261029/restore-standard-production.json",
+      "sha256": "706728004dee9b7b868eeebe06ced5966f1d35a90f3596c06f3cd2fcab6f0236",
+      "verified_backup_files": 1387,
+      "success": true,
+      "cleanup_success": true,
+      "legacy_cleanup_verified": true
+    }
+  },
+  "archive_contracts": {
+    "master_main_sections": 212,
+    "original_pr9_files_and_numerical_locks_unchanged": true,
+    "fresh_restore_hash_contracts": 10,
+    "golden_chf": "10180",
+    "golden_as_of_utc": "2026-10-26T15:18:05.987683+00:00",
+    "today_old_price_status": "STALE_PRICE",
+    "legacy_embedded_verifier_unchanged": true
+  },
+  "outage_and_gate_evidence": [
+    "Caddy strict wrong-CA/auth/internal-route checks",
+    "Actual Core without optional LLM/ML services: LLM_UNAVAILABLE and functional ledger/valuation",
+    "Unapproved holdings refresh blocked without collectorjobs",
+    "ECB source review change before sync/retry prevents outbound request",
+    "Real bounded modern-image timeout cleanup; original legacy cleanup verified in both full restores",
+    "Read-only offline OpenShift preflight remains DRAFT_NOT_DEPLOYABLE"
+  ],
+  "preserved_initial_failures": [
+    {
+      "scope": "Caddy preliminary canaries/storage probe",
+      "receipt": "docs/security/pr10-20261029/caddy-proof-index.json"
+    },
+    {
+      "scope": "Private Core helper v1 pre-start KeyError",
+      "receipt_sha256": "90cbf5ef7ff193d0960ce0a81eaf5e3a8e5391f829ed5c737a5f9f3e9f5c1d8d"
+    },
+    {
+      "scope": "New own Docker network pool exhausted; empty owned local test networks inventoried and six removed, no original volumes touched",
+      "receipt_sha256": "056c93a457d31f6bb49c345cb6a3cdb9fd187193934a8073f898a6d70d61c7d7"
+    },
+    {
+      "scope": "Standard private test Compose build:null overlay invalid, before database mutation; corrected separate v2 migration suite passed",
+      "receipt_sha256": "5c1802d3c5161cc3a4168522ab18e9814a2cc63f31fa1940c87a86cfd9b67c30"
+    },
+    {
+      "scope": "Original unused test import lint failure preserved",
+      "receipt_sha256": "4b9d175ab089aece0a2dd4ae57e0ab48d698dbfa4bd6154baec54118643e3982"
+    }
+  ],
+  "private_log_hashes": {
+    "backups/pr10-final-quality/status.json": "4b9d175ab089aece0a2dd4ae57e0ab48d698dbfa4bd6154baec54118643e3982",
+    "backups/pr10-final-quality/status-v2.json": "9cc6023ea543743be21f2ab4025400e837266d829ca91b70accffb5d0bd1a30e",
+    "backups/pr10-runtime-final-status.json": "57fc07eb0cb75f9bee3c8dac8204e01e435fcab08bb4e94b9da02a9eb9c6633b",
+    "backups/pr10-migration-standard-v2-status.json": "2c6db6fb9b7d4ec1734dd4da36f8dcb94219344e325feb251da0be89e8147eef",
+    "backups/pr10-baseline-frontend-status.json": "5748856e66a45c4329b8846c150d49adfc338e1298ac8c39a96737a56f11aae0",
+    "backups/pr10-final-browser-v1-status.json": "e636a8480427034f1074605b00077959246f410d27df7477f8c3c6b2f11d43c8",
+    "backups/pr10-core-stage-v3/run.txt": "58d044e25763b6a3e1c210be12f3d7b01087e5aeabac5d6b492a0951c14cb9b7",
+    "backups/pr10-migration-core-fresh.txt": "fd55ba72e2b2f5fb510711877ecc675d1fd672f917e56aceb424fbcdfe315f38",
+    "backups/pr10-migration-core-drift.txt": "e7a73e06740bf73700ccec7e5068d0f41279ab911784a6492f45db0b8cce1ed6",
+    "backups/pr10-migration-standard-v2-fresh.txt": "4e7de4d4e8a7ff32c7ce5a8a92d59c984b46088d6ada15e4d575c91d860a5790",
+    "backups/pr10-migration-standard-v2-drift.txt": "6b74875e3810d10789655519c837e871dc1286d27d221fd5c8e3cd3c55ca4d55",
+    "backups/pr10-native-core.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr10-native-standard.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr10-baseline-frontend-stop.txt": "a4b6d628646eefc41d2276a4ed8c257a91012e6099d314aee030daee45cd0125",
+    "backups/pr10-baseline-frontend-lint.txt": "7c3c5f09dce26e27ef0767d6348c8266a575f3170559bb3cc136f0940ba84549",
+    "backups/pr10-baseline-frontend-typecheck.txt": "95747e8cb7d902e8e5c7f7c4e55c43b9eb991b74a0c08a53caf3b934cffa331b",
+    "backups/pr10-baseline-frontend-build.txt": "f5f1b396498adef6beaa44e458313d9b3fe1e44addac3c24997bacc34740a371",
+    "backups/pr10-final-browser-v1.txt": "28cf2981d563535e4f1e2bfa97b40ca8d5f3bbc7b504c1019c3cc63bb7ba8fd6",
+    "backups/pr10-target-restore-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4",
+    "backups/pr10-standard-restore-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+  },
+  "security_approved": false,
+  "target_deployed": false,
+  "real_portfolio_verified": false,
+  "live_source_verified": false,
+  "automatic_refresh_verified": false,
+  "forecasts_validated": false,
+  "recommendations_validated": false,
+  "release_approval": false
+}

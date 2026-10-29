@@ -1,0 +1,17 @@
+{
+  "started_at": "2026-10-29T13:59:37.771338+00:00",
+  "source_reference": "private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6",
+  "source_image_id": "sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6",
+  "candidate_tag": "private-iip/backend:pr10-core-v1",
+  "status": "BUILT_NOT_APPROVED",
+  "release_status": "NOT_APPROVED",
+  "inputs": {
+    "ops/backend/Dockerfile.pr9": "e68572163d3fb3fa90c523c214d73eabfcc030720ada7629e4fac381938e7c04",
+    "ops/backend/assemble_runtime.py": "cfc66fea5d161c57a93d95ec7482dd89141407c40438b9aefc049a7111c609f4",
+    "backend/requirements.lock": "e5b5632853fe8ea05dbde087bd83e1c1cfa5e5872479710e2771b5e89873a84b",
+    "backend/requirements-assistant.lock": "59b9dcaec8c2ff2f0db024fba5b31288e612b492cd83aa557b59c883d558f7bf"
+  },
+  "image_id": "sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+  "finished_at": "2026-10-29T14:01:02.461304+00:00",
+  "build_log_sha256": "5948387f08812f902a3bd69e319422d105b217927526376eda0f70ca95d8c67b"
+}

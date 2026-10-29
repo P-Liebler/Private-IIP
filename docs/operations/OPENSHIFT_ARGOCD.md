@@ -8,9 +8,17 @@ belegt weder SCC-Zulassung noch einen erfolgreichen Start oder eine Freigabe.
 
 Die unveränderten fachlichen Zustände bleiben `REAL_DATA_LIMITED`,
 `FORECASTS_SHADOW_ONLY` und `RECOMMENDATIONS_GATED`. PR9-Sicherheit und
-Zielbetrieb benötigen ihre getrennten Entscheidungen. Die PR9-Digests bilden
+Zielbetrieb benötigen ihre getrennten Entscheidungen. Die aktuellen PR10-Core-Digests bilden
 eine technische Ausgangsbasis, keine OpenShift-Freigabe; insbesondere bestehende
 Recovery- und Caddy-Befunde dürfen durch dieses zusätzliche Ziel nicht entfallen.
+
+PR10 ergänzt die terminale Sperre interner Pfade vor dem Frontendproxy und
+beschränkt Caddy auf HTTP/1.1 und HTTP/2, weil kein UDP-Zugang bereitgestellt
+wird. Das Backend-Draftimage enthält den erneut geprüften ECB-Scopefix.
+Die frühere [PR9-Vorbereitungsabnahme](../OPENSHIFT_GITOPS_ACCEPTANCE_REPORT.md)
+bleibt mit ihren damaligen Images erhalten; aktuelle getrennte Grenzen und
+Zielvoraussetzungen stehen in [PR10B](../PR10B_TARGET_ACCEPTANCE_REPORT.md).
+Keine dieser lokalen Änderungen ersetzt einen serverseitigen Cluster-Dry-Run.
 
 ## Enthaltene Vorbereitung
 

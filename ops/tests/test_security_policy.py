@@ -11,9 +11,9 @@ from security_policy import approved_exception, evaluate
 class SecurityPolicyTests(unittest.TestCase):
     def setUp(self):
         self.now = datetime.now(UTC)
-        self.finding = {"component": "test", "cve": "CVE-TEST", "image_id": "sha256:" + "a" * 64, "severity": "CRITICAL"}
+        self.finding = {"component": "test", "cve": "CVE-2026-9999999", "image_id": "sha256:" + "a" * 64, "severity": "CRITICAL"}
         self.image = {"component": "test", "image_id": self.finding["image_id"], "scan_status": "SCANNED_EXACT_IMAGE", "sbom_sha256": "b" * 64, "findings": [self.finding]}
-        self.exception = {"component": "test", "cve": "CVE-TEST", "digest": self.finding["image_id"], "technical_reason": "synthetic test", "reachability_evidence": "synthetic evidence", "mitigations": "synthetic isolation", "reviewer": "synthetic-reviewer", "approval_reference": "synthetic-operator-decision", "approved_at": (self.now - timedelta(days=1)).isoformat(), "expires_at": (self.now + timedelta(days=1)).isoformat(), "re_review_trigger": "new image, configuration, advisory or evidence"}
+        self.exception = {"component": "test", "cve": "CVE-2026-9999999", "digest": self.finding["image_id"], "technical_reason": "synthetic test", "reachability_evidence": "synthetic evidence", "mitigations": "synthetic isolation", "reviewer": "synthetic-reviewer", "approval_reference": "synthetic-operator-decision", "approved_at": (self.now - timedelta(days=1)).isoformat(), "expires_at": (self.now + timedelta(days=1)).isoformat(), "re_review_trigger": "new image, configuration, advisory or evidence"}
 
     def test_missing_optional_service_scan_still_incomplete_when_in_release(self):
         self.assertEqual(evaluate([self.image], ["test", "optional"]), "SCAN_INCOMPLETE")

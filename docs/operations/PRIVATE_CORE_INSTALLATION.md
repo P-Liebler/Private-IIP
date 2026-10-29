@@ -1,6 +1,6 @@
 # Private Core: geführte Installation und Zielhostprüfung
 
-Stand: 28.10.2026. Der Zielhost fehlt. Dieser Ablauf bereitet eine spätere Installation vor; lokale Stagingtests erteilen keine Freigabe.
+Stand: 29.10.2026. Der Zielhost fehlt. Dieser Ablauf bereitet eine spätere Installation vor; lokale Stagingtests erteilen keine Freigabe. Aktueller lokaler Kandidat ist PR10 RC1, weiterhin `SECURITY_BLOCKED / NOT_APPROVED`; siehe [PR10-Abnahme](../PR10_ACCEPTANCE_REPORT.md). Alte PR9-Belege bleiben unverändert historisch.
 
 ## 1. Konfiguration außerhalb von Git vorbereiten
 
@@ -15,8 +15,8 @@ Stand: 28.10.2026. Der Zielhost fehlt. Dieser Ablauf bereitet eine spätere Inst
 Vom Repositoryroot aus, mit tatsächlichen privaten Pfaden und dem endgültigen Inventar:
 
 ```powershell
-python ops/core_preflight.py --env-file C:/privat/core.env --scope ops/releases/pr9-core-v1-scope.json --inventory C:/privat/final-inventory.json --mode PRODUCTION --output C:/privat/evidence/preflight-UTC.json
-python ops/core_install_plan.py --env-file C:/privat/core.env --scope ops/releases/pr9-core-v1-scope.json --inventory C:/privat/final-inventory.json --preflight C:/privat/evidence/preflight-UTC.json --manifest ops/releases/pr9-core-v1-rc1-manifest.json --mode PRODUCTION --output C:/privat/evidence/install-plan-UTC.json
+python ops/core_preflight.py --env-file C:/privat/core.env --scope ops/releases/pr10-core-v1-scope.json --inventory docs/security/pr10-20261029/core-rc1/inventory.json --mode PRODUCTION --output C:/privat/evidence/preflight-UTC.json
+python ops/core_install_plan.py --env-file C:/privat/core.env --scope ops/releases/pr10-core-v1-scope.json --inventory docs/security/pr10-20261029/core-rc1/inventory.json --preflight C:/privat/evidence/preflight-UTC.json --manifest ops/releases/pr10-core-v1-rc1-manifest.json --mode PRODUCTION --output C:/privat/evidence/install-plan-UTC.json
 ```
 
 Beide Helfer starten keine Dienste. Preflight liest Compose, lokale Imageidentitäten, RAM, Backupplatz, Dateirechte und S3-Identitätsvertrag. Es prüft den vollständigen Scope einschließlich Recovery, private Ports und eigene nicht externe Volumes. Der Plan bindet Preflight an Konfigurations-/Scope-/Inventarbytes, Modus und maximal 24 Stunden. Ein geänderter Checkout kann ein älteres Release-Manifest absichtlich ungültig machen.
@@ -53,7 +53,7 @@ Alle folgenden Schritte bleiben **PENDING**, bis sie auf dem tatsächlichen Ziel
 Für jeden ausgeführten Schritt einen neuen privaten Beleg erzeugen:
 
 ```powershell
-python ops/record_host_check.py --step dns --result PASS --operator <Operator-ID> --hostname <privater-Hostname> --manifest ops/releases/pr9-core-v1-rc1-manifest.json --evidence C:/privat/evidence/dns-UTC.txt --output C:/privat/evidence/dns-UTC-receipt.json
+python ops/record_host_check.py --step dns --result PASS --operator <Operator-ID> --hostname <privater-Hostname> --manifest ops/releases/pr10-core-v1-rc1-manifest.json --evidence C:/privat/evidence/dns-UTC.txt --output C:/privat/evidence/dns-UTC-receipt.json
 ```
 
 Der Helfer bindet existierende Belegbytes und Manifest per SHA-256, verweigert Überschreiben und Ablage in sichtbaren Repositorydateien. Er protokolliert ausdrücklich eine **Operatoraussage mit ausstehendem Review**; er erteilt keine Host- oder Releasefreigabe und kann eine Aussage nicht als wahr beweisen. Fehlgeschlagene Prüfungen und spätere Wiederholungen bleiben eigene Belege. Erst der berechtigte Reviewer bewertet die vollständige tatsächliche Evidenz.

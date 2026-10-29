@@ -1,0 +1,57 @@
+{
+  "scope": "ORIGINAL_EXACT_IMAGE_SCANS_REUSED_ONLY_FOR_IDENTICAL_SERVICE_DIGESTS",
+  "origins": {
+    "legacy-verifier": {
+      "original_component": "legacy-verifier",
+      "original_record_sha256": "e0ddd54914e4e1971ce6860ef3d5fa3913207243ed59613ef9a6572550421914"
+    },
+    "api": {
+      "original_component": "api",
+      "original_record_sha256": "925d9fd80cb177c0e612bf2fa4a12e6d79370eba0b127f3969ecd8cc11e2d862"
+    },
+    "worker": {
+      "original_component": "api",
+      "original_record_sha256": "925d9fd80cb177c0e612bf2fa4a12e6d79370eba0b127f3969ecd8cc11e2d862"
+    },
+    "scheduler": {
+      "original_component": "api",
+      "original_record_sha256": "925d9fd80cb177c0e612bf2fa4a12e6d79370eba0b127f3969ecd8cc11e2d862"
+    },
+    "web": {
+      "original_component": "web",
+      "original_record_sha256": "4ab0f571fad596b0e2d7dfe44750974ad870cde1897eaeb57954776c34e5c67c"
+    },
+    "postgres": {
+      "original_component": "postgres",
+      "original_record_sha256": "acca3e07334d2f44dccdde5d8e075e8a0f84f228c3d634a7a8d8e0f15e96df4f"
+    },
+    "valkey": {
+      "original_component": "valkey",
+      "original_record_sha256": "8aa70bc9ff3c56987b06bdf830d779bf188dafb5eaf41e42a4442f6043aa16ac"
+    },
+    "minio": {
+      "original_component": "minio",
+      "original_record_sha256": "28b648920bb386db55c788d296ffe8a47f1405b91496f04b80d98b67ecf7e6ac"
+    },
+    "caddy": {
+      "original_component": "caddy",
+      "original_record_sha256": "fa63952caa71cd29f1808ff441015439726bd369bb17290caaceb7b3fd21d291"
+    },
+    "ca-export": {
+      "original_component": "caddy",
+      "original_record_sha256": "fa63952caa71cd29f1808ff441015439726bd369bb17290caaceb7b3fd21d291"
+    },
+    "prometheus": {
+      "original_component": "prometheus",
+      "original_record_sha256": "4030881d6d19e7658cfd973fcb70bdf0be17aed0c8400183d1b0cc433bae5446"
+    },
+    "backup": {
+      "original_component": "backup",
+      "original_record_sha256": "9915d78f8846def8b9a29e89945166f7231399e94b2ba227d5cf44f28571b077"
+    },
+    "storage-init": {
+      "original_component": "caddy",
+      "original_record_sha256": "fa63952caa71cd29f1808ff441015439726bd369bb17290caaceb7b3fd21d291"
+    }
+  }
+}

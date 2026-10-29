@@ -1,0 +1,121 @@
+{
+  "scope": "ACTUAL_STOPPED_LOCAL_SYNTHETIC_CORE_CONTAINERS_NOT_TARGET_HOST",
+  "checked_at": "2026-10-29T15:02:28.640636+00:00",
+  "resolved_configuration_sha256": "cbbdf9d2cf18e687c7dd19d033dd3e9f120454bffb90a8851e6351fd62ff536f",
+  "configuration_files_sha256": {
+    "docker-compose.prod.yml": "7cb0c5cc176f008e7e21658f0e5926b1afdf975f826cc6e3472a55b880758217",
+    "ops/docker-compose.core.yml": "0b7e93bc39013af176c455b4166580c82bed3b1893dceaaf0ed4783df8354c24",
+    "ops/caddy/Core.Caddyfile": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+    "ops/prometheus/prometheus.yml": "945680d7f64cd0540d0cb25e12bd438bab2c9311153bdc6a498aa104b92e3395",
+    "ops/prometheus/alerts.yml": "c071a2bcbd0357fd910e3192ccb8ab6129c13acc4ad534d4ce882579f06a2e9a",
+    "ops/docker-compose.core-staging.yml": "54d835d79247e54c8727c0e84eb63d9dad40749c537dfe390a303322bb4e52dd"
+  },
+  "private_inputs_sha256": {
+    "stage_environment": "c4f23fbf7b24f4c67aaf53a6c4496655d1b4c574bba2b67821dc2b0a8cde2f7b",
+    "s3_identity": "fc3af8de7087f815757079c284b2368c4a1356f915a4b91d519a9dd38164423b",
+    "source_readonly_overlay": "c563b6a52b4a352d4d16d116f54ad62f0e43f2b36ab194f83ac23b7e43d9bcba"
+  },
+  "containers": [
+    {
+      "service": "api",
+      "image_reference": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "actual_image_id": "sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "9372e74d9db14e9cbf65fea53af75ebe51abb1a6d6a922c63a351079f9ac8707",
+      "current_compose_config_hash": "9372e74d9db14e9cbf65fea53af75ebe51abb1a6d6a922c63a351079f9ac8707",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "ca-export",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "actual_image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "a4989732d2cf9239a7aeecf6061e9bfecb3bf1f3d535f7697b1137aecaa758b0",
+      "current_compose_config_hash": "a4989732d2cf9239a7aeecf6061e9bfecb3bf1f3d535f7697b1137aecaa758b0",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "caddy",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "actual_image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "b9771b5f7e78e18c2bdbc16dda5e86d1eb29f37b4d1a7032ff200e9c9515ddd5",
+      "current_compose_config_hash": "b9771b5f7e78e18c2bdbc16dda5e86d1eb29f37b4d1a7032ff200e9c9515ddd5",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "minio",
+      "image_reference": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "actual_image_id": "sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "a161f1210915f8c0289b08f73526e454f24df75cb16741a6d8e6c429d85c82da",
+      "current_compose_config_hash": "a161f1210915f8c0289b08f73526e454f24df75cb16741a6d8e6c429d85c82da",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "postgres",
+      "image_reference": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "actual_image_id": "sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "2189a03ff9d6ece2ba1c10ee07432fca360c814c99aa8c9d1c829b02fd6dcbe7",
+      "current_compose_config_hash": "2189a03ff9d6ece2ba1c10ee07432fca360c814c99aa8c9d1c829b02fd6dcbe7",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "prometheus",
+      "image_reference": "prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "actual_image_id": "sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "a52c149e7fbd3518bb395716aa832f8ad2059f1a785333460ec2c4081379b8cf",
+      "current_compose_config_hash": "a52c149e7fbd3518bb395716aa832f8ad2059f1a785333460ec2c4081379b8cf",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "scheduler",
+      "image_reference": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "actual_image_id": "sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "d90eeed082254ced222b07bc4f28d30c3af9fc068db014543af67b05f4afd136",
+      "current_compose_config_hash": "d90eeed082254ced222b07bc4f28d30c3af9fc068db014543af67b05f4afd136",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "valkey",
+      "image_reference": "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "actual_image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "d3872e2fae0cb513c63c437cb822db82c76ef3d318e2d0381540ef61801da9b8",
+      "current_compose_config_hash": "d3872e2fae0cb513c63c437cb822db82c76ef3d318e2d0381540ef61801da9b8",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "web",
+      "image_reference": "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "actual_image_id": "sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "f9af598828cb7a888e4b0d6987601c0c143ae72a8c60ac6f5d653c7133104dc2",
+      "current_compose_config_hash": "f9af598828cb7a888e4b0d6987601c0c143ae72a8c60ac6f5d653c7133104dc2",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "worker",
+      "image_reference": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "actual_image_id": "sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "c503d8471e97b8e753999fafced86307cb0bfff0a697cad2b185ae8d29e49fec",
+      "current_compose_config_hash": "c503d8471e97b8e753999fafced86307cb0bfff0a697cad2b185ae8d29e49fec",
+      "state": "exited",
+      "configuration_matches": true
+    }
+  ],
+  "one_shot_removed_containers": "storage-init and backup are evidenced by successful staging log and exact scans; legacy is executed separately by restore."
+}

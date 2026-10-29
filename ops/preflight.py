@@ -104,15 +104,23 @@ def validate_config(values: dict[str, str], mode: str) -> list[str]:
     return sorted(set(errors))
 
 
-def validate_compose(config: dict, values: dict[str, str]) -> list[str]:
+def validate_compose(config: dict, values: dict[str, str], *, core: bool = False) -> list[str]:
     errors = []
     services = config.get("services", {})
     for name, service in services.items():
         for port in service.get("ports", []):
             allowed = {"caddy": {80, 443}, "prometheus": {9090}, "grafana": {3000}}
             bind = values.get("VPN_BIND_ADDRESS") if name == "caddy" else "127.0.0.1"
-            if (int(port.get("target", 0)) not in allowed.get(name, set())
-                or port.get("host_ip") != bind):
+            try:
+                if name == "caddy":
+                    pairs = {(8080, 80), (8443, 443)} if core else {(80, 80), (443, 443)}
+                    valid = ((int(port.get("target", 0)), int(port.get("published", 0))) in pairs
+                             and port.get("protocol", "tcp") == "tcp")
+                else:
+                    valid = int(port.get("target", 0)) in allowed.get(name, set())
+            except (ValueError, TypeError):
+                valid = False
+            if not valid or port.get("host_ip") != bind:
                 errors.append("UNEXPECTED_PUBLISHED_PORT_" + name.upper())
         if service.get("privileged") or service.get("network_mode") == "host":
             errors.append("PRIVILEGED_SERVICE_" + name.upper())

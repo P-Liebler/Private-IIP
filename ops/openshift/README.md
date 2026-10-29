@@ -1,8 +1,8 @@
 # OpenShift preparation — DRAFT / NOT_APPROVED
 
-This is an additional deployment target for the existing application. Every
-workload has zero replicas, and the separate Alembic Job is suspended. Images use
-`registry.invalid` with the measured PR9 candidate digests. No cluster was used;
+This is an additional deployment target for the existing application. The base
+workloads have zero replicas, and the separate Alembic Job is suspended. Images use
+`registry.invalid` with the current unapproved PR10 Core candidate digests. No cluster was used;
 restricted-v2 admission, storage, TLS, recovery and release approval remain open.
 
 Render locally, without cluster discovery or deployment:

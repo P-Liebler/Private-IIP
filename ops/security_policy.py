@@ -6,18 +6,42 @@ import argparse
 import re
 
 REQUIRED_EXCEPTION_FIELDS = {
-    "cve", "component", "digest", "technical_reason", "reachability_evidence",
+    "component", "digest", "technical_reason", "reachability_evidence",
     "mitigations", "reviewer", "approval_reference", "approved_at", "expires_at",
     "re_review_trigger",
 }
+FINDING_ID = re.compile(r"(?:CVE-[0-9]{4}-[0-9]{4,}|GHSA-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4})\Z")
+
+
+def finding_identifier(record):
+    """Canonical CVE/GHSA identifier; retain the historical `cve` field alias.
+
+    Syntax never establishes advisory validity or approval. An exception still
+    has to match the exact identifier recorded by the verified image inventory.
+    Contradictory aliases fail closed instead of silently preferring one.
+    """
+    if not isinstance(record, dict):
+        return None
+    identifier = record.get("finding_id", record.get("cve"))
+    if (not isinstance(identifier, str) or len(identifier) > 128
+            or not FINDING_ID.fullmatch(identifier)):
+        return None
+    if record.get("cve") is not None and record["cve"] != identifier:
+        return None
+    return identifier
 
 
 def approved_exception(exception, finding, now):
-    if any(not exception.get(field) for field in REQUIRED_EXCEPTION_FIELDS):
+    if not isinstance(exception, dict) or not isinstance(finding, dict):
         return False
-    if any(exception[key] != finding[key] for key in ("cve", "component")):
+    if any(not isinstance(exception.get(field), str) or not exception[field].strip()
+           for field in REQUIRED_EXCEPTION_FIELDS):
         return False
-    if exception["digest"] != finding["image_id"]:
+    identifier = finding_identifier(exception)
+    if identifier is None or identifier != finding_identifier(finding):
+        return False
+    if (exception["component"] != finding.get("component")
+            or exception["digest"] != finding.get("image_id")):
         return False
     try:
         approved = datetime.fromisoformat(exception["approved_at"].replace("Z", "+00:00"))

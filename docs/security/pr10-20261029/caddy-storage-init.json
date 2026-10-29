@@ -1,0 +1,16 @@
+{
+  "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "checked_at": "2026-10-29T13:58:13.130955+00:00",
+  "passed": true,
+  "cleaned_up": true,
+  "security_approved": false,
+  "synthetic": true,
+  "checks": {
+    "reject_old_nonempty_root_ca": true,
+    "old_ca_owner_mode_and_bytes_unchanged": true,
+    "new_empty_ca_initialized_to_10001": true,
+    "already_owned_ca_rerun_preserves_bytes": true
+  },
+  "actual_command_sha256": "fe19a2daec9f033b89ed5fba7252a9a63547dbc07ab5a9dcd7d89a4c3b59a924",
+  "core_overlay_sha256": "8db690aea52c3afc2aaacec46c911ac37a2c5c5c0710e0e916e040ab3b35d0b4"
+}

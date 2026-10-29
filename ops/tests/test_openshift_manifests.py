@@ -68,8 +68,8 @@ class OpenShiftManifestTests(unittest.TestCase):
         optional = preflight.expand(load("components/prometheus/resources.json"))
         self.assertEqual(named(optional, "Deployment", "prometheus")["spec"]["replicas"], 0)
 
-    def test_every_image_preserves_the_exact_pr9_candidate_digest(self):
-        scope = json.loads((REPO / "ops/releases/pr9-core-v1-scope.json").read_text())["services"]
+    def test_every_image_preserves_the_exact_current_core_candidate_digest(self):
+        scope = json.loads((REPO / "ops/releases/pr10-core-v1-scope.json").read_text())["services"]
         for name, obj in self.workloads.items():
             reference = container(obj)["image"]
             self.assertRegex(reference, r"^registry\.invalid/investment/.+@sha256:[0-9a-f]{64}$")
@@ -147,7 +147,9 @@ class OpenShiftManifestTests(unittest.TestCase):
         caddy = named(self.resources, "ConfigMap", "iip-caddy")["data"]["Caddyfile"]
         self.assertIn("tls /certs/tls.crt /certs/tls.key", caddy)
         self.assertIn("@internal path /internal/*", caddy)
-        self.assertIn("respond @internal 404", caddy)
+        self.assertIn("handle @internal {\n        respond 404\n    }", caddy)
+        self.assertNotIn("respond @internal 404", caddy)
+        self.assertIn("protocols h1 h2", caddy)
         self.assertNotIn("tls internal", caddy)
         self.assertFalse(any(obj["kind"] in {"Route", "Ingress"} for obj in self.resources))
 

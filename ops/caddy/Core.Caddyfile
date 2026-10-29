@@ -1,3 +1,14 @@
+{
+    http_port 8080
+    https_port 8443
+    # The deployment exposes TCP only; do not advertise an unreachable H3 port.
+    servers {
+        protocols h1 h2
+    }
+    # Trust is distributed through the explicit ca-export step.
+    skip_install_trust
+}
+
 {$APP_DOMAIN} {
     tls internal
     encode zstd gzip
@@ -9,7 +20,9 @@
         Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
     }
     @internal path /internal/*
-    respond @internal 404
+    handle @internal {
+        respond 404
+    }
     handle /api/v1/* {
         header Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
         reverse_proxy api:8000

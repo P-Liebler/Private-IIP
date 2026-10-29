@@ -59,6 +59,10 @@ class BackfillJobService:
             if source.slug != slug:
                 raise AppError(422, "COLLECTOR_CONTRACT_INVALID", "Provider and data type mismatch")
             SourceGate.require_enabled(source, use)
+            if request.kind == "ECB_FX":
+                from app.providers.ecb_fx import EcbFxCollector
+
+                EcbFxCollector.require_scope(source, request.start, request.end)
         for iid in request.instrument_ids:
             if await self.db.get(Instrument, iid) is None:
                 raise AppError(404, "INSTRUMENT_NOT_FOUND", "Select stable existing instruments")

@@ -50,7 +50,7 @@
             "containers": [
               {
                 "name": "api",
-                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "image": "registry.invalid/investment/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                   "allowPrivilegeEscalation": false,
@@ -259,7 +259,7 @@
             "containers": [
               {
                 "name": "worker",
-                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "image": "registry.invalid/investment/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                   "allowPrivilegeEscalation": false,
@@ -462,7 +462,7 @@
             "containers": [
               {
                 "name": "scheduler",
-                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "image": "registry.invalid/investment/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
                 "imagePullPolicy": "IfNotPresent",
                 "securityContext": {
                   "allowPrivilegeEscalation": false,

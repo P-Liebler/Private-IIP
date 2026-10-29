@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "approval": false,
+  "image_id": "sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+  "build_log_sha256": "8025a977b48b88f44b1fee57aa0ddeaa8059240318119ddae2c59b38581c10d4",
+  "dockerfile_sha256": "44446553cf71c0c9f6c86fede43640a5eb87a036f1b467a695a1c192eda6fe14",
+  "scope": "SEPARATE_STANDARD_PRODUCTION_DOCKERFILE_NOT_CORE_BIT_IDENTITY"
+}

@@ -1,0 +1,38 @@
+{
+  "status": "STATIC_PROFILE_REVIEW_ONLY",
+  "handlers": [
+    "encode",
+    "headers",
+    "reverse_proxy",
+    "static_response",
+    "subroute"
+  ],
+  "issuers": [
+    "internal"
+  ],
+  "upstreams": [
+    "api:8000",
+    "minio:9000",
+    "web:3000"
+  ],
+  "configured_acme_server": false,
+  "configured_on_demand": false,
+  "admin": "localhost:2019",
+  "admin_default_inferred": true,
+  "whole_program_unreachability_proven": false,
+  "security_approved": false,
+  "checked_at": "2026-10-29T13:48:36.652427+00:00",
+  "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "image_default_user": "",
+  "probe_user": "10001:10001",
+  "probe_user_is_production_compose_user": false,
+  "caddyfile_sha256": "4afa7786bd3eb3f9764915e3a9f48deefb812375c57463a74dcb1020fc5c8f0a",
+  "adapted_config_sha256": "50f56400fe0c67c2ffdad5a82e34515682fc86121506c57b98e50673d2aba0e0",
+  "registered_modules_sha256": "cb76321368ea119f77e2fad1d58d4f7c74b292bd860cb02062a243b87efedfc2",
+  "build_info_sha256": "e584ef5426618420ea4299e3382b3bc02a61d302e327a1f0e81e5a5b1bc5eff1",
+  "acme_server_registered": true,
+  "go_jose_v3_in_build": true,
+  "server_started": false,
+  "network": "none"
+}

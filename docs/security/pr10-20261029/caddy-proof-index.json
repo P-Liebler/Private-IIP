@@ -1,0 +1,145 @@
+{
+  "status": "LOCAL_SYNTHETIC_AND_STATIC_PROFILE_VERIFIED",
+  "security_approved": false,
+  "proofs": [
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/adapted.json",
+      "bytes": 1656,
+      "sha256": "8f579e5c20e12a5da63329cd2559e029ab274b4b5706d6661ade3c4c32b88d0e"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/build-info.txt",
+      "bytes": 15116,
+      "sha256": "e584ef5426618420ea4299e3382b3bc02a61d302e327a1f0e81e5a5b1bc5eff1"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/modules.txt",
+      "bytes": 3768,
+      "sha256": "cb76321368ea119f77e2fad1d58d4f7c74b292bd860cb02062a243b87efedfc2"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/openshift-adapted.json",
+      "bytes": 1601,
+      "sha256": "568339ced278ebaab9912ec932030a67be8e12ee5086e00a0e6ec0d768e9555b"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/receipt.json",
+      "bytes": 1837,
+      "sha256": "a49954eca31634a07c8086f739029bbbc8eb63c285422b4a05ab51d00f86c9c8"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-nonroot-canary.json",
+      "bytes": 1276,
+      "sha256": "68f90705ea2948fc5b51b8fecaef04e123a791eda3e47c67b7838ebdc0d86148"
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-storage-init.json",
+      "bytes": 663,
+      "sha256": "46bb66e0d88885eacbb9b669d9445cd6c5e1d9aa7d248fb2cda2397e801b99c4"
+    }
+  ],
+  "private_original_attempts": [
+    {
+      "path": "backups/pr10-caddy-nonroot-canary-v1/receipt.json",
+      "sha256": "354c4b4180430452d2f7231a50e7953bc1689f709ea44c4d9dc5f39fd8da63f9",
+      "passed": false,
+      "cleaned_up": true,
+      "note": "FAIL: existing standalone respond sorted after fallback; concrete routing defect corrected."
+    },
+    {
+      "path": "backups/pr10-caddy-nonroot-canary-v2/receipt.json",
+      "sha256": "07cf4a2b24bee6057411c8269f3f2cea3bfce01a0d405dfc18fe0e7a7f0a5865",
+      "passed": true,
+      "cleaned_up": true,
+      "note": "PASS: private proposed high-port/internal-handle candidate, earlier configuration bytes."
+    },
+    {
+      "path": "backups/pr10-caddy-nonroot-canary-v3/receipt.json",
+      "sha256": "cb505f1f6721c82ffa6063b67b4e2886cafc154cd863406a8f55c347cdbbf5f6",
+      "passed": false,
+      "cleaned_up": true,
+      "note": "INCOMPLETE: harness read transient Docker published-port state directly after restart; no application failure established."
+    },
+    {
+      "path": "backups/pr10-caddy-nonroot-canary-v4/receipt.json",
+      "sha256": "efc2c6c33c598aa9635672b0516ef47b83719fe1670d114a8ae5b945b56ac644",
+      "passed": true,
+      "cleaned_up": true,
+      "note": "PASS: nonroot/high-port/internal-handle before explicit TCP-only protocols."
+    },
+    {
+      "path": "backups/pr10-caddy-nonroot-canary-v5/receipt.json",
+      "sha256": "68f90705ea2948fc5b51b8fecaef04e123a791eda3e47c67b7838ebdc0d86148",
+      "passed": true,
+      "cleaned_up": true,
+      "note": "PASS: final Core config including explicit TCP-only protocols."
+    },
+    {
+      "path": "backups/pr10-caddy-storage-init-v1/receipt.json",
+      "sha256": "66011ea564f3e5c7371476ab6bc0a68ee0e31fef402a5bce59477a554763b9fa",
+      "passed": false,
+      "cleaned_up": true,
+      "note": "INCOMPLETE: test fixture tried to write as capability-stripped root into UID10001-owned root; fixture corrected to real exporter UID."
+    },
+    {
+      "path": "backups/pr10-caddy-storage-init-v2/receipt.json",
+      "sha256": "46bb66e0d88885eacbb9b669d9445cd6c5e1d9aa7d248fb2cda2397e801b99c4",
+      "passed": true,
+      "cleaned_up": true,
+      "note": "PASS: actual embedded Core storage-init command; negative old-CA and positive/idempotent cases."
+    }
+  ],
+  "final_resource_contract": {
+    "recorded_at": "2026-10-29T14:11:00.771514+00:00",
+    "files": [
+      {
+        "path": "ops/caddy/Core.Caddyfile",
+        "sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+        "bytes": 1036
+      },
+      {
+        "path": "ops/docker-compose.core.yml",
+        "sha256": "0b7e93bc39013af176c455b4166580c82bed3b1893dceaaf0ed4783df8354c24",
+        "bytes": 6484
+      },
+      {
+        "path": "ops/docker-compose.core-staging.yml",
+        "sha256": "54d835d79247e54c8727c0e84eb63d9dad40749c537dfe390a303322bb4e52dd",
+        "bytes": 355
+      },
+      {
+        "path": "ops/openshift/base/caddy-config.json",
+        "sha256": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+        "bytes": 1212
+      },
+      {
+        "path": "ops/openshift/base/workloads.json",
+        "sha256": "e81bbff06b6f6310d13b67ee0f202d6081650b238e020e0393b37d65be1aa400",
+        "bytes": 44152
+      },
+      {
+        "path": "ops/openshift/manual/migration-job.json",
+        "sha256": "b4b02dc53915aba11ad0bfa014865f9b6368bea3d6e4315b3a225c853a965ff4",
+        "bytes": 4612
+      },
+      {
+        "path": "ops/openshift/overlays/staging/kustomization.yaml",
+        "sha256": "dc7bd1baa3e6435a8675800601f5f2b64f34d2cb2ac809cb02deaafb0680d7f7",
+        "bytes": 2685
+      },
+      {
+        "path": "ops/releases/pr10-core-v1-scope.json",
+        "sha256": "33226d656634566d94b9c33087fb08dda38ab3118ce30a4d3052fca934de6ba9",
+        "bytes": 4772
+      }
+    ],
+    "unchanged_caddy_image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+    "unchanged_caddyfile_matches_actual_canary": true,
+    "unchanged_storage_init_command_matches_actual_guard_probe": true,
+    "original_guard_overlay_sha256": "8db690aea52c3afc2aaacec46c911ac37a2c5c5c0710e0e916e040ab3b35d0b4",
+    "current_core_backend_image": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+    "new_api_image_tested_by_caddy_canary": false,
+    "limits": "The Caddy-only synthetic canary and guard probe retain their original receipt hashes. Later Core/OpenShift backend image pins changed the resource bytes; the canary does not establish new API-image, full-Core, cluster, recovery or production acceptance. Separate final Core and restore evidence is required.",
+    "security_approved": false
+  }
+}

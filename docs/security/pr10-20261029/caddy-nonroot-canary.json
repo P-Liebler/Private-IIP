@@ -1,0 +1,31 @@
+{
+  "started_at": "2026-10-29T13:59:59.318148+00:00",
+  "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "passed": true,
+  "cleaned_up": true,
+  "synthetic": true,
+  "security_approved": false,
+  "checks": {
+    "new_volume_data": true,
+    "new_volume_config": true,
+    "new_volume_ca": true,
+    "public_ca_generated": true,
+    "server_effective_uid_10001": true,
+    "zero_effective_capabilities": true,
+    "http_redirect_standard_external_origin": true,
+    "https_chain_and_blocked_internal": true,
+    "no_unreachable_http3_advertisement": true,
+    "s3_tls_chain_high_port": true,
+    "nonroot_ca_export_exact_bytes": true,
+    "restart_reuses_trusted_ca": true,
+    "ca_original_bytes_after_restart": true,
+    "core_config_unchanged": true
+  },
+  "limits": [
+    "No Core installation, S3 object transfer, browser regression, production target or recovery acceptance.",
+    "Original Core config and existing volumes unchanged."
+  ],
+  "original_config_sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+  "candidate_config_sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+  "ended_at": "2026-10-29T14:00:23.920895+00:00"
+}

@@ -1,0 +1,49 @@
+{
+  "status": "STATIC_PROFILE_REVIEW_ONLY",
+  "handlers": [
+    "encode",
+    "headers",
+    "reverse_proxy",
+    "static_response",
+    "subroute"
+  ],
+  "issuers": [
+    "internal"
+  ],
+  "upstreams": [
+    "api:8000",
+    "minio:9000",
+    "web:3000"
+  ],
+  "configured_acme_server": false,
+  "configured_on_demand": false,
+  "admin": "localhost:2019",
+  "admin_default_inferred": true,
+  "whole_program_unreachability_proven": false,
+  "security_approved": false,
+  "http_protocols": [
+    "h1",
+    "h2"
+  ],
+  "internal_terminal_404_before_application_proxy": true,
+  "openshift_routing": {
+    "internal_terminal_404_before_application_proxy": true
+  },
+  "checked_at": "2026-10-29T14:00:48.879580+00:00",
+  "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "image_default_user": "",
+  "probe_user": "10001:10001",
+  "probe_is_production_deployment": false,
+  "probe_source_sha256": "a33a02cbeb8a9c062f08d9b9b54589eeab764e73b10a79d432aee2880bc23513",
+  "caddyfile_sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+  "adapted_config_sha256": "8f579e5c20e12a5da63329cd2559e029ab274b4b5706d6661ade3c4c32b88d0e",
+  "registered_modules_sha256": "cb76321368ea119f77e2fad1d58d4f7c74b292bd860cb02062a243b87efedfc2",
+  "build_info_sha256": "e584ef5426618420ea4299e3382b3bc02a61d302e327a1f0e81e5a5b1bc5eff1",
+  "openshift_configmap_sha256": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+  "openshift_adapted_sha256": "568339ced278ebaab9912ec932030a67be8e12ee5086e00a0e6ec0d768e9555b",
+  "acme_server_registered": true,
+  "go_jose_v3_in_build": true,
+  "server_started": false,
+  "network": "none"
+}

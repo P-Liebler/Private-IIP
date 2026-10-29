@@ -1,5 +1,30 @@
 # Private Investment Intelligence Platform
 
+## PR10 – Lokal geprüft, reale Freigaben offen (29.10.2026)
+
+**LOCAL_SYNTHETIC_VERIFIED / SECURITY_BLOCKED / NOT_RELEASED.**
+ECB-Quellenscope vor jedem Abruf abgesichert, Caddy-Routing und Nonrootbetrieb
+gehärtet, Legacy-Timeoutbereinigung korrigiert und moderne Archivintegrität
+mit ausdrücklich begrenztem Vertrag ergänzt. Historische Pins bleiben erhalten.
+
+**321 Backendtests je geprüftem Image, 192 Hosttests, 31/31 Browserfälle**,
+13 gültige SBOMs für neun Core-/Recovery-Images und zwei getrennte vollständige
+Restores mit **je 1’387 Dateihashes** bestanden. Neuer lokaler PR10-RC,
+Preflight und Installationsplan; OpenShift/Red Hat OpenShift GitOps mit Argo CD
+bleibt vorbereitet, ohne tatsächliche Clusterabnahme.
+
+Offen: Legacy **1 Critical/47 High**, Caddy **1 High**, tatsächliche Security-
+und Betreiberfreigaben, Zielhost, unabhängiges verschlüsseltes Recoveryziel,
+genehmigte Livequellen, echter Depotabgleich und unabhängiger Anfängertest.
+Der angeforderte Remote-Lauf 40883463238 ist grün, prüfte den vollständigen
+Core-/Recovery-Scope aber nicht. PR10 wurde nicht gepusht oder veröffentlicht.
+**Die erste sichere reale Portfolionutzung ist noch nicht abgenommen.**
+
+[PR10-Abschluss und konkrete Voraussetzungen](docs/PR10_ACCEPTANCE_REPORT.md) ·
+[Securityentscheid](docs/PR10A_SECURITY_DECISION_REPORT.md) ·
+[Zielbetrieb](docs/PR10B_TARGET_ACCEPTANCE_REPORT.md) ·
+[Reale Daten](docs/PR10C_LIVE_DATA_REPORT.md).
+
 ## PR9 – Releaseblocker bearbeitet, reale Freigaben offen (29.10.2026)
 
 **OpenShift / Red Hat OpenShift GitOps:** Kustomize-Overlays, Argo-CD-Application/

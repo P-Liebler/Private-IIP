@@ -1,0 +1,69 @@
+{
+  "contract": "PR10_ECB_SCOPE_REGRESSION_V1",
+  "created_at": "2026-10-29T13:53:23.176311+00:00",
+  "classification": "SYNTHETIC_OFFLINE_CONTRACT_EVIDENCE",
+  "real_provider_requests": 0,
+  "source_review_approved": false,
+  "source_activated": false,
+  "live_source_verified": false,
+  "automatic_refresh_verified": false,
+  "before_fix": {
+    "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+    "reproduction": {
+      "contract": "PR10_ECB_SCOPE_GAP_SYNTHETIC_REPRO_V1",
+      "checked_at": "2026-10-29T13:45:33.777750+00:00",
+      "real_network": false,
+      "source_scope": "fx_inputs=EXR.D.CHF.EUR.SP00.A fx_coverage=2024-02-01|2024-02-02",
+      "allowed_uses": [
+        "fx_rates"
+      ],
+      "requested_interval": [
+        "2024-01-03",
+        "2024-01-03"
+      ],
+      "mock_http_requests": [
+        {
+          "path": "/service/data/EXR/D.CHF+USD.EUR.SP00.A",
+          "query": "startPeriod=2024-01-03&endPeriod=2024-01-03&format=csvdata&includeHistory=false"
+        }
+      ],
+      "raw_archives": 1,
+      "result": {
+        "status": "SUCCESS"
+      },
+      "gap_reproduced": true
+    },
+    "receipt_sha256": "7be40f97a9e16fec3ebb34b0b5dcfdd8b772262889e415483a940d3164ba85fd",
+    "helper_sha256": "342ac788a3d00572c321bac85e98341f1ab5cbd4135f36caa52a4ec090d73c55",
+    "mocked_components": [
+      "SourceService.get",
+      "database",
+      "RawIngestionService",
+      "provider limiter",
+      "sync state",
+      "canonical writer"
+    ],
+    "transport": "httpx.MockTransport inside --network none",
+    "limit": "Proves an out-of-scope request reached MockTransport and the raw/canonical mocks, not a real database canonicalization."
+  },
+  "after_fix": {
+    "new_test_cases": 15,
+    "total_focused_test_cases": 50,
+    "passed": true,
+    "test_log_sha256": "299fdc6fadac02f34e17494705015ccd2f17f09a1da28ece923e691d236cb73a",
+    "test_image_id": "sha256:ad1b04887b02d53f92882c8a3608d459619f7de6dcf906f5a5cbf59f77b40d38",
+    "test_image_label": "private-iip/dev:pr7-parser",
+    "current_code_mount": "backend:/app:ro",
+    "network": "none",
+    "production_image_verification": "REQUIRES_NEW_BUILD_AND_OWN_SCAN",
+    "retained_rejected_original_test": "First synthetic HTTP429 body retained; scope/archive-right/review change prevents a second request.",
+    "source_sha256": {
+      "backend/app/providers/ecb_fx.py": "8130c4ffd2ca344567b02763095a064bd2b2da4ee7152875e5bde056f8841705",
+      "backend/app/providers/http.py": "ea3d0e65a1e1a51e93c786bb695ade0fb5c6f48e8487541e8a8f185d68819af6",
+      "backend/app/services/backfill_jobs.py": "e5359d65699b1a01f319776d475a16f4b20f21b596c0de2357ec9f3d507e9f48",
+      "backend/tests/unit/test_pr10_ecb_scope.py": "c5f81c073858aaa9e7960d3353924c8ca2a7f221d83705793cbbab3c35d774fa",
+      "backend/tests/unit/test_pr1_providers.py": "ecd6c7111b186b5b0c819e5b3819e2850d184fad3b5c488fcdbeff4d8026a6cc",
+      "backend/tests/unit/test_pr7_provider_review.py": "77469bec137eb8e6038e4e1c33500a4511fe52adc402705f6192075f07f49e63"
+    }
+  }
+}

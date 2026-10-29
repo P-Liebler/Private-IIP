@@ -120,9 +120,12 @@ async def fetch_response(
     instrument_id: UUID | None = None,
     metadata: dict[str, str | int] | None = None,
     limiter: Callable[[DataSource], Awaitable[None]] = check_provider_rate,
+    scope_validator: Callable[[DataSource], None] | None = None,
     content_types: tuple[str, ...] = ("application/json",),
 ) -> RawIngestion:
     SourceGate.require_enabled(source, use)  # Before DNS/client creation.
+    if scope_validator is not None:
+        scope_validator(source)
     approved_contract = review_contract(source)
     parsed = urlsplit(url)
     if (
@@ -148,6 +151,8 @@ async def fetch_response(
                     "SOURCE_REVIEW_CHANGED",
                     "Source review changed; validate a new request against the current scope",
                 )
+            if scope_validator is not None:
+                scope_validator(source)
             await limiter(source)
             base_metadata["source_review_at"] = (
                 source.checked_at.isoformat() if source.checked_at else "UNKNOWN"

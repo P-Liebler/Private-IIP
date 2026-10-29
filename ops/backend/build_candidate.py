@@ -33,8 +33,8 @@ def main() -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--tag", default="private-iip/backend:pr9-runtime-candidate")
     args = parser.parse_args()
-    if not re.fullmatch(r"private-iip/backend:pr9-[a-z0-9-]+", args.tag):
-        parser.error("Use a dedicated private-iip/backend:pr9-... candidate tag")
+    if not re.fullmatch(r"private-iip/backend:pr(?:9|10)-[a-z0-9-]+", args.tag):
+        parser.error("Use a dedicated private-iip/backend:pr9-... or pr10-... candidate tag")
     if image_id(SOURCE) != SOURCE_ID:
         raise ValueError("UNEXPECTED_SOURCE_IMAGE")
     root = Path(__file__).resolve().parents[2]

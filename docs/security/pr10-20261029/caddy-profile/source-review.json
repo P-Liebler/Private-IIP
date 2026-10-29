@@ -1,0 +1,190 @@
+{
+  "checked_at": "2026-10-29T13:43:34.198013+00:00",
+  "status": "SOURCE_AND_STATIC_PROFILE_REVIEW_ONLY",
+  "security_approved": false,
+  "original_source_receipt_sha256": "fd664943c27d4c76cda9ebbbef567359abdf10a0010637df6f02f64e30c13a72",
+  "sources": [
+    {
+      "name": "caddy",
+      "url": "https://codeload.github.com/caddyserver/caddy/tar.gz/72dd0fb067f6d7826c7f79907670ba4a713bfe37",
+      "sha256": "e86c49311c0c9f7e9b3b80527f0139e5739dfe28effeaa41c444dd743f0bbd7e",
+      "bytes": 1108653
+    },
+    {
+      "name": "certificates",
+      "url": "https://proxy.golang.org/github.com/smallstep/certificates/@v/v0.30.2.zip",
+      "sha256": "7f8d8b9bc0ff69bed8334750b41a486f1d942c5993be8ab3b399a6b8a3d790e4",
+      "bytes": 1186952
+    },
+    {
+      "name": "crypto",
+      "url": "https://proxy.golang.org/go.step.sm/crypto/@v/v0.91.0.zip",
+      "sha256": "dd78cfb183acb48614e084cde593ccc0b99fbe47eed0912ff3522ee16e1bec68",
+      "bytes": 881146
+    },
+    {
+      "name": "jose3",
+      "url": "https://proxy.golang.org/github.com/go-jose/go-jose/v3/@v/v3.0.5.zip",
+      "sha256": "4e7e6b60541ab03bd402e573fc2c1264297e661726c5f53529ca14ae58625a27",
+      "bytes": 352559
+    },
+    {
+      "name": "jose4",
+      "url": "https://proxy.golang.org/github.com/go-jose/go-jose/v4/@v/v4.1.6.zip",
+      "sha256": "62506f3369fc124682356bbe8eb442f982422401dda99ace200694efc962da76",
+      "bytes": 397543
+    },
+    {
+      "name": "advisory",
+      "url": "https://api.github.com/repos/go-jose/go-jose/security-advisories/GHSA-mgcc-cww5-fp2q",
+      "sha256": "fca6c13c0d0d7802d70c9f071e7abde85cd84c026e9393e062a9facc3f1e170f",
+      "bytes": 5055
+    },
+    {
+      "name": "jose-tags",
+      "url": "https://api.github.com/repos/go-jose/go-jose/tags?per_page=100",
+      "sha256": "bbf0cf51b1bc024320c4e5c3b98d15d9b4154b325955a6799ad6b668bfcd2caa",
+      "bytes": 22519
+    },
+    {
+      "name": "certificates-latest",
+      "url": "https://api.github.com/repos/smallstep/certificates/releases/latest",
+      "sha256": "ea6b18594933d1991397950bc622585900581e91b915c2249377b2651ed156d5",
+      "bytes": 142173
+    },
+    {
+      "name": "crypto-latest",
+      "url": "https://api.github.com/repos/smallstep/crypto/releases/latest",
+      "sha256": "e841fdedf8581755b8aec2d950f18f6b6b2cef6d3e252f9c10e8e0592744ce71",
+      "bytes": 1941
+    },
+    {
+      "name": "crypto-latest-go.mod",
+      "url": "https://raw.githubusercontent.com/smallstep/crypto/v0.91.1/go.mod",
+      "bytes": 16003,
+      "sha256": "8cf1560197d65d341352fbaad4be90e67379d83d7d1bfbf366c0500c046ee292"
+    }
+  ],
+  "selected_files": [
+    {
+      "source": "caddy",
+      "path": "cmd/caddy/main.go",
+      "sha256": "ac320c3ac47ad8abed7a0d2595639d78f9ff55cf1dba8494a66cd8851c5d076e",
+      "bytes": 1484
+    },
+    {
+      "source": "caddy",
+      "path": "modules/standard/imports.go",
+      "sha256": "207228f0ff1537602d5e1ba12e91d48928c2e91d808df0c418267c10137602d1",
+      "bytes": 832
+    },
+    {
+      "source": "caddy",
+      "path": "modules/caddytls/internalissuer.go",
+      "sha256": "1b2a8198520e3f1adf7a8f4fecc04e0fd0a16077292e960f56cd0212c0b2da87",
+      "bytes": 5577
+    },
+    {
+      "source": "caddy",
+      "path": "modules/caddypki/ca.go",
+      "sha256": "6d21eea49a1205e515cb7852b01e567e335ba611b15253b94ac98d5c870b208b",
+      "bytes": 15487
+    },
+    {
+      "source": "caddy",
+      "path": "modules/caddypki/adminapi.go",
+      "sha256": "d11641289705458af0eec9839c4523b55658df4e2f08117c103fa74333195028",
+      "bytes": 7418
+    },
+    {
+      "source": "caddy",
+      "path": "modules/caddypki/acmeserver/acmeserver.go",
+      "sha256": "cacbc1f405ba058207d9e7da527c8d0ce2e6ded84e263a612add1a31372979b0",
+      "bytes": 11405
+    },
+    {
+      "source": "caddy",
+      "path": "go.mod",
+      "sha256": "62fdd786b2f9ced74c818132ebaeba320e25528ed316202902918afa73473b72",
+      "bytes": 8385
+    },
+    {
+      "source": "certificates",
+      "path": "authority/provisioner/jwk.go",
+      "sha256": "17a848d7ae60cf6d3a5fd2a47787d99f820ea3d9c5ebe04d97d440d100464bf4",
+      "bytes": 10470
+    },
+    {
+      "source": "certificates",
+      "path": "authority/provisioner/collection.go",
+      "sha256": "8bb3c01db9a7f0610262ae2ac5c03f2a788e60e50ff520a076ecdcb794148ee8",
+      "bytes": 10423
+    },
+    {
+      "source": "certificates",
+      "path": "authority/tls.go",
+      "sha256": "cb114d64becf2c3045e5b56c9f11d3ee375a5dfbf5c8e705f3d896c5f3ad189e",
+      "bytes": 37070
+    },
+    {
+      "source": "certificates",
+      "path": "acme/api/middleware.go",
+      "sha256": "a974a08c1e52f81035fb3e4231d15f923ef11bc7240d0628a7b84ffda095fe71",
+      "bytes": 20889
+    },
+    {
+      "source": "certificates",
+      "path": "acme/api/handler.go",
+      "sha256": "764cb9b4c6bbf05ff2e6c4537b432e9aa51ac396d676bafcc387092bd0510f5d",
+      "bytes": 13260
+    },
+    {
+      "source": "certificates",
+      "path": "go.mod",
+      "sha256": "c4a90f197698ed952946c25f6ed180770513deeb0f900d8e17a58e3519c22fb1",
+      "bytes": 8646
+    },
+    {
+      "source": "crypto",
+      "path": "jose/types.go",
+      "sha256": "9d6ff0e34159f75b14893f653bb0b423bd335f4ebec61cc312e42849d9c0aeaa",
+      "bytes": 10841
+    },
+    {
+      "source": "crypto",
+      "path": "jose/parse.go",
+      "sha256": "5d0477a4a37bf1554fc558804713e3f4037c42c23f7091792aab739f08489168",
+      "bytes": 12424
+    },
+    {
+      "source": "crypto",
+      "path": "go.mod",
+      "sha256": "088017bb16949792938a711cfc1da7e20c88e9dc5125bb92adbad9f85b18333f",
+      "bytes": 15967
+    },
+    {
+      "source": "jose3",
+      "path": "jwk.go",
+      "sha256": "79f510a4b97fa2e34ec37932cab57e64dfdc9fa6c314654d1ccc2dd93898a532",
+      "bytes": 22577
+    },
+    {
+      "source": "jose3",
+      "path": "shared.go",
+      "sha256": "3802ca5b8f811f72d33eb662cbbdf53d3b7aa4bcbb6b6c6ddd7695a54e3a3d40",
+      "bytes": 15823
+    },
+    {
+      "source": "jose3",
+      "path": "jws.go",
+      "sha256": "6cc24876cea42cf11503f87ac68456d9169d5e6fec757efaf9e4fd46bc74fb0b",
+      "bytes": 11152
+    },
+    {
+      "source": "jose4",
+      "path": "jwk.go",
+      "sha256": "632e34a1bf3e1b6fb050dacd44aa58f214f6ace4fe4536adc4627dd617160eb8",
+      "bytes": 29279
+    }
+  ]
+}
