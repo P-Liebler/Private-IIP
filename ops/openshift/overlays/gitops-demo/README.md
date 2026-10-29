@@ -6,7 +6,7 @@ Source path: `ops/openshift/overlays/gitops-demo`. Destination namespace: `gitop
 
 The example uses the disabled base: all eight workloads have **zero replicas**. Images remain at `registry.invalid`, secrets, valid storage class, approved images, TLS, operator and security approvals remain missing. The `MINIO_ENDPOINT` ConfigMap value is explicitly corrected to `caddy.gitops-demo.svc:9002`, because Kustomize namespace rewriting does not rewrite strings.
 
-The baseline `default-deny` and `dns-only` policies have been narrowed to pods labeled `app.kubernetes.io/part-of=investment`. **Other baseline NetworkPolicies use common application labels and may still affect unrelated pods in a shared namespace.** Do not sync into a shared namespace without an operator review of all NetworkPolicy selectors and existing services, PVC names and permissions. A dedicated namespace is strongly preferred.
+All ten baseline NetworkPolicies have been narrowed to pods labeled `app.kubernetes.io/part-of=investment`, including pod peers within ingress/egress rules. Other workloads sharing this label may still be affected; inspect deployed policy selectors and conflicts before any sync. Do not sync into a shared namespace without an operator review of all NetworkPolicy selectors and existing services, PVC names and permissions. A dedicated namespace is strongly preferred.
 
 Verify before any possible manual sync:
 
