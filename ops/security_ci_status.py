@@ -4,9 +4,13 @@ from datetime import UTC, datetime
 import json
 import os
 from pathlib import Path
+import re
 
 from security_audit import write_new
+from security_audit import sha256
 from security_policy import evaluate
+from release_scope import active_services, evaluate_scope
+from ci_full_image_audit import CONFIGURATION_FILES
 
 
 def read(path):
@@ -31,7 +35,8 @@ def dependency_findings(root):
 
 def classify(root, steps, full=False):
     record = {"scope": "FULL" if full else "CORE", "steps": steps,
-              "release_status": "NOT_APPROVED", "status": "SCAN_INCOMPLETE"}
+              "release_status": "NOT_APPROVED", "status": "SCAN_INCOMPLETE",
+              "core_release_scope_status": "SCAN_INCOMPLETE" if full else "NOT_REQUESTED_NOT_VERIFIED"}
     # Historical evidence is retained independently. It cannot describe the
     # images built in this run; current findings below still fail closed.
     record["historical_inventory_step"] = steps.get("historical", "unknown")
@@ -55,7 +60,34 @@ def classify(root, steps, full=False):
         inventory = read(root / folder / "inventory.json")
         if not inventory or not inventory.get("images"):
             return record
-        expected = ["api", "web"] if folder == "pr4-images" else ["api", "worker", "scheduler", "ml-worker", "web", "postgres", "valkey", "minio", "caddy", "prometheus", "grafana", "mlflow", "ollama"]
+        if folder == "pr4-images":
+            expected = ["api", "web"]
+        else:
+            scope = read(root / "pr4-release-scope.json")
+            if not scope:
+                return record
+            expected = list(active_services(scope))
+            proof = read(root / folder / "release-scope-audit.json")
+            exact = {name: row["image"] for name, row in active_services(scope).items()}
+            if (not proof or proof.get("status") != "EXACT_CONFIG_AND_IMAGE_SCOPE_VERIFIED"
+                    or proof.get("scope_sha256") != sha256(root / "pr4-release-scope.json")
+                    or proof.get("verified_service_images") != exact
+                    or not isinstance(proof.get("configuration_sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", proof["configuration_sha256"])
+                    or proof.get("selected_config_files_sha256") != {
+                        name: sha256(Path(name)) for name in CONFIGURATION_FILES}):
+                return record
+            # Do not retain secret-bearing resolved Compose JSON as an artifact.
+            # The audit already checked the real configuration; this binds the
+            # public exact-image inventory to that selected release scope.
+            # Raw scanner inventories call this field database; the public
+            # publisher calls the same metadata scanner_database.
+            scoped_inventory = {**inventory, "scanner_database": inventory.get("scanner_database", inventory.get("database"))}
+            scoped = evaluate_scope(scope, scoped_inventory, {"services": {
+                name: {"image": row["image"]} for name, row in active_services(scope).items()}})
+            record["core_release_scope_status"] = scoped
+            if scoped == "SCAN_INCOMPLETE":
+                return record
         policy = evaluate(inventory["images"], expected)
         if policy == "SCAN_INCOMPLETE":
             return record

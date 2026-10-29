@@ -1,0 +1,1394 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "api",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft",
+          "investment.local/backup-writer": "true",
+          "investment.local/writer-role": "api"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "api"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "api",
+              "app.kubernetes.io/part-of": "investment",
+              "investment.local/role": "backend",
+              "investment.local/backup-writer": "true",
+              "investment.local/writer-role": "api"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "api",
+                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "2Gi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "service-ca",
+                    "mountPath": "/service-ca",
+                    "readOnly": true
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "http",
+                    "containerPort": 8000
+                  }
+                ],
+                "command": [
+                  "uvicorn"
+                ],
+                "args": [
+                  "app.main:app",
+                  "--host",
+                  "0.0.0.0",
+                  "--port",
+                  "8000"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "iip-config"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "DATABASE_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_ACCESS_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_ACCESS_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_SECRET_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_SECRET_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TOTP_ENCRYPTION_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "TOTP_ENCRYPTION_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  },
+                  {
+                    "name": "XDG_CACHE_HOME",
+                    "value": "/tmp/cache"
+                  },
+                  {
+                    "name": "MPLCONFIGDIR",
+                    "value": "/tmp/matplotlib"
+                  },
+                  {
+                    "name": "PYTHONDONTWRITEBYTECODE",
+                    "value": "1"
+                  }
+                ],
+                "startupProbe": {
+                  "httpGet": {
+                    "path": "/api/v1/health/live",
+                    "port": 8000
+                  },
+                  "periodSeconds": 15,
+                  "timeoutSeconds": 6,
+                  "failureThreshold": 8
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/api/v1/health/live",
+                    "port": 8000
+                  },
+                  "periodSeconds": 15,
+                  "timeoutSeconds": 6,
+                  "failureThreshold": 8
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/api/v1/health/ready",
+                    "port": 8000
+                  },
+                  "periodSeconds": 15,
+                  "timeoutSeconds": 6,
+                  "failureThreshold": 8
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "service-ca",
+                "configMap": {
+                  "name": "iip-service-ca"
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "worker",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft",
+          "investment.local/backup-writer": "true",
+          "investment.local/writer-role": "worker"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "worker"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "worker",
+              "app.kubernetes.io/part-of": "investment",
+              "investment.local/role": "backend",
+              "investment.local/backup-writer": "true",
+              "investment.local/writer-role": "worker"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "worker",
+                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "2Gi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "service-ca",
+                    "mountPath": "/service-ca",
+                    "readOnly": true
+                  }
+                ],
+                "command": [
+                  "celery"
+                ],
+                "args": [
+                  "-A",
+                  "app.jobs.celery_app:celery_app",
+                  "worker",
+                  "--loglevel=INFO",
+                  "--concurrency=1",
+                  "--hostname=worker@%h",
+                  "--queues=celery",
+                  "--pidfile=/tmp/worker.pid"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "iip-config"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "DATABASE_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_ACCESS_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_ACCESS_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_SECRET_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_SECRET_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TOTP_ENCRYPTION_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "TOTP_ENCRYPTION_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  },
+                  {
+                    "name": "XDG_CACHE_HOME",
+                    "value": "/tmp/cache"
+                  },
+                  {
+                    "name": "MPLCONFIGDIR",
+                    "value": "/tmp/matplotlib"
+                  },
+                  {
+                    "name": "PYTHONDONTWRITEBYTECODE",
+                    "value": "1"
+                  }
+                ],
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "python",
+                      "-c",
+                      "import os,pathlib; os.kill(int(pathlib.Path('/tmp/worker.pid').read_text().strip()),0)"
+                    ]
+                  },
+                  "periodSeconds": 30,
+                  "timeoutSeconds": 10,
+                  "failureThreshold": 6
+                },
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "python",
+                      "-c",
+                      "import socket; from app.jobs.celery_app import celery_app; name='worker@'+socket.gethostname(); assert any(r.get(name,{}).get('ok')=='pong' for r in celery_app.control.ping(destination=[name],timeout=5))"
+                    ]
+                  },
+                  "periodSeconds": 30,
+                  "timeoutSeconds": 10,
+                  "failureThreshold": 6
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "service-ca",
+                "configMap": {
+                  "name": "iip-service-ca"
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "scheduler",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft",
+          "investment.local/backup-writer": "true",
+          "investment.local/writer-role": "scheduler"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "scheduler"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "scheduler",
+              "app.kubernetes.io/part-of": "investment",
+              "investment.local/role": "backend",
+              "investment.local/backup-writer": "true",
+              "investment.local/writer-role": "scheduler"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "scheduler",
+                "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "512Mi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "service-ca",
+                    "mountPath": "/service-ca",
+                    "readOnly": true
+                  }
+                ],
+                "command": [
+                  "celery"
+                ],
+                "args": [
+                  "-A",
+                  "app.jobs.celery_app:celery_app",
+                  "beat",
+                  "--loglevel=INFO",
+                  "--pidfile=/tmp/celerybeat.pid",
+                  "--schedule=/tmp/celerybeat-schedule"
+                ],
+                "envFrom": [
+                  {
+                    "configMapRef": {
+                      "name": "iip-config"
+                    }
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "DATABASE_URL"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_ACCESS_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_ACCESS_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MINIO_SECRET_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "MINIO_SECRET_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "TOTP_ENCRYPTION_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "TOTP_ENCRYPTION_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  },
+                  {
+                    "name": "XDG_CACHE_HOME",
+                    "value": "/tmp/cache"
+                  },
+                  {
+                    "name": "MPLCONFIGDIR",
+                    "value": "/tmp/matplotlib"
+                  },
+                  {
+                    "name": "PYTHONDONTWRITEBYTECODE",
+                    "value": "1"
+                  }
+                ],
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "python",
+                      "-c",
+                      "import os,pathlib; os.kill(int(pathlib.Path('/tmp/celerybeat.pid').read_text().strip()),0)"
+                    ]
+                  },
+                  "periodSeconds": 30,
+                  "timeoutSeconds": 10,
+                  "failureThreshold": 6
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "service-ca",
+                "configMap": {
+                  "name": "iip-service-ca"
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "web",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft",
+          "investment.local/backup-writer": "true",
+          "investment.local/writer-role": "web"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "web"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "web",
+              "app.kubernetes.io/part-of": "investment",
+              "investment.local/backup-writer": "true",
+              "investment.local/writer-role": "web"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "web",
+                "image": "registry.invalid/investment/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "768Mi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "next-cache",
+                    "mountPath": "/app/.next/cache",
+                    "readOnly": false
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "http",
+                    "containerPort": 3000
+                  }
+                ],
+                "command": [
+                  "node"
+                ],
+                "args": [
+                  "server.js"
+                ],
+                "env": [
+                  {
+                    "name": "HOSTNAME",
+                    "value": "0.0.0.0"
+                  },
+                  {
+                    "name": "PORT",
+                    "value": "3000"
+                  },
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  },
+                  {
+                    "name": "NEXT_TELEMETRY_DISABLED",
+                    "value": "1"
+                  },
+                  {
+                    "name": "INTERNAL_API_BASE_URL",
+                    "value": "http://api:8000/api/v1"
+                  },
+                  {
+                    "name": "SESSION_COOKIE_NAME",
+                    "value": "investment_session"
+                  }
+                ],
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 3000
+                  },
+                  "periodSeconds": 15,
+                  "timeoutSeconds": 6,
+                  "failureThreshold": 8
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 3000
+                  },
+                  "periodSeconds": 15,
+                  "timeoutSeconds": 6,
+                  "failureThreshold": 8
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "next-cache",
+                "emptyDir": {
+                  "sizeLimit": "128Mi"
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "metadata": {
+        "name": "postgres",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "postgres"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "postgres",
+              "app.kubernetes.io/part-of": "investment"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "postgres",
+                "image": "registry.invalid/investment/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "1Gi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/var/lib/postgresql/data",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "socket",
+                    "mountPath": "/var/run/postgresql",
+                    "readOnly": false
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "tcp",
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRES_DB",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "POSTGRES_DB"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRES_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "POSTGRES_USER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "iip-runtime-secrets",
+                        "key": "POSTGRES_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PGDATA",
+                    "value": "/var/lib/postgresql/data/pgdata"
+                  }
+                ],
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "sh",
+                      "-ec",
+                      "PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -h 127.0.0.1 -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -X -tAc \"SELECT 1\" > /dev/null"
+                    ]
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 5,
+                  "failureThreshold": 12
+                },
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 5432
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "postgres-data"
+                }
+              },
+              {
+                "name": "socket",
+                "emptyDir": {
+                  "sizeLimit": "16Mi"
+                }
+              }
+            ]
+          }
+        },
+        "serviceName": "postgres",
+        "updateStrategy": {
+          "type": "OnDelete"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "metadata": {
+        "name": "valkey",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "valkey"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "valkey",
+              "app.kubernetes.io/part-of": "investment"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "valkey",
+                "image": "registry.invalid/investment/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "256Mi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/data",
+                    "readOnly": false
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "tcp",
+                    "containerPort": 6379
+                  }
+                ],
+                "command": [
+                  "valkey-server"
+                ],
+                "args": [
+                  "--appendonly",
+                  "yes",
+                  "--dir",
+                  "/data"
+                ],
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 6379
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                },
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "valkey-cli",
+                      "ping"
+                    ]
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "valkey-data"
+                }
+              }
+            ]
+          }
+        },
+        "serviceName": "valkey",
+        "updateStrategy": {
+          "type": "OnDelete"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "StatefulSet",
+      "metadata": {
+        "name": "minio",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "minio"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "minio",
+              "app.kubernetes.io/part-of": "investment"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "minio",
+                "image": "registry.invalid/investment/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "1Gi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/data",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "s3-identities",
+                    "mountPath": "/etc/seaweed",
+                    "readOnly": true
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "tcp",
+                    "containerPort": 9000
+                  }
+                ],
+                "command": [
+                  "weed"
+                ],
+                "args": [
+                  "server",
+                  "-s3",
+                  "-s3.port=9000",
+                  "-dir=/data",
+                  "-ip=$(POD_IP)",
+                  "-s3.config=/etc/seaweed/s3.json",
+                  "-volume.max=16",
+                  "-master.volumeSizeLimitMB=64",
+                  "-master.telemetry=false"
+                ],
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 9000
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                },
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 9000
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                },
+                "env": [
+                  {
+                    "name": "POD_IP",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "status.podIP"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "seaweed-data"
+                }
+              },
+              {
+                "name": "s3-identities",
+                "secret": {
+                  "secretName": "iip-s3-identities",
+                  "defaultMode": 288
+                }
+              }
+            ]
+          }
+        },
+        "serviceName": "minio",
+        "updateStrategy": {
+          "type": "OnDelete"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "caddy",
+        "labels": {
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/release-state": "draft"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "caddy"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "caddy",
+              "app.kubernetes.io/part-of": "investment"
+            },
+            "annotations": {
+              "investment.local/approval": "NOT_APPROVED"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "serviceAccountName": "iip-runtime",
+            "terminationGracePeriodSeconds": 60,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "caddy",
+                "image": "registry.invalid/investment/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+                "imagePullPolicy": "IfNotPresent",
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "256Mi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "caddy-config",
+                    "mountPath": "/etc/caddy",
+                    "readOnly": true
+                  },
+                  {
+                    "name": "serving-cert",
+                    "mountPath": "/certs",
+                    "readOnly": true
+                  }
+                ],
+                "ports": [
+                  {
+                    "name": "tcp",
+                    "containerPort": 8443
+                  },
+                  {
+                    "name": "s3-tls",
+                    "containerPort": 9002
+                  }
+                ],
+                "command": [
+                  "caddy"
+                ],
+                "args": [
+                  "run",
+                  "--config",
+                  "/etc/caddy/Caddyfile",
+                  "--adapter",
+                  "caddyfile"
+                ],
+                "env": [
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  },
+                  {
+                    "name": "XDG_DATA_HOME",
+                    "value": "/tmp/caddy-data"
+                  },
+                  {
+                    "name": "XDG_CONFIG_HOME",
+                    "value": "/tmp/caddy-config"
+                  }
+                ],
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 8443
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                },
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 8443
+                  },
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 3,
+                  "failureThreshold": 12
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "256Mi"
+                }
+              },
+              {
+                "name": "caddy-config",
+                "configMap": {
+                  "name": "iip-caddy"
+                }
+              },
+              {
+                "name": "serving-cert",
+                "secret": {
+                  "secretName": "iip-caddy-serving-cert",
+                  "defaultMode": 288
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      }
+    }
+  ]
+}

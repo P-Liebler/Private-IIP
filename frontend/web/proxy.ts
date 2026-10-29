@@ -10,9 +10,11 @@ export function proxy(request: NextRequest) {
   const policy = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
-    // Radix and chart placement use style attributes. This remaining allowance
-    // is explicit; it never permits inline script execution.
-    "style-src 'self' 'unsafe-inline'",
+    // Nonced stylesheet elements; Radix/chart geometry still uses dynamic
+    // style attributes, which cannot be authorized by element nonces.
+    `style-src 'self' 'nonce-${nonce}'`,
+    `style-src-elem 'self' 'nonce-${nonce}'`,
+    "style-src-attr 'unsafe-inline'",
     `connect-src 'self' ${apiOrigin}${development ? " ws: wss:" : ""}`.trim(),
     "img-src 'self' data: blob:",
     "font-src 'self'",

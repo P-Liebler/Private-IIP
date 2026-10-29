@@ -1,0 +1,26 @@
+{
+  "contract": "OPENSHIFT_PREPARATION_V1",
+  "status": "DRAFT_NOT_DEPLOYABLE",
+  "release_status": "NOT_APPROVED",
+  "source_scope": "ops/releases/pr9-core-v1-scope.json",
+  "source_scope_status": "SECURITY_BLOCKED",
+  "target_cluster": "NOT_AVAILABLE",
+  "security_approval": "NOT_APPROVED",
+  "scc_arbitrary_uid_verification": "NOT_VERIFIED",
+  "storage_csi_permissions": "NOT_VERIFIED",
+  "private_ingress_and_tls": "NOT_VERIFIED",
+  "backup_restore_and_schedule": "NOT_VERIFIED",
+  "secret_recovery": "NOT_VERIFIED",
+  "operator_approval": "NOT_APPROVED",
+  "financial_gates": [
+    "REAL_DATA_LIMITED",
+    "FORECASTS_SHADOW_ONLY",
+    "RECOMMENDATIONS_GATED"
+  ],
+  "default_replicas": 0,
+  "migration_suspended": true,
+  "automatic_sync": false,
+  "automatic_prune": false,
+  "staging_overlay": "MANUAL_OPT_IN_REPLICAS_ONE_REQUIRES_EXTERNAL_APPROVAL",
+  "gitops": "Red Hat OpenShift GitOps Operator / Argo CD"
+}

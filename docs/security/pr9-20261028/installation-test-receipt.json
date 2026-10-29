@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-10-28T09:06:45.131270+00:00",
+  "scope": "PR9B_HOST_FIXTURES_NO_NETWORK_NO_PRODUCTION_INSTALL",
+  "targeted_tests": 13,
+  "targeted_passed": true,
+  "full_host_tests": 117,
+  "full_host_passed": true,
+  "full_host_log": "backups/pr9-host-install-v2.txt",
+  "ruff_changed_python": "PASSED",
+  "powershell_scheduler_and_embedded_guards_syntax": "PASSED",
+  "actual_path_and_acl_preflight": "docs/security/pr9-20261028/core-preflight-storage-v3.json",
+  "private_install_plan": "docs/security/pr9-20261028/core-install-plan-storage-v1.json",
+  "release_status": "NOT_APPROVED",
+  "target_host_status": "NOT_VERIFIED",
+  "independent_recovery_status": "NOT_VERIFIED"
+}

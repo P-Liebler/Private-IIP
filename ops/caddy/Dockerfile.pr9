@@ -1,0 +1,19 @@
+# Exact upstream source plus the available go-jose/v4 security fix. The v3
+# advisory remains a separate unapproved finding; this recipe cannot waive it.
+ARG RUNTIME_IMAGE=private-iip/caddy:pr9-source
+FROM golang:1.27.3-alpine@sha256:b8c9b82affbbb82a020bbcf998dad2ba9516944ac7e883524642a481a9505e9c AS build
+ENV CGO_ENABLED=0 GOTOOLCHAIN=local GOMAXPROCS=2
+ADD --checksum=sha256:e86c49311c0c9f7e9b3b80527f0139e5739dfe28effeaa41c444dd743f0bbd7e https://codeload.github.com/caddyserver/caddy/tar.gz/72dd0fb067f6d7826c7f79907670ba4a713bfe37 /tmp/source.tar.gz
+RUN mkdir /src && tar -xzf /tmp/source.tar.gz -C /src --strip-components=1
+WORKDIR /src
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go mod edit -require=github.com/go-jose/go-jose/v4@v4.1.6 -require=golang.org/x/net@v0.62.0 \
+    && go mod tidy && go build -p 2 -trimpath -o /out/caddy ./cmd/caddy
+FROM ${RUNTIME_IMAGE}
+COPY --from=build /out/caddy /usr/bin/caddy
+COPY --from=build /src/go.mod /usr/share/private-iip/caddy/go.mod
+COPY --from=build /src/go.sum /usr/share/private-iip/caddy/go.sum
+COPY --from=build /src/LICENSE /usr/share/private-iip/caddy/LICENSE
+LABEL org.opencontainers.image.source="https://github.com/caddyserver/caddy" \
+      org.opencontainers.image.revision="72dd0fb067f6d7826c7f79907670ba4a713bfe37" \
+      private-iip.security-patch="go-jose-v4-4.1.6,x-net-0.62.0"

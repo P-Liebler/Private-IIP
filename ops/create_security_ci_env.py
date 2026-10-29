@@ -1,5 +1,6 @@
 """Write generated, disposable CI-only Compose credentials without displaying them."""
 import base64
+import json
 from pathlib import Path
 import secrets
 import sys
@@ -18,6 +19,13 @@ values = {
     "TOTP_ENCRYPTION_KEY": base64.urlsafe_b64encode(secrets.token_bytes(32)).decode(),
     "BACKUP_ROOT": str(backup_root.resolve()),
 }
+s3_config = target.parent / "security-s3.json"
+with s3_config.open("x", encoding="utf-8") as output:
+    json.dump({"identities": [{"name": "security_ci", "credentials": [{
+        "accessKey": values["MINIO_ACCESS_KEY"], "secretKey": values["MINIO_SECRET_KEY"]}],
+        "actions": ["Admin", "Read", "Write", "List", "Tagging"]}]}, output)
+s3_config.chmod(0o600)
+values["CORE_S3_CONFIG"] = str(s3_config.resolve())
 with target.open("x", encoding="utf-8") as output:
     for key, value in values.items():
         output.write(f"{key}={value}\n")

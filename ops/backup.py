@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -33,7 +34,17 @@ def compose(file: Path | list[Path], env_file: Path | None, *args: str, stdout=N
     if env_file:
         command += ["--env-file", str(env_file)]
     command += list(args)
-    result = subprocess.run(command, stdout=stdout, stderr=subprocess.PIPE, check=False)
+    environment = None
+    if env_file:
+        from preflight import compose_environment, read_env
+        values = read_env(env_file)
+        # Overlay-only variables must also be protected from ambient overrides.
+        environment = compose_environment(values, files[0])
+        for path in files:
+            for key in re.findall(r"\$\{([A-Z][A-Z0-9_]*)", path.read_text(encoding="utf-8")):
+                if key not in values:
+                    environment.pop(key, None)
+    result = subprocess.run(command, env=environment, stdout=stdout, stderr=subprocess.PIPE, check=False)
     if result.returncode:
         raise RuntimeError(f"Docker Compose command failed ({result.returncode})")
     return result.stdout
@@ -136,10 +147,49 @@ def main() -> int:
     parser.add_argument("--bucket", default=os.environ.get("MINIO_BUCKET_RAW", "raw-ingestions"))
     parser.add_argument("--database", default=None)
     parser.add_argument("--migration-evidence-dir", type=Path)
+    parser.add_argument("--destination-policy", type=Path,
+                        help="Fail-closed Windows independent BitLocker destination policy")
+    parser.add_argument("--openshift-config", type=Path,
+                        help="Explicit reviewed oc transport; no Docker fallback or cluster mutation")
     parser.add_argument("--prune", action="store_true")
     args = parser.parse_args()
+    transport = compose
+    adapter = None
+    if args.openshift_config:
+        if (args.env_file or args.compose_override or args.destination_policy
+                or args.compose_file != Path("docker-compose.yml")):
+            print("Backup not started: OpenShift and Compose inputs cannot be mixed", file=sys.stderr)
+            return 2
+        from openshift_backup import OpenShiftBackupTransport
+        try:
+            adapter = OpenShiftBackupTransport.from_file(args.openshift_config, engine_root=args.root)
+            if (adapter.config.bucket != args.bucket
+                    or args.database is not None and adapter.config.database != args.database):
+                raise RuntimeError("OPENSHIFT_BACKUP_SCOPE_MISMATCH")
+            transport = adapter.compose
+        except (OSError, RuntimeError, ValueError, TypeError):
+            print("Backup not started: reviewed OpenShift scope and destination were not verified", file=sys.stderr)
+            return 2
     if args.compose_override:
         args.compose_file = [args.compose_file, *args.compose_override]
+    # SQL, raw mirror, destination review and checksums must refer to the same
+    # host root. The protected env file wins over ambient Compose variables.
+    if args.env_file:
+        from preflight import read_env
+        try:
+            configured = read_env(args.env_file).get("BACKUP_ROOT")
+            if not configured or Path(configured).resolve() != args.root.resolve():
+                raise ValueError("BACKUP_ROOT_MISMATCH")
+        except (OSError, ValueError, TypeError):
+            print("Backup not started: --root must match protected BACKUP_ROOT", file=sys.stderr)
+            return 2
+    if args.destination_policy:
+        from backup_destination import verify
+        try:
+            verify(args.destination_policy, args.root)
+        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+            print("Backup not started: independent encrypted destination was not verified", file=sys.stderr)
+            return 2
     root = args.root.resolve()
     root.mkdir(parents=True, exist_ok=True)
     if (root / "sets").exists() and (root / "sets").resolve().parent != root:
@@ -173,7 +223,7 @@ def main() -> int:
             for name, data in receipts.items():
                 (evidence_root / name).write_bytes(data)
             status["migration_evidence_files"] = len(receipts)
-        database_bytes = compose(
+        database_bytes = transport(
             args.compose_file,
             args.env_file,
             "exec",
@@ -190,7 +240,7 @@ def main() -> int:
             )
         status["database"] = actual_database
         with dump.open("wb") as output:
-            compose(
+            transport(
                 args.compose_file,
                 args.env_file,
                 "exec",
@@ -201,7 +251,7 @@ def main() -> int:
                 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc',
                 stdout=output,
             )
-        compose(
+        transport(
             args.compose_file,
             args.env_file,
             "--profile",
@@ -225,6 +275,8 @@ def main() -> int:
         status["size_bytes"] = sum(path.stat().st_size for path in files if path.is_file())
         if "postgres.dump" not in checksums or dump.stat().st_size == 0:
             raise RuntimeError("Backup lacks database artifact")
+        if adapter is not None:
+            adapter.verify_scope()
         completed = datetime.now(UTC)
         status.update(
             {

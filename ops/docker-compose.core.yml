@@ -1,4 +1,4 @@
-# PR8 candidate overlay. Combine with docker-compose.prod.yml from repo root.
+# Private Core candidate overlay. Combine with docker-compose.prod.yml from repo root.
 # No existing volumes or legacy network. NOT a deployment authorization.
 name: ${COMPOSE_PROJECT_NAME:?explicit isolated project}
 services:
@@ -15,21 +15,27 @@ services:
     command: ["raise SystemExit('Use the isolated archive verifier')"]
   api:
     build: !reset null
-    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
   worker:
     build: !reset null
-    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
   scheduler:
     build: !reset null
-    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    healthcheck:
+      test: [CMD, python, -c, "import os,pathlib; os.kill(int(pathlib.Path('/tmp/celerybeat.pid').read_text().strip()),0)"]
   web:
     build: !reset null
-    image: private-iip/web@sha256:1e052d82ea7df9743c724d8f40d42f69456b2c5a671e329c735280ccee790945
+    image: private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5
   postgres:
     build: !reset null
     image: private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f
+    healthcheck:
+      # initdb's temporary socket-only server must not pass readiness. Verify
+      # the configured database over TCP after initialization has completed.
+      test: [CMD-SHELL, "PGPASSWORD=$$POSTGRES_PASSWORD psql -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB -X -tAc 'SELECT 1' > /dev/null"]
   minio:
-    image: chrislusf/seaweedfs@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8
+    image: private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039
     entrypoint: [weed]
     user: "10001:10001"
     command: [server, -s3, -s3.port=9000, -dir=/data, -ip=minio, -s3.config=/etc/seaweed/s3.json, -volume.max=16, -master.volumeSizeLimitMB=64, -master.telemetry=false]
@@ -51,7 +57,7 @@ services:
       retries: 30
   storage-init:
     profiles: [ops]
-    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
     entrypoint: [sh, -ec]
     command: ["chown 10001:10001 /stage-data"]
     user: "0:0"
@@ -67,13 +73,13 @@ services:
         volume: {nocopy: true}
   caddy:
     build: !reset null
-    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
     networks: !override [edge, platform, storage]
     volumes:
       - ./ops/caddy/Core.Caddyfile:/etc/caddy/Caddyfile:ro
   ca-export:
     build: !reset null
-    image: private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204
+    image: private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf
   prometheus:
     image: prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
     ports: !reset []
@@ -96,7 +102,9 @@ services:
     security_opt: [no-new-privileges:true]
   ml-worker:
     build: !reset null
-    image: private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+    image: private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667
+    healthcheck:
+      test: [CMD, python, -c, "import socket; from app.jobs.celery_app import celery_app; name='ml@'+socket.gethostname(); assert any(r.get(name,{}).get('ok')=='pong' for r in celery_app.control.ping(destination=[name],timeout=5))"]
   mlflow:
     build: !reset null
     image: private-iip/mlflow:pr7-rc1@sha256:d5852fbf485db217c53a3e75d5e230b70f2ab58628a4a5feabd6d3690e4a8656

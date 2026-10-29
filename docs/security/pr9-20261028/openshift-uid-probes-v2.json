@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-10-29T12:50:51.426893+00:00",
+  "contract": "LOCAL_ARBITRARY_UID_PROBE_V1",
+  "passed": true,
+  "results": [
+    {
+      "service": "api",
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "minio",
+      "image": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "caddy",
+      "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    }
+  ],
+  "limitations": [
+    "No OpenShift cluster, SCC admission, namespace allocation, CSI permissions, Routes, ServiceCA or GitOps controller verified",
+    "New synthetic tmpfs storage only; no application/original volumes or external provider requests",
+    "Caddy high-port HTTP startup only; S3 TLS is separately verified by Core acceptance",
+    "Seaweed startup only; authenticated strict TLS object contract is separately verified by Core acceptance"
+  ],
+  "release_status": "NOT_APPROVED"
+}

@@ -1,0 +1,21 @@
+# Same Python/Trixie and locked wheel bytes as PR8; no distribution mixing.
+# This is a candidate, never a production approval or a historical runtime.
+ARG BASE_IMAGE=private-iip/backend@sha256:610dd6f6821c86bcaf870680a8bc623ab7947875529b833605cbfc67140831a6
+FROM ${BASE_IMAGE} AS assemble
+USER root
+COPY backend/ /app/
+COPY ops/backend/assemble_runtime.py /assemble_runtime.py
+RUN python /assemble_runtime.py
+
+FROM scratch AS production
+ENV PATH=/usr/local/bin \
+    HOME=/home/appuser \
+    LANG=C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+COPY --from=assemble /runtime-root/ /
+COPY --from=assemble /app/ /app/
+WORKDIR /app
+USER 10001:10001
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

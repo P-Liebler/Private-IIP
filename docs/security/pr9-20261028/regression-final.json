@@ -1,0 +1,64 @@
+{
+  "scope": "LOCAL_SYNTHETIC_EXACT_IMAGES_NOT_REMOTE_CI_OR_HUMAN_ACCEPTANCE",
+  "passed": true,
+  "backend_tests_per_image": 306,
+  "core_backend": {
+    "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+    "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+    "exit_code": 0,
+    "passed": true,
+    "production_dependencies_replaced": false
+  },
+  "standard_production_backend": {
+    "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+    "image": "private-iip/backend@sha256:e0fb31b210407685515dce23b016bd0649250ee686d0d00abbcd29099b89c9d9",
+    "exit_code": 0,
+    "passed": true,
+    "production_dependencies_replaced": false
+  },
+  "host_tests": 155,
+  "browser_tests": 31,
+  "browser_normal_mode_restored": true,
+  "quality_checks": {
+    "host": 0,
+    "ruff": 0,
+    "format": 0,
+    "mypy": 0
+  },
+  "fresh_migration_and_drift_both_images": "PASS_0021_UI_REQUESTS_78_REQUIRED_TABLE_SUBSET",
+  "frontend": {
+    "scope": "LOCAL_PR9_FINAL_FRONTEND",
+    "passed": true,
+    "lint": 0,
+    "typecheck": 0,
+    "image_build": 0,
+    "image_id": "sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5"
+  },
+  "original_private_log_sha256": {
+    "pr9-final-backend-v3.txt": "57761b24dc272e7eea46d2cc389b7f0578b0135e3db7a5d92c00430094732cd8",
+    "pr9-standard-backend-v1.txt": "216e437f0d590af318a2f563839bd04a3622bc0be7f4f810e013e50ee828c92a",
+    "pr9-host-final-v5.txt": "9b877ee25c94a69fae7feb36cb3f3a7884f80c09cfa5ec9e9fba4f713f8e028a",
+    "pr9-final-browser-v5.txt": "c3fa5796e245d95e0841ca3b21538ba4922b48f4fffd5675107fe798ab47ef44",
+    "pr9-final-ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "pr9-final-format.txt": "57aca214125845d5bc3df0265576cfb3f185a347b24dd01f64ca7819ec2b5211",
+    "pr9-final-mypy.txt": "913201c08d6920cfacfea77a5920444f948ee5e81cdaf969fc5e5ca153bb63be",
+    "pr9-frontend-end-lint.txt": "eca179fd0630245b721999a932e9af192b03316b11ebc14aa8fe660254361eb1",
+    "pr9-frontend-end-typecheck.txt": "462436979968084b4da2226b6f2cb4f6df1c4313092599cc35e704b1c775b39d",
+    "pr9-frontend-build.txt": "3e6236eb227c8dc58f590353b64a5e973e84528116bfe805fa47f0a1d0e4a8e7",
+    "pr9-web-image-build.txt": "c14f7d120f15746ca6fba440feb1507cdb782499c50db740a29e307eeb79bf92",
+    "pr9-final-migration.txt": "b8d18e66ccfcb06256f506abfa985b66badad94d6aa12894099dc36bb5fd8c12",
+    "pr9-standard-migration.txt": "9f0dd79dc327ae1c38110ce413fdae3d7982eb87cfecc34e1569cc325e808de6",
+    "pr9-backend-probe-v5b.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "pr9-standard-probe.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "pr9-target-restore-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4",
+    "pr9-standard-restore-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+  },
+  "previous_failed_attempts_retained": [
+    "baseline-browser-v1:29/30",
+    "final-browser-v1:engine unavailable",
+    "final-browser-v2:failed",
+    "final-browser-v3:30/31",
+    "final-browser-v4:26/31_under_competing_work"
+  ],
+  "production_approval": false
+}

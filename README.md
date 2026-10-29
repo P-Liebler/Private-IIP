@@ -1,5 +1,35 @@
 # Private Investment Intelligence Platform
 
+## PR9 – Releaseblocker bearbeitet, reale Freigaben offen (29.10.2026)
+
+**OpenShift / Red Hat OpenShift GitOps:** Kustomize-Overlays, Argo-CD-Application/
+AppProject, Service-CA, eingeschränkte RBAC und manueller Backuptransport ergänzt.
+**Lokal geprüft, am Cluster noch nicht abgenommen.**
+[Einrichtung](docs/operations/OPENSHIFT_ARGOCD.md) ·
+[Abnahmestand](docs/OPENSHIFT_GITOPS_ACCEPTANCE_REPORT.md).
+
+**LOCAL_SYNTHETIC_VERIFIED / SECURITY_BLOCKED / NOT_RELEASED.**
+Backend-Highs von 44 auf **0** reduziert, numerische Pins unverändert; normaler
+CI-Produktionsbuild separat geprüft. Seaweed/Caddy-Patches und engere Style-CSP,
+deterministischer Rechte-/Listing-/Quota-Refresh, geschützter C:-Stagingpfad und
+Installations-/Recoveryablauf ergänzt. Keine Produktivinstallation oder Quellenaktivierung.
+
+**306 Backendtests je geprüftem Image, 155 Hosttests, 31/31 Browserfälle**,
+13 gültige SBOMs für neun Core-/Recovery-Images und isolierter Restore mit
+**1385 Dateihashes** bestanden. Golden CHF 10’180 gilt nur am belegten
+historischen Stichtag; heute bleibt derselbe alte Bestand `STALE_PRICE`.
+
+Offen: Legacy-Verifier **1 Critical/47 High**, Caddy **1 High** ohne v3-Fix,
+weitere Securityreviews, tatsächlicher Zielhost/Clients, unabhängiges verschlüsseltes
+Recoveryziel, Quellenfreigabe/Livekontinuität, echter Depotabgleich und unabhängiger
+Anfänger-Test. Letzter tatsächlicher Remote-Lauf: Verify success/Security failure
+am HEAD `b78b276…`; PR9-Arbeitsbytes nicht remote verifiziert. Kein Push/Release.
+
+[PR9-Abnahme und konkrete nächste Schritte](docs/PR9_ACCEPTANCE_REPORT.md),
+[Security](docs/PR9A_SECURITY_CLOSURE_REPORT.md),
+[Installation](docs/operations/PRIVATE_CORE_INSTALLATION.md),
+[reale Datenversorgung](docs/PR9C_REAL_DATA_ENABLEMENT_REPORT.md).
+
 ## PR8 – Private Core V1 lokal geprüft (27.10.2026)
 
 **LOCAL_SYNTHETIC_VERIFIED / NOT_RELEASED.** Digestgebundenes Core-Profil mit

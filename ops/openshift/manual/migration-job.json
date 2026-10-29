@@ -1,0 +1,165 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "iip-migrate-manual",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    },
+    "namespace": "investment-draft"
+  },
+  "spec": {
+    "suspend": true,
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 600,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/name": "iip-migrate-manual",
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/role": "backend"
+        },
+        "annotations": {
+          "investment.local/approval": "NOT_APPROVED"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "serviceAccountName": "iip-runtime",
+        "terminationGracePeriodSeconds": 60,
+        "securityContext": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "migration",
+            "image": "registry.invalid/investment/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "runAsNonRoot": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp",
+                "readOnly": false
+              },
+              {
+                "name": "service-ca",
+                "mountPath": "/service-ca",
+                "readOnly": true
+              }
+            ],
+            "command": [
+              "alembic"
+            ],
+            "args": [
+              "upgrade",
+              "head"
+            ],
+            "envFrom": [
+              {
+                "configMapRef": {
+                  "name": "iip-config"
+                }
+              }
+            ],
+            "env": [
+              {
+                "name": "DATABASE_URL",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "DATABASE_URL"
+                  }
+                }
+              },
+              {
+                "name": "MINIO_ACCESS_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "MINIO_ACCESS_KEY"
+                  }
+                }
+              },
+              {
+                "name": "MINIO_SECRET_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "MINIO_SECRET_KEY"
+                  }
+                }
+              },
+              {
+                "name": "TOTP_ENCRYPTION_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "TOTP_ENCRYPTION_KEY"
+                  }
+                }
+              },
+              {
+                "name": "HOME",
+                "value": "/tmp"
+              },
+              {
+                "name": "XDG_CACHE_HOME",
+                "value": "/tmp/cache"
+              },
+              {
+                "name": "MPLCONFIGDIR",
+                "value": "/tmp/matplotlib"
+              },
+              {
+                "name": "PYTHONDONTWRITEBYTECODE",
+                "value": "1"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "256Mi"
+            }
+          },
+          {
+            "name": "service-ca",
+            "configMap": {
+              "name": "iip-service-ca"
+            }
+          }
+        ],
+        "restartPolicy": "Never"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "scope": "NEW_ISOLATED_SYNTHETIC_S3_CONTRACT_NOT_FULL_STAGING_OR_MIGRATION",
+  "passed": true,
+  "stopped": true,
+  "evidence_log_sha256": "6ff83ec503ecacb9d189929744650b6196a05e4276c6546ebe2af4d77607db65",
+  "images": {
+    "tls": {
+      "image": "private-iip/caddy@sha256:530a36f37620f2f9d749160c63e77d0c15e042978aca975e1160c85fbc2c25ac"
+    },
+    "ca-export": {
+      "image": "private-iip/caddy@sha256:530a36f37620f2f9d749160c63e77d0c15e042978aca975e1160c85fbc2c25ac"
+    },
+    "volume-init": {
+      "image": "private-iip/caddy@sha256:530a36f37620f2f9d749160c63e77d0c15e042978aca975e1160c85fbc2c25ac"
+    },
+    "core-probe": {
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667"
+    },
+    "target": {
+      "image": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039"
+    }
+  },
+  "note": "S3 contract uses preliminary patched Caddy 530a; final Caddy 6416 has separate strict Core TLS/backup acceptance."
+}

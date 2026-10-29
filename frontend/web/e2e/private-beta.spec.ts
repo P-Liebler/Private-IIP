@@ -109,8 +109,15 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   }
   await importMarket("prices", `date,figi,close,currency\n${day},${figi},120,USD\n${day},${figiB},95,CHF\n`);
   await importMarket("fx", `date,base_currency,quote_currency,rate\n${day},USD,CHF,0.9\n`);
+  // A successful import is not a completed portfolio valuation. Wait for the
+  // exact data request rather than racing its explicit loading state.
+  const valuationReady = page.waitForResponse(r => r.url().endsWith(`/portfolios/${portfolio}/valuation`)
+    && r.request().method() === "GET", { timeout: 30000 });
   await page.goto(`/portfolios/${portfolio}`);
-  await expect(page.getByText("Gesamtwert", { exact: true }).locator("..")).toContainText("934.20 CHF");
+  const valued = await valuationReady;
+  expect(valued.ok()).toBe(true);
+  expect((await valued.json()).total_value_base).toBe("934.20000000");
+  await expect(page.getByText("Gesamtwert", { exact: true }).locator("..")).toContainText("934.20 CHF", { timeout: 30000 });
   await page.getByRole("button", { name: "Positionen", exact: true }).click();
   await expect(page.getByRole("link", { name: nameA, exact: true })).toBeVisible();
   await page.getByRole("row").filter({ has: page.getByRole("link", { name: nameA, exact: true }) }).getByRole("button", { name: "Details", exact: true }).click();
@@ -144,7 +151,7 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   const openingRow = await openingResponse.json();
   expect(openingRow.type).toBe("OPENING_POSITION");
   expect(openingRow.amount).toBeNull();
-  const valuationAfterOpening = await page.request.get(`${base}/portfolios/${portfolio}/valuation`);
+  const valuationAfterOpening = await page.request.get(`${base}/portfolios/${portfolio}/valuation`, { timeout: 30000 });
   expect(valuationAfterOpening.ok()).toBe(true);
   expect((await valuationAfterOpening.json()).issues).toEqual(expect.arrayContaining([expect.objectContaining({ code: "UNKNOWN_COST_BASIS" })]));
   await page.getByRole("button", { name: "Datenqualität", exact: true }).click();

@@ -1,0 +1,22 @@
+{
+  "caddy": {
+    "repository": "caddyserver/caddy",
+    "tag": "v2.11.7",
+    "commit": "72dd0fb067f6d7826c7f79907670ba4a713bfe37",
+    "archive_url": "https://codeload.github.com/caddyserver/caddy/tar.gz/72dd0fb067f6d7826c7f79907670ba4a713bfe37",
+    "archive_sha256": "e86c49311c0c9f7e9b3b80527f0139e5739dfe28effeaa41c444dd743f0bbd7e",
+    "bytes": 1108653,
+    "module_patch": "github.com/go-jose/go-jose/v4@v4.1.6",
+    "production_approval": false
+  },
+  "seaweed": {
+    "repository": "seaweedfs/seaweedfs",
+    "tag": "4.51",
+    "commit": "153ab668c99731a6d29492bf6c61d0b4fa701101",
+    "archive_url": "https://codeload.github.com/seaweedfs/seaweedfs/tar.gz/153ab668c99731a6d29492bf6c61d0b4fa701101",
+    "archive_sha256": "3a04848df016a58148851cddf860e858b7f41e4123b92497b932630647613245",
+    "bytes": 81881962,
+    "module_patch": "github.com/go-jose/go-jose/v4@v4.1.6",
+    "production_approval": false
+  }
+}

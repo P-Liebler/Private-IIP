@@ -1,0 +1,58 @@
+{
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "AppProject",
+  "metadata": {
+    "name": "investment-draft",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    },
+    "namespace": "openshift-gitops"
+  },
+  "spec": {
+    "description": "DRAFT / NOT_APPROVED: manual review only; no migration jobs or secrets",
+    "sourceRepos": [
+      "https://repo.invalid/REPLACE_PRIVATE_REPOSITORY.git"
+    ],
+    "destinations": [
+      {
+        "server": "https://kubernetes.default.svc",
+        "namespace": "investment-staging"
+      }
+    ],
+    "clusterResourceWhitelist": [],
+    "namespaceResourceWhitelist": [
+      {
+        "group": "",
+        "kind": "ConfigMap"
+      },
+      {
+        "group": "",
+        "kind": "ServiceAccount"
+      },
+      {
+        "group": "",
+        "kind": "Service"
+      },
+      {
+        "group": "",
+        "kind": "PersistentVolumeClaim"
+      },
+      {
+        "group": "apps",
+        "kind": "Deployment"
+      },
+      {
+        "group": "apps",
+        "kind": "StatefulSet"
+      },
+      {
+        "group": "networking.k8s.io",
+        "kind": "NetworkPolicy"
+      }
+    ]
+  }
+}

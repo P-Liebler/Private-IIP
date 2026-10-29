@@ -1,0 +1,41 @@
+{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "iip-config",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    }
+  },
+  "data": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "VALKEY_URL": "redis://valkey:6379/0",
+    "MINIO_ENDPOINT": "caddy.investment-draft.svc:9002",
+    "MINIO_SECURE": "true",
+    "MINIO_CA_CERT_PATH": "/service-ca/service-ca.crt",
+    "MINIO_BUCKET_RAW": "raw-ingestions",
+    "FRONTEND_ORIGIN": "https://REPLACE_PRIVATE_ORIGIN.invalid",
+    "API_PUBLIC_ORIGIN": "https://REPLACE_PRIVATE_ORIGIN.invalid",
+    "SESSION_SECURE_COOKIE": "true",
+    "SESSION_COOKIE_NAME": "investment_session",
+    "BASE_CURRENCY": "CHF",
+    "DEFAULT_TIMEZONE": "Europe/Zurich",
+    "CODE_COMMIT": "REPLACE_IMMUTABLE_CODE_COMMIT",
+    "SEC_ENABLED": "false",
+    "RESEARCH_COLLECTION_CONTRACTS": "[]",
+    "DATA_COLLECTION_ENABLED": "false",
+    "FORWARD_SHADOW_ENABLED": "false",
+    "DATA_COLLECTION_SCHEDULES": "[]",
+    "DATA_OPERATOR_USERNAMES": "[]",
+    "OPERATIONS_OPERATOR_USERNAMES": "[]",
+    "ML_OPERATOR_USERNAMES": "[]",
+    "ASSISTANT_TEST_MODE": "false",
+    "OLLAMA_BASE_URL": "http://ollama:11434",
+    "MLFLOW_TRACKING_URI": "http://mlflow:5000"
+  }
+}

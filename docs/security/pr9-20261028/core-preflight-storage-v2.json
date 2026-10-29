@@ -1,0 +1,13 @@
+{
+  "executed": false,
+  "target_status": "TARGET_HOST_NOT_VERIFIED",
+  "release_status": "NOT_APPROVED",
+  "scope_sha256": "b92541d5052585cbc8ae7571d9a229452898566cee98548c68b9c1fc44a29893",
+  "generated_at": "2026-10-28T08:57:10.606750+00:00",
+  "mode": "STAGING",
+  "environment_sha256": "ffa23e2a3e065a00fd44255a6bbecb29300a64e76e6668054d891825e96cb653",
+  "status": "PREFLIGHT_INCOMPLETE",
+  "security_status": "SCAN_INCOMPLETE",
+  "failure_stage": "DOCKER_MEMORY",
+  "failure_class": "TimeoutExpired"
+}

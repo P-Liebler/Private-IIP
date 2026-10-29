@@ -1,0 +1,89 @@
+{
+  "apiVersion": "kustomize.config.k8s.io/v1beta1",
+  "kind": "Kustomization",
+  "namespace": "investment-staging",
+  "resources": [
+    "../../base"
+  ],
+  "replicas": [
+    {
+      "name": "api",
+      "count": 1
+    },
+    {
+      "name": "worker",
+      "count": 1
+    },
+    {
+      "name": "scheduler",
+      "count": 1
+    },
+    {
+      "name": "web",
+      "count": 1
+    },
+    {
+      "name": "postgres",
+      "count": 1
+    },
+    {
+      "name": "valkey",
+      "count": 1
+    },
+    {
+      "name": "minio",
+      "count": 1
+    },
+    {
+      "name": "caddy",
+      "count": 1
+    }
+  ],
+  "images": [
+    {
+      "name": "registry.invalid/investment/backend",
+      "newName": "registry.invalid/replace-project/backend",
+      "digest": "sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667"
+    },
+    {
+      "name": "registry.invalid/investment/caddy",
+      "newName": "registry.invalid/replace-project/caddy",
+      "digest": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf"
+    },
+    {
+      "name": "registry.invalid/investment/postgres",
+      "newName": "registry.invalid/replace-project/postgres",
+      "digest": "sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f"
+    },
+    {
+      "name": "registry.invalid/investment/seaweed",
+      "newName": "registry.invalid/replace-project/seaweed",
+      "digest": "sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039"
+    },
+    {
+      "name": "registry.invalid/investment/valkey",
+      "newName": "registry.invalid/replace-project/valkey",
+      "digest": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507"
+    },
+    {
+      "name": "registry.invalid/investment/web",
+      "newName": "registry.invalid/replace-project/web",
+      "digest": "sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5"
+    }
+  ],
+  "patches": [
+    {
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-config"
+      },
+      "patch": "[{\"op\": \"replace\", \"path\": \"/data/MINIO_ENDPOINT\", \"value\": \"caddy.investment-staging.svc:9002\"}, {\"op\": \"replace\", \"path\": \"/data/FRONTEND_ORIGIN\", \"value\": \"https://replace-private-origin.invalid\"}, {\"op\": \"replace\", \"path\": \"/data/API_PUBLIC_ORIGIN\", \"value\": \"https://replace-private-origin.invalid\"}]"
+    },
+    {
+      "target": {
+        "kind": "PersistentVolumeClaim"
+      },
+      "patch": "[{\"op\": \"replace\", \"path\": \"/spec/storageClassName\", \"value\": \"replace-reviewed-storage-class\"}]"
+    }
+  ]
+}

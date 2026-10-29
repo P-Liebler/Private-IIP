@@ -1,0 +1,70 @@
+{
+  "scope": "SAME_EXACT_IMAGE_SCAN_REUSED_FOR_SERVICE_ALIASES_ORIGINAL_BYTES_UNCHANGED",
+  "origins": {
+    "legacy-verifier": {
+      "private_original": "backups/pr9-stable-scans-v1",
+      "component": "legacy-verifier",
+      "record_sha256": "84dbe61f5580660fbf601041d5e5e5c23ce7a43f6a44ac72c7a1b2059f7c5714"
+    },
+    "api": {
+      "private_original": "backups/pr9-backend-scan-v5",
+      "component": "api",
+      "record_sha256": "44a3983bc339526c1f285dec6628ccf7b0587071d1aa66d1f8e952a2db0abd4b"
+    },
+    "worker": {
+      "private_original": "backups/pr9-backend-scan-v5",
+      "component": "api",
+      "record_sha256": "44a3983bc339526c1f285dec6628ccf7b0587071d1aa66d1f8e952a2db0abd4b"
+    },
+    "scheduler": {
+      "private_original": "backups/pr9-backend-scan-v5",
+      "component": "api",
+      "record_sha256": "44a3983bc339526c1f285dec6628ccf7b0587071d1aa66d1f8e952a2db0abd4b"
+    },
+    "web": {
+      "private_original": "backups/pr9-web-caddy-scans-v1",
+      "component": "web",
+      "record_sha256": "ba2f542d4e40a5b0fd848efd91fad6646c61b630016c373794ee3bca9002e063"
+    },
+    "postgres": {
+      "private_original": "backups/pr9-stable-scans-v1",
+      "component": "postgres",
+      "record_sha256": "781b571856b0d4b7fd93804a76846754ee76cc34907d93faf0b2e4244343b320"
+    },
+    "valkey": {
+      "private_original": "backups/pr9-stable-scans-v1",
+      "component": "valkey",
+      "record_sha256": "cb08588219f631343f4a3a1c083b087a2236c2d6f1ee63dda97248c5ac9276c6"
+    },
+    "minio": {
+      "private_original": "backups/pr9-seaweed-scan-v1",
+      "component": "minio",
+      "record_sha256": "fdb82a5c3f012b75be37eccbb6433de0674279d6d98125ec25346ed395cab51c"
+    },
+    "caddy": {
+      "private_original": "backups/pr9-caddy-scan-v3",
+      "component": "caddy",
+      "record_sha256": "c522cd230b7489db7bf563d55345c4467e25fa255bea5267d34bf7501822f463"
+    },
+    "ca-export": {
+      "private_original": "backups/pr9-caddy-scan-v3",
+      "component": "caddy",
+      "record_sha256": "c522cd230b7489db7bf563d55345c4467e25fa255bea5267d34bf7501822f463"
+    },
+    "prometheus": {
+      "private_original": "backups/pr9-stable-scans-v1",
+      "component": "prometheus",
+      "record_sha256": "04b703d708fa63556ce7d2f6073ccc707f5c2f2ba79fb530fda8f2e87ed100c7"
+    },
+    "backup": {
+      "private_original": "backups/pr9-stable-scans-v1",
+      "component": "backup",
+      "record_sha256": "68480919b516724f33d3589f6f703d91fad6e6c50ea7019f00b14a5a8236c434"
+    },
+    "storage-init": {
+      "private_original": "backups/pr9-caddy-scan-v3",
+      "component": "caddy",
+      "record_sha256": "c522cd230b7489db7bf563d55345c4467e25fa255bea5267d34bf7501822f463"
+    }
+  }
+}

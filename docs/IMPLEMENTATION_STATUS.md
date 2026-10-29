@@ -1,5 +1,41 @@
 # Implementation status
 
+## PR9 – Releaseblocker bearbeitet, reale Freigaben offen (29.10.2026)
+
+Zusätzlich ist **OpenShift mit Red Hat OpenShift GitOps / Argo CD Applications**
+vorbereitet: acht Core-Workloads, getrennte Infrastruktur-/Staging-Overlays,
+manuelle Migration, Service-CA, private Netzgrenzen, eingeschränkte Controller-
+RBAC und optionaler `oc`-Transport des bestehenden Backupmotors. **13 Manifest-
+und 14 Backuptransporttests**, vier lokale Render, sieben tatsächliche
+arbitrary-UID-Imageproben und der tatsächliche Client-Tar-Vertrag bestehen.
+**CLUSTER_NOT_AVAILABLE / NOT_APPROVED**; SCC, CSI, GitOps-Sync, TLS, unabhängiger
+Clusterrestore und Betreiberfreigaben bleiben offen.
+[OpenShift-Abnahme](OPENSHIFT_GITOPS_ACCEPTANCE_REPORT.md),
+[Betriebsablauf](operations/OPENSHIFT_ARGOCD.md),
+[ADR-027](decisions/ADR-027-openshift-gitops.md).
+
+**LOCAL_SYNTHETIC_VERIFIED / SECURITY_BLOCKED / NOT_RELEASED.**
+Backend-Highs von 44 auf **0** reduziert, numerische Pins unverändert; normaler
+CI-Produktionsbuild separat geprüft. Seaweed/Caddy-Patches und engere Style-CSP,
+deterministischer Rechte-/Listing-/Quota-Refresh, geschützter C:-Stagingpfad und
+Installations-/Recoveryablauf ergänzt. Keine Produktivinstallation oder Quellenaktivierung.
+
+**306 Backendtests je geprüftem Image, 155 Hosttests, 31/31 Browserfälle**,
+13 gültige SBOMs für neun Core-/Recovery-Images und isolierter Restore mit
+**1385 Dateihashes** bestanden. Golden CHF 10’180 gilt nur am belegten
+historischen Stichtag; heute bleibt derselbe alte Bestand `STALE_PRICE`.
+
+Offen: Legacy-Verifier **1 Critical/47 High**, Caddy **1 High** ohne v3-Fix,
+weitere Securityreviews, tatsächlicher Zielhost/Clients, unabhängiges verschlüsseltes
+Recoveryziel, Quellenfreigabe/Livekontinuität, echter Depotabgleich und unabhängiger
+Anfänger-Test. Letzter tatsächlicher Remote-Lauf: Verify success/Security failure
+am HEAD `b78b276…`; PR9-Arbeitsbytes nicht remote verifiziert. Kein Push/Release.
+
+[PR9-Abnahme und konkrete nächste Schritte](PR9_ACCEPTANCE_REPORT.md),
+[Security](PR9A_SECURITY_CLOSURE_REPORT.md),
+[Installation](operations/PRIVATE_CORE_INSTALLATION.md),
+[reale Datenversorgung](PR9C_REAL_DATA_ENABLEMENT_REPORT.md).
+
 ## PR8 – Private Core V1 lokal geprüft (27.10.2026)
 
 Private Core V1 bleibt **NOT_RELEASED / SECURITY_BLOCKED**. Ausgangscommit und

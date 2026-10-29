@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core_preflight import check
+from core_install_plan import plan
 from release_scope import CORE_REQUIRED
 
 
@@ -28,6 +29,16 @@ class CorePreflightTests(unittest.TestCase):
         self.assertEqual(self.check(), [])
         self.assertIn("BACKUP_FREE_SPACE_BELOW_5_GIB", self.check(free=1024))
 
+    def test_ca_export_is_checked_as_completed_not_a_waited_daemon(self):
+        commands = plan(self.scope, Path('synthetic.env'))['after_separate_approval_only']
+        waited = [command for command in commands if '--wait' in command]
+        self.assertTrue(waited)
+        self.assertTrue(all('ca-export' not in command for command in waited))
+        gate = [command for command in commands if '--exit-code-from' in command]
+        self.assertEqual(len(gate), 1)
+        self.assertEqual(gate[0][-3:], ['--exit-code-from', 'ca-export', 'ca-export'])
+        self.assertIn('--no-deps', gate[0])
+
     def test_native_storage_port_and_original_volume_block(self):
         config = copy.deepcopy(self.config)
         config["services"]["api"].update(ports=[{"target": 9000}],
@@ -43,3 +54,7 @@ class CorePreflightTests(unittest.TestCase):
         self.config["services"]["ollama"] = {"image": self.ref}
         self.assertIn("UNPINNED_OR_CHANGED_SERVICE_API", self.check())
         self.assertIn("RELEASE_SERVICE_SET_MISMATCH", self.check())
+
+    def test_external_or_foreign_project_volumes_block(self):
+        self.config["volumes"] = {"data": {"name": "foreign_original_data", "external": True}}
+        self.assertIn("EXTERNAL_OR_NONISOLATED_VOLUME_FORBIDDEN", self.check())

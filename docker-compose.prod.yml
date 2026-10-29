@@ -121,7 +121,7 @@ services:
     security_opt: [no-new-privileges:true]
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "celery -A app.jobs.celery_app:celery_app inspect ping --destination=ml@$$HOSTNAME --timeout=5"]
+      test: [CMD, python, -c, "import socket; from app.jobs.celery_app import celery_app; name='ml@'+socket.gethostname(); assert any(r.get(name,{}).get('ok')=='pong' for r in celery_app.control.ping(destination=[name],timeout=5))"]
       interval: 30s
       timeout: 20s
       retries: 5
@@ -137,7 +137,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
     volumes: [postgres_data:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: [CMD-SHELL, "PGPASSWORD=$$POSTGRES_PASSWORD psql -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB -X -tAc 'SELECT 1' > /dev/null"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -298,7 +298,7 @@ services:
       target: production
     command: ["celery", "-A", "app.jobs.celery_app:celery_app", "beat", "--loglevel=INFO", "--pidfile=/tmp/celerybeat.pid", "--schedule=/tmp/celerybeat-schedule"]
     healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $$(cat /tmp/celerybeat.pid)"]
+      test: [CMD, python, -c, "import os,pathlib; os.kill(int(pathlib.Path('/tmp/celerybeat.pid').read_text().strip()),0)"]
       interval: 30s
       timeout: 5s
       retries: 3

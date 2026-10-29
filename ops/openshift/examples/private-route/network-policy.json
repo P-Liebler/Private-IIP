@@ -1,0 +1,49 @@
+{
+  "apiVersion": "networking.k8s.io/v1",
+  "kind": "NetworkPolicy",
+  "metadata": {
+    "name": "private-router-example",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    },
+    "namespace": "investment-staging"
+  },
+  "spec": {
+    "podSelector": {
+      "matchLabels": {
+        "app.kubernetes.io/name": "caddy"
+      }
+    },
+    "policyTypes": [
+      "Ingress"
+    ],
+    "ingress": [
+      {
+        "from": [
+          {
+            "namespaceSelector": {
+              "matchLabels": {
+                "kubernetes.io/metadata.name": "openshift-ingress"
+              }
+            },
+            "podSelector": {
+              "matchLabels": {
+                "ingresscontroller.operator.openshift.io/deployment-ingresscontroller": "REPLACE_PRIVATE_INGRESS_CONTROLLER"
+              }
+            }
+          }
+        ],
+        "ports": [
+          {
+            "protocol": "TCP",
+            "port": 8443
+          }
+        ]
+      }
+    ]
+  }
+}

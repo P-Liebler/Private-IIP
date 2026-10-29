@@ -1,0 +1,18 @@
+{
+  "apiVersion": "v1",
+  "kind": "Namespace",
+  "metadata": {
+    "name": "investment-staging",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft",
+      "pod-security.kubernetes.io/enforce": "restricted",
+      "pod-security.kubernetes.io/audit": "restricted",
+      "pod-security.kubernetes.io/warn": "restricted",
+      "investment.local/gitops-bootstrap": "manual-scoped-role"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    }
+  }
+}

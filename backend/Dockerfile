@@ -22,7 +22,19 @@ COPY backend/requirements-dev.lock /app/requirements-dev.lock
 RUN pip install --no-cache-dir -r requirements-dev.lock
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-FROM base AS production
-RUN useradd --create-home --uid 10001 appuser
-USER appuser
+FROM base AS runtime-assemble
+COPY ops/backend/assemble_runtime.py /assemble_runtime.py
+RUN python /assemble_runtime.py
+
+FROM scratch AS production
+ENV PATH=/usr/local/bin \
+    HOME=/home/appuser \
+    LANG=C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+COPY --from=runtime-assemble /runtime-root/ /
+COPY --from=runtime-assemble /app/ /app/
+WORKDIR /app
+USER 10001:10001
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

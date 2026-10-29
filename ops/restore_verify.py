@@ -34,6 +34,14 @@ def digest(path: Path) -> str:
     return value.hexdigest()
 
 
+def synthetic_seaweed_identity(username: str, image: str | None) -> bool:
+    """Only the two explicitly supported, digest-pinned synthetic candidates."""
+    return username.startswith("restore_") and bool(re.fullmatch(
+        r"(?:chrislusf/seaweedfs|private-iip/seaweed)(?::[A-Za-z0-9_.-]+)?@sha256:[0-9a-f]{64}",
+        image or "",
+    ))
+
+
 def command(project: str, file: Path, env: dict[str, str], *args: str) -> bytes:
     files = ["-f", str(file)]
     if env.get("RESTORE_OBJECT_STORE_KIND") == "seaweed-synthetic":
@@ -105,8 +113,8 @@ def main() -> int:
         parser.error("A current missing-data assertion requires a separate pinned valuation cutoff")
     if args.object_store_kind == "seaweed-synthetic" and not args.client_image:
         parser.error("Seaweed restore requires an explicit reviewed immutable S3 client image")
-    if args.object_store_kind == "seaweed-synthetic" and (
-        not args.username.startswith("restore_") or not (args.object_store_image or "").startswith("chrislusf/seaweedfs")
+    if args.object_store_kind == "seaweed-synthetic" and not synthetic_seaweed_identity(
+        args.username, args.object_store_image
     ):
         parser.error("Seaweed candidate requires explicit synthetic restore fixture and image")
     for image in (args.api_image, args.postgres_image, args.object_store_image, args.legacy_image, args.client_image):

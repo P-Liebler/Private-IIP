@@ -1,0 +1,11 @@
+{
+  "recorded_at": "2026-10-29T12:52:19.754071+00:00",
+  "contract": "LOCAL_MC_USTAR_CONTRACT_V1",
+  "image": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+  "uid": 1000720000,
+  "gid": 0,
+  "passed": true,
+  "bytes": 3072,
+  "archive_sha256": "e5ee84d3c5c67a9607313b87cfd770e238db48850a784a70a12b3b94ce77ce1d",
+  "scope": "SYNTHETIC_LOCAL_NO_CLUSTER_OR_PROVIDER"
+}

@@ -1,0 +1,115 @@
+{
+  "contract": "PRIVATE_CORE_SCOPE_V1",
+  "release_candidate": "PR9_CORE_V1_RC1",
+  "release_status": "NOT_APPROVED",
+  "services": {
+    "legacy-verifier": {
+      "role": "recovery",
+      "enabled": true,
+      "image": "private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816",
+      "reason": "Required exact historical model verifier during full restore; network none and read-only, never a live application runtime"
+    },
+    "api": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "reason": "Core service"
+    },
+    "worker": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "reason": "Core service"
+    },
+    "scheduler": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "reason": "Core service"
+    },
+    "web": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "reason": "Core service"
+    },
+    "postgres": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "reason": "Core service"
+    },
+    "valkey": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "reason": "Core service"
+    },
+    "minio": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "reason": "Final SeaweedFS candidate, not the legacy MinIO server"
+    },
+    "caddy": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "reason": "Core service"
+    },
+    "ca-export": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "reason": "Core service"
+    },
+    "prometheus": {
+      "role": "runtime",
+      "enabled": true,
+      "image": "prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "reason": "Core service"
+    },
+    "backup": {
+      "role": "recovery",
+      "enabled": true,
+      "image": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+      "reason": "Separate digest-pinned unprivileged S3 client; strict private CA, no MinIO server runtime; final restore evidence separate from approval"
+    },
+    "storage-init": {
+      "role": "recovery",
+      "enabled": true,
+      "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "reason": "Explicit initialization of a NEW empty core storage volume only"
+    },
+    "ml-worker": {
+      "role": "optional",
+      "enabled": false,
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "reason": "Separate opt-in profile; unavailable features retain their service gates"
+    },
+    "mlflow": {
+      "role": "optional",
+      "enabled": false,
+      "image": "private-iip/mlflow@sha256:d5852fbf485db217c53a3e75d5e230b70f2ab58628a4a5feabd6d3690e4a8656",
+      "reason": "Separate opt-in profile; unavailable features retain their service gates"
+    },
+    "ollama": {
+      "role": "optional",
+      "enabled": false,
+      "image": "private-iip/ollama@sha256:076ea5eecb2c074d0148e52e103489799eed87bfb461473751ba2f21cf18edbc",
+      "reason": "Separate opt-in profile; unavailable features retain their service gates"
+    },
+    "grafana": {
+      "role": "optional",
+      "enabled": false,
+      "image": "private-iip/grafana@sha256:7c157e9ac8f746e1fef157e4ca50a60f8f9d5a13a5f25a4b9d7ddfe79f338208",
+      "reason": "Separate opt-in profile; unavailable features retain their service gates"
+    },
+    "legacy-source": {
+      "role": "migration_source",
+      "enabled": false,
+      "image": "coollabsio/minio@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9",
+      "reason": "Read-only migration source; existing source is outside new project and requires its own isolated migration approval"
+    }
+  }
+}

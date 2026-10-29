@@ -6,10 +6,19 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from restore_verify import main, valuation_cutoff
+from restore_verify import main, synthetic_seaweed_identity, valuation_cutoff
 
 
 class RestoreValuationCutoffTests(unittest.TestCase):
+    def test_reviewed_source_build_still_requires_synthetic_user_and_exact_repository(self):
+        for repository in ['private-iip/seaweed', 'chrislusf/seaweedfs']:
+            image = repository + '@sha256:' + 'a' * 64
+            self.assertTrue(synthetic_seaweed_identity('restore_synthetic', image))
+            self.assertFalse(synthetic_seaweed_identity('real-user', image))
+        for image in ['private-iip/seaweed:latest', 'evil/seaweed@sha256:' + 'a' * 64,
+                      'private-iip/seaweed@sha256:' + 'a' * 63, None]:
+            self.assertFalse(synthetic_seaweed_identity('restore_synthetic', image))
+
     def test_core_restore_cannot_silently_fall_back_to_legacy_client(self):
         args = ['restore_verify', 'not-read', '--username', 'restore_synthetic',
                 '--portfolio-id', 'synthetic', '--raw-id', 'synthetic', '--expected-value', '10180',

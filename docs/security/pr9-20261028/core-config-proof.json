@@ -1,0 +1,112 @@
+{
+  "scope": "ACTUAL_STOPPED_LOCAL_SYNTHETIC_CORE_CONTAINERS_NOT_TARGET_HOST",
+  "resolved_configuration_sha256": "92b19c91d47c5a451c7fe1d56dac9b59d6af73b95893ded94fbd16db4f44b02e",
+  "configuration_files_sha256": {
+    "docker-compose.prod.yml": "7cb0c5cc176f008e7e21658f0e5926b1afdf975f826cc6e3472a55b880758217",
+    "ops/docker-compose.core.yml": "bb00473133ee69e3e45586ef55c1c01b0b31a69bb40a12e47e57b0bf6baf9a0d",
+    "ops/caddy/Core.Caddyfile": "4afa7786bd3eb3f9764915e3a9f48deefb812375c57463a74dcb1020fc5c8f0a"
+  },
+  "containers": [
+    {
+      "service": "web",
+      "image_reference": "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "actual_image_id": "sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "f9af598828cb7a888e4b0d6987601c0c143ae72a8c60ac6f5d653c7133104dc2",
+      "current_compose_config_hash": "f9af598828cb7a888e4b0d6987601c0c143ae72a8c60ac6f5d653c7133104dc2",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "api",
+      "image_reference": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "actual_image_id": "sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "582db2a3fcb551e874860d4c1586b3980f6f78b3ba521efeb9429a22738ae96f",
+      "current_compose_config_hash": "582db2a3fcb551e874860d4c1586b3980f6f78b3ba521efeb9429a22738ae96f",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "scheduler",
+      "image_reference": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "actual_image_id": "sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "aa5691163106df0ffddf148e9a63765e98b891575fe23deb1666500211925440",
+      "current_compose_config_hash": "aa5691163106df0ffddf148e9a63765e98b891575fe23deb1666500211925440",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "prometheus",
+      "image_reference": "prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "actual_image_id": "sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "a52c149e7fbd3518bb395716aa832f8ad2059f1a785333460ec2c4081379b8cf",
+      "current_compose_config_hash": "a52c149e7fbd3518bb395716aa832f8ad2059f1a785333460ec2c4081379b8cf",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "worker",
+      "image_reference": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "actual_image_id": "sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "f3ecc5b870956790273bef8b38626da9a9d957de87b6e58b913ac00b977d1637",
+      "current_compose_config_hash": "f3ecc5b870956790273bef8b38626da9a9d957de87b6e58b913ac00b977d1637",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "ca-export",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "actual_image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "b13cc183f804b44978b47280000d9e50cd6a0e079d0fd6df3205b9c3e06a6222",
+      "current_compose_config_hash": "b13cc183f804b44978b47280000d9e50cd6a0e079d0fd6df3205b9c3e06a6222",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "caddy",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "actual_image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "122b2181fb98bd5944159ebca82b1586e3f666e4f9acad4e43294816989cf530",
+      "current_compose_config_hash": "122b2181fb98bd5944159ebca82b1586e3f666e4f9acad4e43294816989cf530",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "minio",
+      "image_reference": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "actual_image_id": "sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "cdd97b265de17426d2a7a8dac377b8b1681de08a2af0d328c263008b8d64bd03",
+      "current_compose_config_hash": "cdd97b265de17426d2a7a8dac377b8b1681de08a2af0d328c263008b8d64bd03",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "postgres",
+      "image_reference": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "actual_image_id": "sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "2189a03ff9d6ece2ba1c10ee07432fca360c814c99aa8c9d1c829b02fd6dcbe7",
+      "current_compose_config_hash": "2189a03ff9d6ece2ba1c10ee07432fca360c814c99aa8c9d1c829b02fd6dcbe7",
+      "state": "exited",
+      "configuration_matches": true
+    },
+    {
+      "service": "valkey",
+      "image_reference": "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "actual_image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "matches_selected_image": true,
+      "actual_compose_config_hash": "d3872e2fae0cb513c63c437cb822db82c76ef3d318e2d0381540ef61801da9b8",
+      "current_compose_config_hash": "d3872e2fae0cb513c63c437cb822db82c76ef3d318e2d0381540ef61801da9b8",
+      "state": "exited",
+      "configuration_matches": true
+    }
+  ],
+  "one_shot_removed_containers": "storage-init and backup are separately evidenced by successful test log and exact scans; legacy is only executed separately by restore."
+}

@@ -1,0 +1,45 @@
+{
+  "contract": "OPENSHIFT_BACKUP_TRANSPORT_V1",
+  "context": "REPLACE_CONTEXT",
+  "namespace": "investment-staging",
+  "namespace_uid": "REPLACE_NAMESPACE_UID",
+  "session": "REPLACE_LEASE_HOLDER",
+  "lease_name": "investment-backup-lock",
+  "lease_uid": "REPLACE_LEASE_UID",
+  "writer_selector": "app.kubernetes.io/part-of=investment,investment.local/backup-writer=true",
+  "writer_deployments": {
+    "api": "api",
+    "web": "web",
+    "worker": "worker",
+    "scheduler": "scheduler"
+  },
+  "postgres": {
+    "name": "postgres",
+    "uid": "REPLACE_ACTUAL_UID",
+    "container": "postgres",
+    "image": "registry.invalid/replace-project/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+    "image_id": "REPLACE_ACTUAL_PLATFORM_IMAGE_ID",
+    "container_id": "REPLACE_ACTUAL_CONTAINER_ID"
+  },
+  "backup_agent": {
+    "name": "backup-agent",
+    "uid": "REPLACE_ACTUAL_UID",
+    "container": "backup-agent",
+    "image": "registry.invalid/replace-project/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+    "image_id": "REPLACE_ACTUAL_PLATFORM_IMAGE_ID",
+    "container_id": "REPLACE_ACTUAL_CONTAINER_ID"
+  },
+  "database": "REPLACE_DATABASE",
+  "bucket": "raw-ingestions",
+  "root": "C:/REPLACE_INDEPENDENT_ENCRYPTED_BACKUP_TARGET",
+  "operator_receipt": "C:/REPLACE_PROTECTED_CONFIG/operator-scope.json",
+  "operator_receipt_sha256": "REPLACE_REVIEWED_RECEIPT_SHA256",
+  "destination_policy": "C:/REPLACE_PROTECTED_CONFIG/destination-policy.json",
+  "destination_policy_sha256": "REPLACE_POLICY_SHA256",
+  "command_timeout": 1800,
+  "max_files": 100000,
+  "max_file_bytes": 1073741824,
+  "max_total_bytes": 17179869184,
+  "max_archive_bytes": 19327352832,
+  "max_dump_bytes": 17179869184
+}

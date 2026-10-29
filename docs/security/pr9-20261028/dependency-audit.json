@@ -1,0 +1,35 @@
+{
+  "scope": "CURRENT_LOCKS_NOT_RUNTIME_OR_RELEASE_APPROVAL",
+  "pip_audit_version": "2.10.1",
+  "pip_audit_result": "NO_KNOWN_FINDINGS_CORE_SUPPORT_AND_SEPARATE_MLFLOW",
+  "reports_sha256": {
+    "core_support": "92636b97459d13e922d900acf413013625d4eb3d459ea1a9f1959fbbd82ee4c5",
+    "mlflow": "b86f36eeecbd206bee7ed65d31087b97c3745f6b3fed7b102975693e5e6ff2d1",
+    "npm": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3"
+  },
+  "locks_sha256": {
+    "backend/requirements.lock": "e5b5632853fe8ea05dbde087bd83e1c1cfa5e5872479710e2771b5e89873a84b",
+    "backend/requirements-assistant.lock": "59b9dcaec8c2ff2f0db024fba5b31288e612b492cd83aa557b59c883d558f7bf",
+    "backend/requirements-mlflow.lock": "5fcf7a35720ed0a7e4ab309d153177695a21a76f2084a79d789d347c3e538496",
+    "frontend/web/package-lock.json": "2608b1102a6131d26b628d4e7018718465370cc98e232c142f8d3cd0de59b490"
+  },
+  "npm_metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 72,
+      "dev": 386,
+      "optional": 94,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 495
+    }
+  },
+  "release_approval": false
+}

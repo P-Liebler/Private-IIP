@@ -1,0 +1,35 @@
+{
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "Application",
+  "metadata": {
+    "name": "investment-draft",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED"
+    },
+    "namespace": "openshift-gitops"
+  },
+  "spec": {
+    "project": "investment-draft",
+    "source": {
+      "repoURL": "https://repo.invalid/REPLACE_PRIVATE_REPOSITORY.git",
+      "targetRevision": "REPLACE_IMMUTABLE_COMMIT_SHA",
+      "path": "ops/openshift/overlays/staging"
+    },
+    "destination": {
+      "server": "https://kubernetes.default.svc",
+      "namespace": "investment-staging"
+    },
+    "syncPolicy": {
+      "syncOptions": [
+        "CreateNamespace=false",
+        "Prune=false",
+        "Delete=false",
+        "FailOnSharedResource=true"
+      ]
+    }
+  }
+}

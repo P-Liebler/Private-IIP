@@ -1,0 +1,12 @@
+{
+  "component": "seaweed",
+  "source_image": "chrislusf/seaweedfs@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8",
+  "source_image_id": "sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8",
+  "recipe_sha256": "7b2ecf3fa92c01e3a702a4dc70f28c7a613526dffc665683c6221846fafab43d",
+  "started_at": "2026-10-28T13:53:28.081983+00:00",
+  "production_approval": false,
+  "exit_code": 0,
+  "completed_at": "2026-10-28T14:10:28.046485+00:00",
+  "image_id": "sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+  "build_log_sha256": "359096fb94c0631081fd53cc457ab9bfa6dfeb5bda4e5f06451feb505ccb3652"
+}

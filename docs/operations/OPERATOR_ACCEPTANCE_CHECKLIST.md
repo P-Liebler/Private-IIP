@@ -1,5 +1,18 @@
 # Operator-Abnahmeprotokoll
 
+## Offene PR9-Abnahme (28.10.2026)
+
+- [ ] Finalen PR9-Scope, exakte Images/SBOMs/Scans, Regressions-/Restorebelege und unveränderliches Manifest getrennt sicherheitsprüfen; lokale Pläne/Receipts erteilen keine Freigabe.
+- [ ] [Core-Installationsablauf](PRIVATE_CORE_INSTALLATION.md) mit geschützter eigener Produktionskonfiguration und separaten Projektvolumes ausführen; vor Freigaben nur read-only Preflight/Plan.
+- [ ] Tatsächliche private DNS-/VPN-Erreichbarkeit und Unerreichbarkeit außerhalb des VPN nachweisen, Windows und Android samt CA und Login/TOTP testen.
+- [ ] Eigenständiges verschlüsseltes Backupziel, Mount-/Geräteidentität, Dienstkonto, Tagesjob, Retention, verpasste/fehlgeschlagene Läufe und echten Alarmempfang nach [Backupverfahren](BACKUP_SETUP.md) prüfen.
+- [ ] Vom unabhängigen Ziel vollständig isoliert restaurieren; DB-/S3-Zugänge, ursprünglichen TOTP-Key, CA und getrennte Verschlüsselungsschlüssel wiederherstellen; falschen Key negativ prüfen.
+- [ ] Autorisierten echten Hostreboot mit Bootidentität und tatsächlich wiederanlaufenden Diensten, Queue, Sessions, Tagesjob/Alarmen belegen; Containerrestart genügt nicht.
+- [ ] Für alle zwölf Hostschritte neue private Belege mit `ops/record_host_check.py` an das exakte Manifest binden und durch berechtigten Reviewer prüfen lassen; Toolstatus bleibt `NOT_APPROVED`.
+- [ ] Source-/Portfolio-/menschliche UX-Abnahmen separat abschließen; keine Modell-/Strategiepromotion aus Installations- oder Restoreerfolg ableiten.
+
+Der vorbereitete lokale C:-Stagingpfad schließt keine Zielhost-, Verschlüsselungs-, Unabhängigkeits- oder Schlüssel-Recovery-Abnahme. [PR9B-Bericht](../PR9B_INSTALLATION_READINESS_REPORT.md).
+
 ## Offene PR5-Betreiberabnahme (22.10.2026)
 
 - [ ] Sicherheitsreview der finalen Runtime-/Storage-Digests, High-/native-/CSP-Befunde; keine implizite Risikoakzeptanz aus lokalen Tests.
@@ -54,3 +67,11 @@ Core-Freigabe erst nach allen Pflichtnachweisen. Unabhängig davon bleiben bis z
 - [ ] Keine ungeprüfte S3-/Datenbankmigration, Quellenfreigabe oder Modell-/Strategiepromotion aus PR4 ableiten.
 
 Diese Punkte sind Anforderungen, keine vorweggenommenen Operatornachweise. Der reale Zielhost bleibt `TARGET_HOST_NOT_VERIFIED`.
+
+## Optionales OpenShift / Red Hat OpenShift GitOps
+
+Die [separate OpenShift-Vorbereitungsabnahme](../OPENSHIFT_GITOPS_ACCEPTANCE_REPORT.md)
+ist keine Zielclusterfreigabe. Gerenderte Zielbytes/Registrydigests, SCC/CSI,
+privater Ingress/TLS, quiesziertes Backup, unabhängiger Restore und tatsächliche
+Cluster-/Security-/Operatorreviews sind gesondert zu belegen. Compose-RC und
+Argo `Healthy/Synced` ersetzen diese Entscheidungen nicht.

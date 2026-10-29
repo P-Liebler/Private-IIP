@@ -1,0 +1,19 @@
+# Same upstream 4.51 release family, built from its actual tag commit. This is
+# a separately tested local candidate and never an authorization to cut over.
+ARG RUNTIME_IMAGE=private-iip/seaweed:pr9-source
+FROM golang:1.27.3-alpine@sha256:b8c9b82affbbb82a020bbcf998dad2ba9516944ac7e883524642a481a9505e9c AS build
+ENV CGO_ENABLED=0 GOTOOLCHAIN=local GOMAXPROCS=2
+ADD --checksum=sha256:3a04848df016a58148851cddf860e858b7f41e4123b92497b932630647613245 https://codeload.github.com/seaweedfs/seaweedfs/tar.gz/153ab668c99731a6d29492bf6c61d0b4fa701101 /tmp/source.tar.gz
+RUN mkdir /src && tar -xzf /tmp/source.tar.gz -C /src --strip-components=1
+WORKDIR /src
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    go mod edit -require=github.com/go-jose/go-jose/v4@v4.1.6 \
+    && go mod tidy && go build -p 2 -trimpath -o /out/weed ./weed
+FROM ${RUNTIME_IMAGE}
+COPY --from=build /out/weed /usr/bin/weed
+COPY --from=build /src/go.mod /usr/share/private-iip/seaweed/go.mod
+COPY --from=build /src/go.sum /usr/share/private-iip/seaweed/go.sum
+COPY --from=build /src/LICENSE /usr/share/private-iip/seaweed/LICENSE
+LABEL org.opencontainers.image.source="https://github.com/seaweedfs/seaweedfs" \
+      org.opencontainers.image.revision="153ab668c99731a6d29492bf6c61d0b4fa701101" \
+      private-iip.security-patch="go-jose-v4-4.1.6"

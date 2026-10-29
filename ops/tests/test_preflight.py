@@ -19,11 +19,15 @@ from redact_test_artifacts import redact
 
 class PreflightTests(unittest.TestCase):
     def test_backup_keeps_stage_overrides_and_private_environment_in_command(self):
+        base, stage, private = [Path(self.folder.name) / name for name in ("base.yml", "stage.yml", "private.env")]
+        base.write_text("name: ${COMPOSE_PROJECT_NAME}\n", encoding="utf-8")
+        stage.write_text("# synthetic overlay\n", encoding="utf-8")
+        private.write_text("COMPOSE_PROJECT_NAME=fixture-staging\n", encoding="utf-8")
         with patch("backup.subprocess.run") as run:
             run.return_value.returncode = 0
             run.return_value.stdout = b"synthetic dump"
-            result = backup.compose([Path("base.yml"), Path("stage.yml")], Path("private.env"), "exec", "-T", "postgres", "pg_dump")
-        self.assertEqual(run.call_args.args[0], ["docker", "compose", "-f", "base.yml", "-f", "stage.yml", "--env-file", "private.env", "exec", "-T", "postgres", "pg_dump"])
+            result = backup.compose([base, stage], private, "exec", "-T", "postgres", "pg_dump")
+        self.assertEqual(run.call_args.args[0], ["docker", "compose", "-f", str(base), "-f", str(stage), "--env-file", str(private), "exec", "-T", "postgres", "pg_dump"])
         self.assertEqual(result, b"synthetic dump")
 
     def test_browser_diagnostics_redact_session_and_auth_headers(self):

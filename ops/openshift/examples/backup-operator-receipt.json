@@ -1,0 +1,9 @@
+{
+  "contract": "OPENSHIFT_BACKUP_OPERATOR_SCOPE_V1",
+  "status": "DRAFT_NOT_APPROVED",
+  "operator": null,
+  "reviewed_at": null,
+  "expires_at": null,
+  "scope": null,
+  "instructions": "After actual inventory and independent destination verification, bind exactly Config.operator_scope(), transfer limits included; real review <=24 hours. This example grants no authority."
+}

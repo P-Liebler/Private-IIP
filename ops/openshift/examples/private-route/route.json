@@ -1,0 +1,32 @@
+{
+  "apiVersion": "route.openshift.io/v1",
+  "kind": "Route",
+  "metadata": {
+    "name": "investment-private-example",
+    "labels": {
+      "app.kubernetes.io/part-of": "investment",
+      "investment.local/release-state": "draft",
+      "investment.local/ingress": "REPLACE_PRIVATE_INGRESS_SELECTOR"
+    },
+    "annotations": {
+      "investment.local/approval": "NOT_APPROVED",
+      "haproxy.router.openshift.io/ip_whitelist": "REPLACE_APPROVED_VPN_CIDRS"
+    },
+    "namespace": "investment-staging"
+  },
+  "spec": {
+    "host": "replace-private-origin.invalid",
+    "to": {
+      "kind": "Service",
+      "name": "caddy"
+    },
+    "port": {
+      "targetPort": "https"
+    },
+    "tls": {
+      "termination": "reencrypt",
+      "insecureEdgeTerminationPolicy": "None",
+      "destinationCACertificate": "REPLACE_REVIEWED_SERVICE_CA_PEM"
+    }
+  }
+}

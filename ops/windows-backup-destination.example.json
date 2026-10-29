@@ -1,0 +1,9 @@
+{
+  "contract": "PRIVATE_IIP_WINDOWS_BITLOCKER_DESTINATION_V1",
+  "root": "E:\\Private-IIP-Backups",
+  "volume_serial": "REPLACE_AFTER_ACTUAL_VOLUME_CHECK",
+  "operator_review": "NOT_APPROVED",
+  "operator": "",
+  "reviewed_at": "",
+  "recovery_drill_receipt_sha256": ""
+}

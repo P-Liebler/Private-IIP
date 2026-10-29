@@ -4990,6 +4990,36 @@ Volumes:
 /srv/investment/ollama
 ```
 
+## Zusätzliches Ziel: Red Hat OpenShift GitOps
+
+Auf Nutzerauftrag vom 28.10.2026 wird derselbe Core-Stack zusätzlich für
+OpenShift und den Red-Hat-OpenShift-GitOps-Operator mit Argo CD Applications
+vorbereitet. Docker Compose bleibt der bisherige lokale Betriebsweg; eine
+OpenShift-Installation ist keine verpflichtende Infrastruktur- oder
+API-Kostenabhängigkeit. Finanzlogik, P0–P10-Abhängigkeiten und alle 212
+nummerierten Hauptabschnitte bleiben erhalten.
+
+OpenShift verwendet getrennte Namespaces, neue PVCs, digestgebundene Images,
+private Secrets, Service-CA und restriktive Netzwerkregeln. Die Pods müssen
+mit den vom Namespace zugewiesenen Benutzer-/Volumegruppen unter
+`restricted-v2` funktionieren; keine `anyuid`-Freigabe oder Root-Initpods als
+Ersatz. ML-/LLM-Profile und externe Collection bleiben zunächst ausgeschaltet.
+Argo CD synchronisiert nur nach tatsächlicher Operatorentscheidung; es
+aktiviert keine Quelle und erteilt keine Security-, Modell- oder
+Strategiefreigabe. Migration, Backup, Restore und datenerhaltender Rollback
+haben eigene explizite Abläufe. PVCs werden nicht automatisch bereinigt.
+
+Die vorhandenen Compose-Releasebelege sind keine OpenShift-Abnahme. Vor
+Produktivbetrieb sind gerenderte Zielmanifeste, Registry-Imageidentitäten,
+SCC-/CSI-/TLS-/private Ingressnachweise und vollständige unabhängige
+Backup-/Restore-/Schlüssel-Recoverybelege zusammen mit getrennten Security-,
+Cluster- und Operatorentscheidungen unveränderlich zu binden. Der bislang
+fehlende Cluster lässt diese Zielabnahme offen; lokale UID-/Renderprüfungen
+werden ausdrücklich als solche ausgewiesen.
+
+Verträge und Ablauf: [ADR-027](docs/decisions/ADR-027-openshift-gitops.md),
+[OpenShift mit Argo CD](docs/operations/OPENSHIFT_ARGOCD.md).
+
 ---
 
 # 198. GPU

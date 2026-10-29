@@ -1,0 +1,200 @@
+{
+  "scope": "EXISTING_SYNTHETIC_PR8_ARCHIVE_PRESERVATION",
+  "initial_checkpoint_sha256": "b42c0303cb759dd2ac6f9ae34c0f03296588aed5c07ee956891a1348c0687ade",
+  "final_checkpoint_sha256": "a7338adec78db7d0645abfb767c0f94730a095679770f8fd916f76e00a80106a",
+  "all_initial_hashes_preserved": true,
+  "final_archive_hashes": {
+    "dataset_hash": "dd5cd6ef97b9248eb148725797470069b9b33635df15f8506d61bf99761ea538",
+    "model_artifact_hash": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+    "prediction_history_hash": "dee7d0b8e9662a34fba5b54022362cda518510a9dbbdbcbf8fff74877115957e",
+    "risk_history_hash": "38d6143c6d4c9bb8e206c5d05a738a42b3f2231ef9a37c5812510e9ef4b9aabd",
+    "recommendation_history_hash": "3fe74a07747ae287ba01fe8ed0af26fede8c153b12bf9980b503265383dadc2a",
+    "intelligence_history_hash": "f43ce42ba9fd87458427c7cb31e862c34d09543a80fe4e14b8bd5e36bd3786e2",
+    "document_removal_history_hash": "c978ef8ed043e850a739ff1d0e6159476ecbdb4befe71b82ed9d5a48e5f8daa8",
+    "collections_history_hash": "2d2d223caae32e6c13a4e2d0565fd3959b06473329efc3115b0d49b86f2f6537",
+    "validation_history_hash": "59d4f6efc9ae3bb0159fbb805eb6c3aab314a91e4ef5502fa939ca89a806e8ae",
+    "ui_request_history_hash": "b9411db6bf57a01cae88079fa063b9eecf59795ee5b001d77bec109554528fef"
+  },
+  "intelligence_delta": {
+    "status": "ARCHIVED_CONTENT_PRESERVED_WITH_REVIEWED_SCHEDULER_PROGRESS",
+    "tables": {
+      "assistant_conversations": {
+        "baseline_count": 13,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "assistant_messages": {
+        "baseline_count": 23,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "assistant_tool_calls": {
+        "baseline_count": 27,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "document_rights_reviews": {
+        "baseline_count": 9,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "research_documents": {
+        "baseline_count": 20,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "financial_event_versions": {
+        "baseline_count": 2,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "alert_rules": {
+        "baseline_count": 42,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "alert_rule_versions": {
+        "baseline_count": 43,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "alert_evaluations": {
+        "baseline_count": 43,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "alert_events": {
+        "baseline_count": 1,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "notifications": {
+        "baseline_count": 14,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "daily_brief_configs": {
+        "baseline_count": 1,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "daily_briefs": {
+        "baseline_count": 13,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "optimizer_runs": {
+        "baseline_count": 30,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "document_chunks": {
+        "baseline_count": 9,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "chunk_embeddings": {
+        "baseline_count": 9,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      },
+      "document_removals": {
+        "baseline_count": 11,
+        "added_count": 0,
+        "added_content_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_scheduler_progress": []
+      }
+    },
+    "baseline_intelligence_hash": "f43ce42ba9fd87458427c7cb31e862c34d09543a80fe4e14b8bd5e36bd3786e2",
+    "post_runtime_intelligence_hash": "f43ce42ba9fd87458427c7cb31e862c34d09543a80fe4e14b8bd5e36bd3786e2"
+  },
+  "collections_delta": {
+    "status": "FROZEN_COLLECTION_ROWS_PRESERVED_WITH_EXPLICIT_QA_ADDITIONS",
+    "tables": {
+      "data_sources": {
+        "baseline_rows": 43,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "source_review_evidence": {
+        "baseline_rows": 26,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "collector_jobs": {
+        "baseline_rows": 28,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "provider_sync_states": {
+        "baseline_rows": 0,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "data_coverage_snapshots": {
+        "baseline_rows": 0,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "price_daily_versions": {
+        "baseline_rows": 130,
+        "added_rows": 1,
+        "added_rows_hash": "0947c70cfeb9dfa5ff9e345fd92879fe8c34b718ead125cf8c5a527794384efe",
+        "reviewed_operational_changes": []
+      },
+      "fx_rate_versions": {
+        "baseline_rows": 7,
+        "added_rows": 1,
+        "added_rows_hash": "c1c56ef61e212f57e04259137816682bcb7be0f5f2c8e3a8a55dbb6d723ff061",
+        "reviewed_operational_changes": []
+      },
+      "fundamental_fact_versions": {
+        "baseline_rows": 271,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "macro_observation_versions": {
+        "baseline_rows": 0,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "corporate_action_versions": {
+        "baseline_rows": 88,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      },
+      "action_coverage_reviews": {
+        "baseline_rows": 72,
+        "added_rows": 0,
+        "added_rows_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reviewed_operational_changes": []
+      }
+    },
+    "source_collections_hash": "47d4d33fdffd6c09473852400bedda2a7430fc3a643e1e657d64c210595fcdf4",
+    "post_qa_collections_hash": "2d2d223caae32e6c13a4e2d0565fd3959b06473329efc3115b0d49b86f2f6537"
+  }
+}

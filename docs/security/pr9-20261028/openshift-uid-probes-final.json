@@ -1,0 +1,90 @@
+{
+  "recorded_at": "2026-10-29T12:53:11.835161+00:00",
+  "contract": "LOCAL_ARBITRARY_UID_PROBE_V1",
+  "passed": true,
+  "results": [
+    {
+      "service": "api",
+      "image": "private-iip/backend@sha256:5a925e0ea0bfffabeda6ee735f60db9d0235b3ab149b059984f9150cf0d21667",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "web",
+      "image": "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "postgres",
+      "image": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER",
+      "postgres_vector": "0.8.6"
+    },
+    {
+      "service": "minio",
+      "image": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "valkey",
+      "image": "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "caddy",
+      "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    },
+    {
+      "service": "backup",
+      "image": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+      "uid": 1000720000,
+      "gid": 0,
+      "network": "none",
+      "read_only_root": true,
+      "status": "PASSED",
+      "scope": "LOCAL_SYNTHETIC_RUNTIME_ONLY_NOT_SCC_CSI_OR_CLUSTER"
+    }
+  ],
+  "limitations": [
+    "No OpenShift cluster, SCC admission, namespace allocation, CSI permissions, Routes, ServiceCA or GitOps controller verified",
+    "New synthetic tmpfs storage only; no application/original volumes or external provider requests",
+    "Caddy high-port HTTP startup only; S3 TLS is separately verified by Core acceptance",
+    "Seaweed startup only; authenticated strict TLS object contract is separately verified by Core acceptance"
+  ],
+  "release_status": "NOT_APPROVED",
+  "previous_failed_probe": "Initial API probe lacked required settings; Seaweed port and Caddyfile syntax were incorrect in the probe. Images unchanged; corrected isolated probes pass. Original failures retained.",
+  "source_evidence_sha256": {
+    "openshift-uid-probes.json": "e7135b83c350fdfe37828598a9791726d7977cfdef13aa7ed7b36a3669351a19",
+    "openshift-uid-probes-v2.json": "c5ce6499d09819f54af466b2f54b35c72d10d78bb9a20630ec0246b4ac5a6bd9"
+  }
+}

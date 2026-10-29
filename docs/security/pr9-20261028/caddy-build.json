@@ -1,0 +1,12 @@
+{
+  "component": "caddy",
+  "source_image": "private-iip/caddy@sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204",
+  "source_image_id": "sha256:3c8c26d383636d37e9fcd3d799a711112edcfc5aedcb85890856a08254a68204",
+  "recipe_sha256": "4b4a4be6dd4c1b91b9789478ffd96a83fe5c3a0527a92db992c8e10d889d3f7c",
+  "started_at": "2026-10-28T14:16:45.765350+00:00",
+  "production_approval": false,
+  "exit_code": 0,
+  "completed_at": "2026-10-28T14:19:17.435776+00:00",
+  "image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+  "build_log_sha256": "8f7ed2fdf85f0ad8cfb89b5d75d4cfc74d80f73b7785d84d938ecbd4d8f26706"
+}
