@@ -2,19 +2,86 @@
   "apiVersion": "kustomize.config.k8s.io/v1beta1",
   "kind": "Kustomization",
   "namespace": "gitops-demo",
-  "resources": ["../../base"],
+  "resources": [
+    "../../base"
+  ],
   "patches": [
     {
-      "target": {"kind": "ConfigMap", "name": "iip-config"},
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-config"
+      },
       "patch": "[{\"op\":\"replace\",\"path\":\"/data/MINIO_ENDPOINT\",\"value\":\"caddy.gitops-demo.svc:9002\"}]"
     },
     {
-      "target": {"kind": "NetworkPolicy", "name": "default-deny"},
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "default-deny"
+      },
       "patch": "[{\"op\":\"replace\",\"path\":\"/spec/podSelector\",\"value\":{\"matchLabels\":{\"app.kubernetes.io/part-of\":\"investment\"}}}]"
     },
     {
-      "target": {"kind": "NetworkPolicy", "name": "dns-only"},
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "dns-only"
+      },
       "patch": "[{\"op\":\"replace\",\"path\":\"/spec/podSelector\",\"value\":{\"matchLabels\":{\"app.kubernetes.io/part-of\":\"investment\"}}}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "backend-egress"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/1/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/2/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "postgres-ingress"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "valkey-ingress"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "api-ingress"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/1/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/2/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "web-traffic"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "caddy-traffic"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/1/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/2/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "s3-ingress"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy",
+        "name": "seaweed-internal-self"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
     }
   ]
 }
