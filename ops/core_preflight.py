@@ -52,7 +52,7 @@ def check(scope, config, values, mode, image_ids, free_bytes):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, required=True)
-    parser.add_argument("--scope", type=Path, default=Path("ops/releases/pr10-core-v1-scope.json"))
+    parser.add_argument("--scope", type=Path, default=Path("ops/releases/pr11-core-v1-scope.json"))
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--mode", choices=["STAGING", "PRODUCTION"], default="STAGING")
     parser.add_argument("--output", type=Path, required=True)

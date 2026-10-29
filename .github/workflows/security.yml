@@ -113,10 +113,10 @@ jobs:
           trap 'echo SECURITY_SCAN_INCOMPLETE' ERR
           # Exact release images must already be supplied to this runner by an
           # authorized artifact path. Rebuilding private pins is not equivalent.
-          cp ops/releases/pr10-core-v1-scope.json "$RUNNER_TEMP/pr4-release-scope.json"
+          cp ops/releases/pr11-core-v1-scope.json "$RUNNER_TEMP/pr4-release-scope.json"
           python3 ops/ci_full_image_audit.py --env-file "$RUNNER_TEMP/security.env" --scanner "$SCANNER" --scanner-sha256 "$SCANNER_SHA" --cache "$RUNNER_TEMP/pr4-cache" --output "$RUNNER_TEMP/pr4-full-images" --release-scope "$RUNNER_TEMP/pr4-release-scope.json"
           "$RUNNER_TEMP/audit-venv/bin/python" ops/validate_sboms.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --output "$RUNNER_TEMP/pr4-full-sbom-validation.json"
-          python3 ops/security_policy.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --required api worker scheduler web postgres valkey minio caddy ca-export prometheus backup storage-init legacy-verifier --package-only
+          python3 ops/security_policy.py "$RUNNER_TEMP/pr4-full-images/inventory.json" --required api worker scheduler web postgres valkey minio caddy ca-export prometheus backup storage-init --package-only
       - name: Record machine-readable security outcome
         if: always()
         env:

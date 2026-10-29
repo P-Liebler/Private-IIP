@@ -15,6 +15,45 @@ from pathlib import Path
 
 from operation_lock import acquire
 
+CORE_RECOVERY = "PRIVATE_CORE_ARCHIVE_RECOVERY_V1"
+
+
+def archive_expectations(args):
+    return {"dataset": args.expected_dataset_hash, "model": args.expected_artifact_hash,
+            "predictions": args.prediction_history_hash, "risk": args.risk_history_hash,
+            "recommendations": args.recommendation_history_hash, "intelligence": args.intelligence_history_hash,
+            "document_removals": args.document_removal_history_hash,
+            "ui_requests": args.ui_request_history_hash, "collections": args.collections_history_hash,
+            "validation": args.validation_history_hash}
+
+
+def verify_raw_readback(directory, checksums):
+    """Independently hash bytes read back from the newly restored S3 bucket."""
+    expected = {name.removeprefix("raw/"): value for name, value in checksums.items() if name.startswith("raw/")}
+    if not expected or directory.is_symlink() or not directory.is_dir():
+        raise ValueError("CORE_RESTORED_RAW_OBJECTS_MISSING")
+    actual = {}
+    for path in directory.rglob("*"):
+        if path.is_symlink() or not path.resolve().is_relative_to(directory.resolve()):
+            raise ValueError("CORE_RESTORED_RAW_PATH_REJECTED")
+        if path.is_file():
+            actual[path.relative_to(directory).as_posix()] = digest(path)
+    if actual != expected:
+        raise ValueError("CORE_RESTORED_RAW_BYTES_MISMATCH")
+    return {"objects": len(actual), "content_sha256": hashlib.sha256(
+        json.dumps(actual, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
+
+
+def readback_user():
+    """The MC download writes only the fresh operator-owned bind directory."""
+    if hasattr(os, "getuid"):
+        uid, gid = os.getuid(), os.getgid()
+        if uid == 0:
+            raise ValueError("CORE_READBACK_REQUIRES_NONROOT_OPERATOR")
+        return f"{uid}:{gid}"
+    # Docker Desktop bind ownership follows the verified Windows contract.
+    return "10001:10001"
+
 
 def valuation_cutoff(value: str) -> str:
     try:
@@ -93,6 +132,19 @@ def main() -> int:
     parser.add_argument("--expected-dataset-hash")
     parser.add_argument("--model-id")
     parser.add_argument("--legacy-image", help="Explicit exact archive runtime; verified separately with network none")
+    parser.add_argument("--recovery-contract", choices=["HISTORICAL_RUNTIME_V1", CORE_RECOVERY],
+                        default="HISTORICAL_RUNTIME_V1")
+    parser.add_argument("--original-manifest", type=Path)
+    parser.add_argument("--archive-anchor-root", type=Path,
+                        help="Exact independently retained original reference tree; no checkout normalization")
+    parser.add_argument("--expected-original-manifest-sha256")
+    parser.add_argument("--original-static-reference")
+    parser.add_argument("--historical-inventory", type=Path)
+    parser.add_argument("--archive-metadata-bundle", type=Path)
+    parser.add_argument("--expected-metadata-bundle-sha256")
+    parser.add_argument("--expected-restore-contract", type=Path,
+                        help="Independently retained CURRENT backup checkpoint, not a restore result")
+    parser.add_argument("--expected-restore-contract-sha256")
     parser.add_argument("--expected-artifact-hash")
     parser.add_argument("--prediction-history-hash")
     parser.add_argument("--risk-history-hash")
@@ -126,6 +178,16 @@ def main() -> int:
         parser.error("Model ID and expected artifact hash must be provided together")
     if args.legacy_image and not args.model_id:
         parser.error("Legacy verification requires an explicit archived model")
+    core_recovery = args.recovery_contract == CORE_RECOVERY
+    archive_inputs = (args.archive_anchor_root, args.original_manifest, args.expected_original_manifest_sha256,
+                      args.original_static_reference, args.historical_inventory,
+                      args.archive_metadata_bundle, args.expected_metadata_bundle_sha256,
+                      args.expected_restore_contract, args.expected_restore_contract_sha256)
+    if core_recovery and (not all(archive_inputs) or not args.dataset_id or not args.model_id or args.legacy_image
+                          or not all((args.api_image, args.postgres_image, args.object_store_image, args.client_image))):
+        parser.error("Core archive recovery requires every explicit independent archive anchor and excludes legacy execution")
+    if not core_recovery and any(archive_inputs):
+        parser.error("Archive anchors require the explicit versioned Core recovery contract")
     password = os.environ.get("RESTORE_TEST_PASSWORD")
     if not password:
         parser.error("Set RESTORE_TEST_PASSWORD to the explicit fixture user's password")
@@ -139,6 +201,7 @@ def main() -> int:
         operation_lock.close()
         parser.error("Backup sets must remain inside the selected root")
     if backup.parent != (root / "sets").resolve():
+        operation_lock.close()
         parser.error("Backup must be a direct child of BACKUP_ROOT/sets")
     try:
         manifest = json.loads((backup / "manifest.json").read_text(encoding="utf-8"))
@@ -157,6 +220,25 @@ def main() -> int:
         operation_lock.close()
         print("Restore rejected: backup integrity failed", file=sys.stderr)
         return 1
+    baseline = anchors = None
+    if core_recovery:
+        from verify_archive_recovery import core_anchors, core_expectations, current_expectations, metadata_bundle
+        try:
+            baseline, original, anchors = core_anchors(
+                args.archive_anchor_root.resolve(), args.original_manifest,
+                args.expected_original_manifest_sha256, args.original_static_reference, args.historical_inventory)
+            current = current_expectations(args.expected_restore_contract, args.expected_restore_contract_sha256,
+                args.expected_original_manifest_sha256, baseline["artifact_sha256"])
+            core_expectations(current, {"archive_contracts": archive_expectations(args),
+                "expected_value": args.expected_value, "valuation_as_of": args.valuation_as_of,
+                "expected_current_issue": args.expect_current_issue, "backup_run_id": backup.name,
+                "backup_manifest_sha256": digest(backup / "manifest.json"),
+                "raw_object_count": sum(name.startswith("raw/") for name in manifest["checksums"]),
+                "verified_backup_files": len(manifest["checksums"])})
+            metadata_bundle(args.archive_metadata_bundle, args.expected_metadata_bundle_sha256, baseline)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            operation_lock.close()
+            parser.error("Core recovery independent anchor or metadata bundle rejected: " + type(error).__name__)
     project = "iip-restore-" + secrets.token_hex(5)
     compose_file = Path(__file__).with_name("docker-compose.restore.yml").resolve()
     environment = {
@@ -174,7 +256,9 @@ def main() -> int:
         "RESTORE_TEST_DATASET_ID": args.dataset_id or "",
         "RESTORE_TEST_DATASET_HASH": args.expected_dataset_hash or "",
         "RESTORE_TEST_MODEL_ID": args.model_id or "",
-        "RESTORE_TEST_LEGACY_MODEL": "true" if args.legacy_image else "false",
+        # Both explicit archive paths require data-only loading in the current
+        # backend. Only --legacy-image additionally starts historical Python.
+        "RESTORE_TEST_LEGACY_MODEL": "true" if args.legacy_image or core_recovery else "false",
         "RESTORE_TEST_ARTIFACT_HASH": args.expected_artifact_hash or "",
         "RESTORE_TEST_PREDICTION_HISTORY_HASH": args.prediction_history_hash or "",
         "RESTORE_TEST_RISK_HISTORY_HASH": args.risk_history_hash or "",
@@ -215,13 +299,17 @@ def main() -> int:
         "expected_value": args.expected_value,
         "valuation_as_of": args.valuation_as_of,
         "expected_current_issue": args.expect_current_issue,
-        "archive_contracts": {"dataset": args.expected_dataset_hash, "model": args.expected_artifact_hash,
-                              "predictions": args.prediction_history_hash, "risk": args.risk_history_hash,
-                              "recommendations": args.recommendation_history_hash, "intelligence": args.intelligence_history_hash,
-                              "document_removals": args.document_removal_history_hash,
-                              "ui_requests": args.ui_request_history_hash,
-                              "collections": args.collections_history_hash, "validation": args.validation_history_hash},
+        "archive_contracts": archive_expectations(args),
     }
+    if core_recovery:
+        status.update({"recovery_contract": CORE_RECOVERY, "restore_execution_id": project,
+                       "restore_expectations_contract": current["contract"],
+                       "restore_expectations_sha256": args.expected_restore_contract_sha256,
+                       "expectations_recorded_at": current["recorded_at"],
+                       "backup_manifest_sha256": current["backup_manifest_sha256"],
+                       "raw_object_count": current["raw_object_count"],
+                       "historical_runtime_execution": "NOT_EXECUTED_NOT_PROVEN",
+                       "optional_dynamic_legacy_status": "SECURITY_BLOCKED"})
     try:
         command(project, compose_file, environment, "up", "-d", "--wait", "postgres", "minio")
         command(
@@ -282,10 +370,21 @@ def main() -> int:
             f"/backup/sets/{backup.name}/raw",
             "restored/raw-ingestions",
         )
+        if core_recovery:
+            readback = root / "runtime" / (project + "-readback")
+            if readback.exists() or readback.resolve().parent != (root / "runtime").resolve():
+                raise RuntimeError("CORE_READBACK_DIRECTORY_ALREADY_EXISTS")
+            readback.mkdir(parents=True)
+            # /backup remains read-only. Only this fresh exact project-owned
+            # destination is mounted writable for S3 readback.
+            command(project, compose_file, environment, "--profile", "ops", "run", "--rm",
+                    "--user", readback_user(), "--volume", readback.as_posix() + ":/readback:rw", "mc",
+                    "mirror", "restored/raw-ingestions", "/readback")
+            status["restored_raw_verification"] = verify_raw_readback(readback, manifest["checksums"])
         command(
             project, compose_file, environment, "up", "-d", "--no-build" if args.api_image else "--build", "--wait", "api", "valkey"
         )
-        command(
+        fixture_output = command(
             project,
             compose_file,
             environment,
@@ -296,6 +395,21 @@ def main() -> int:
             "-m",
             "scripts.verify_restored_fixture",
         )
+        if core_recovery:
+            from verify_archive_recovery import verify_core_archive
+            envelope = command(project, compose_file, environment, "exec", "-T", "api",
+                               "python", "-m", "scripts.export_legacy_model", "--model-id",
+                               args.model_id, "--username", args.username)
+            status["archive_integrity"] = verify_core_archive(
+                envelope, baseline, anchors, args.archive_metadata_bundle, args.expected_metadata_bundle_sha256)
+            status["restored_contract_verification"] = {
+                "database_restored": True, "object_store_restored": True,
+                "database_and_object_store_checks_executed": True,
+                "all_archive_contracts_verified": sorted(status["archive_contracts"]),
+                "model_envelope_origin": "THIS_RESTORED_DATABASE_AND_OBJECT_STORE",
+                "fixture_verifier_output_sha256": hashlib.sha256(fixture_output).hexdigest(),
+                "supplied_restore_receipt_used_as_fresh_evidence": False,
+            }
         if args.legacy_image:
             from verify_legacy_model import verify
             envelope = command(project, compose_file, environment, "exec", "-T", "api",
@@ -308,7 +422,7 @@ def main() -> int:
         status.update({"success": True, "completed_at": datetime.now(UTC).isoformat()})
         print("Isolated restore PASSED")
         return 0
-    except (OSError, RuntimeError) as error:
+    except (OSError, RuntimeError, ValueError, KeyError, TypeError) as error:
         status.update(
             {"completed_at": datetime.now(UTC).isoformat(), "error": type(error).__name__}
         )

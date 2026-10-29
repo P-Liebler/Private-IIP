@@ -17,10 +17,33 @@ REFERENCE = re.compile(r"[A-Za-z0-9_./:-]+@sha256:[0-9a-f]{64}\Z")
 ROLES = {"runtime", "recovery", "optional", "migration_source", "archive"}
 CORE_REQUIRED = {"api", "web", "worker", "scheduler", "postgres", "valkey", "minio",
                  "caddy", "ca-export", "prometheus", "backup", "storage-init", "legacy-verifier"}
+CORE_REQUIRED_V2 = CORE_REQUIRED - {"legacy-verifier"}
+CORE_RECOVERY = "PRIVATE_CORE_ARCHIVE_RECOVERY_V1"
+
+
+def validate_archive_recovery(scope):
+    recovery = scope.get("archive_recovery", {})
+    legacy = scope.get("services", {}).get("legacy-verifier", {})
+    if (recovery.get("contract") != CORE_RECOVERY or recovery.get("checked_pins") != 66
+            or recovery.get("current_expectations_contract") != "PRIVATE_CORE_RESTORE_EXPECTATIONS_V1"
+            or recovery.get("historical_runtime_execution") != "NOT_EXECUTED_NOT_PROVEN"
+            or recovery.get("optional_dynamic_legacy_status") != "SECURITY_BLOCKED"
+            or legacy.get("role") != "archive" or legacy.get("enabled") is not False):
+        raise ValueError("CORE_ARCHIVE_RECOVERY_CONTRACT_REQUIRED")
+    for name in ("original_manifest_sha256", "metadata_bundle_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", recovery.get(name, "")):
+            raise ValueError("CORE_ARCHIVE_RECOVERY_ANCHOR_REQUIRED")
+    for name in ("original_manifest_reference", "original_static_reference", "historical_inventory_reference"):
+        value = recovery.get(name)
+        if (not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_./-]+", value)
+                or value.startswith("/") or any(part in {"", ".", ".."} for part in value.split("/"))):
+            raise ValueError("CORE_ARCHIVE_RECOVERY_REFERENCE_REJECTED")
+    return recovery
 
 
 def validate_scope(scope):
-    if scope.get("contract") != "PRIVATE_CORE_SCOPE_V1":
+    contract = scope.get("contract")
+    if contract not in {"PRIVATE_CORE_SCOPE_V1", "PRIVATE_CORE_SCOPE_V2"}:
         raise ValueError("UNSUPPORTED_RELEASE_SCOPE")
     services = scope.get("services")
     if not isinstance(services, dict) or not services:
@@ -38,8 +61,11 @@ def validate_scope(scope):
             raise ValueError("LEGACY_SERVICE_CANNOT_BE_ACTIVE")
     if not any(row["role"] == "recovery" for row in services.values()):
         raise ValueError("RECOVERY_SCOPE_REQUIRED")
-    if not CORE_REQUIRED <= {name for name, row in services.items() if row["enabled"]}:
+    required = CORE_REQUIRED if contract == "PRIVATE_CORE_SCOPE_V1" else CORE_REQUIRED_V2
+    if not required <= {name for name, row in services.items() if row["enabled"]}:
         raise ValueError("CORE_SERVICE_OMITTED")
+    if contract == "PRIVATE_CORE_SCOPE_V2":
+        validate_archive_recovery(scope)
     return services
 
 

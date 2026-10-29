@@ -1,0 +1,55 @@
+{
+  "recorded_at": "2026-10-29T15:47:46.319890+00:00",
+  "scope": "ACTUAL_REMOTE_RUN_40900032608_UNMODIFIED_GIT_LOCKS_DECLARED_CRLF_DIFFERENCES",
+  "lockfiles": {
+    "backend/requirements.lock": {
+      "git_blob_sha256": "393105a1c5a56ace8b1a1d2fe455cd42f28b587b362bc3f4775b581382cabf05",
+      "checkout_sha256": "e5b5632853fe8ea05dbde087bd83e1c1cfa5e5872479710e2771b5e89873a84b",
+      "lf_content_equal": true,
+      "crlf_checkout_difference_only": true
+    },
+    "backend/requirements-assistant.lock": {
+      "git_blob_sha256": "59b9dcaec8c2ff2f0db024fba5b31288e612b492cd83aa557b59c883d558f7bf",
+      "checkout_sha256": "59b9dcaec8c2ff2f0db024fba5b31288e612b492cd83aa557b59c883d558f7bf",
+      "lf_content_equal": true,
+      "crlf_checkout_difference_only": false
+    },
+    "backend/requirements-mlflow.lock": {
+      "git_blob_sha256": "5fcf7a35720ed0a7e4ab309d153177695a21a76f2084a79d789d347c3e538496",
+      "checkout_sha256": "5fcf7a35720ed0a7e4ab309d153177695a21a76f2084a79d789d347c3e538496",
+      "lf_content_equal": true,
+      "crlf_checkout_difference_only": false
+    },
+    "frontend/web/package-lock.json": {
+      "git_blob_sha256": "462b8ab23ab432439496fd4e60ee0e24ff51fe7fa285dde71613bcfe1492a5ec",
+      "checkout_sha256": "2608b1102a6131d26b628d4e7018718465370cc98e232c142f8d3cd0de59b490",
+      "lf_content_equal": true,
+      "crlf_checkout_difference_only": true
+    }
+  },
+  "reports": {
+    "core": {
+      "original_report_sha256": "5d9c1af895e6fa70e8b94db1717b5e4b86b9c2dd390569c71a99392fab897d0f",
+      "dependencies": 66,
+      "vulnerabilities": 0
+    },
+    "mlflow_separate_optional": {
+      "original_report_sha256": "165b8e21c8f88cd8c28e094d13633dffc2642c89fc754bf91da553f4f8a5bda8",
+      "dependencies": 94,
+      "vulnerabilities": 0
+    },
+    "npm": {
+      "original_report_sha256": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3",
+      "counts": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      }
+    }
+  },
+  "new_image_scan_substitute": false,
+  "release_approval": false
+}

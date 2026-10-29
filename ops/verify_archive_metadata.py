@@ -123,7 +123,7 @@ def metadata_paths(inventory, image):
     return sorted(paths), row["sbom_sha256"]
 
 
-def from_image(envelope, image, workdir, inventory=None):
+def from_image(envelope, image, workdir, inventory=None, bundle_output=None):
     if len(envelope) > LIMIT:
         raise ValueError("ARCHIVE_INPUT_REJECTED")
     if not REFERENCE.fullmatch(image):
@@ -161,10 +161,17 @@ def from_image(envelope, image, workdir, inventory=None):
                     total += len(body)
                     if total > 64 * 1024**2:
                         raise ValueError("ARCHIVE_METADATA_TOTAL_LIMIT")
-                    member = tarfile.TarInfo(name); member.size = len(body)
+                    member = tarfile.TarInfo(name)
+                    member.size = len(body)
                     tar.addfile(member, io.BytesIO(body))
         stream.seek(0)
         result = verify_metadata(envelope, stream, image)
+        if bundle_output is not None:
+            # A separately retained data-only copy permits later verification
+            # without retaining the historical executable in Core recovery.
+            # The consumer must still bind every byte to an independent anchor.
+            with Path(bundle_output).open("xb") as destination:
+                destination.write(stream.getvalue())
         return result | {"historical_sbom_sha256": sbom_hash,
                          "filesystem_access": "EXACT_SBOM_ALLOWLIST_FILES_ONLY_NO_IMAGE_EXECUTION"}
     finally:
@@ -179,12 +186,14 @@ def main():
     parser.add_argument("--inventory", required=True, type=Path,
                         help="Digest-bound inventory and adjacent original SBOM for the archive image")
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--metadata-bundle-output", type=Path,
+                        help="Exclusive data-only TAR export; never executes the historical image")
     args = parser.parse_args()
     with args.envelope.open("rb") as stream:
         body = stream.read(LIMIT + 1)
     if len(body) > LIMIT or not args.workdir.is_dir():
         raise ValueError("ARCHIVE_INPUT_REJECTED")
-    result = from_image(body, args.image, args.workdir, args.inventory)
+    result = from_image(body, args.image, args.workdir, args.inventory, args.metadata_bundle_output)
     result["verifier_sha256"] = sha256(Path(__file__))
     write_new(args.output, result)
     print("STATIC_ARCHIVE_METADATA_VERIFIED; historical execution and security approval NOT_PROVEN")

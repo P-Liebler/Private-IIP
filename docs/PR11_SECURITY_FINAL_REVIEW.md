@@ -1,0 +1,164 @@
+# PR11 – Abschließender Securityreview
+
+Stand **29.10.2026**. Ergebnis: **SECURITY_OPERATOR_DECISION_REQUIRED /
+SECURITY_BLOCKED / NOT_APPROVED**. Keine wirksame Ausnahme oder
+Produktionsfreigabe wurde erteilt.
+
+## 1. Tatsächlicher Repository- und CI-Stand
+
+HEAD und abgefragtes `origin/main`: **d0feaa67f1505ef247fb5dd199938f0f592230d7**.
+Der angeforderte [GitHub-Lauf 40900032608](https://github.com/P-Liebler/Private-IIP/actions/runs/40900032608)
+ist abgeschlossen: **Verify success / Security success**, mit 321 Backend-,
+192 Host- und 31 Browserfällen. Dependency-Audits, Sourceprüfung, Scanner/DB,
+API-/Web-Imageaudit und deren High-/Critical-Paketgate sind erfolgreich.
+Der vollständige Core-/Recovery-Audit war **übersprungen, nicht angefordert**.
+[Originaler Artefaktindex](security/pr11-20261029/remote-ci.json).
+
+Der ZIP-SHA wurde gegen GitHub geprüft, die 13 Originaldateien begrenzt
+extrahiert und ihre Hashes erhalten. Negative Unitfälle mit
+`SCAN_INCOMPLETE`-/`SECURITY_BLOCKED`-Ausgaben sind keine Jobfehler.
+Die lokalen PR11-Änderungen sind nicht gepusht oder remote geprüft.
+
+Der vorhandene vollständige manuelle Workflow zeigt jetzt auf den neuen
+PR11-Scope und alle zwölf erforderlichen Dienste. Keine privaten Images
+werden dabei nachgebaut oder durch andere Digests ersetzt. Fehlende Bytes
+ergeben **SCAN_INCOMPLETE**. Es fehlt ein autorisierter privater Transfer-/
+Runnerweg; kein sinnloser Dispatch wurde ausgelöst.
+[Konkreter Remote-Auditplan](security/PR11_REMOTE_RELEASE_AUDIT_PLAN.md).
+
+## 2. Technischer Entscheid zum historischen Modellprüfer
+
+**Der historische Python-Start ist für die Core-Archivintegrität fachlich
+nicht erforderlich.** Der alte begrenzte Prüfer prüft JSON, Hashes und
+installierte Metadaten; er führt selbst keine historische Inferenz oder
+Training aus. Eine echte wissenschaftliche Wiederholung bleibt separat.
+
+[ADR-029](decisions/ADR-029-private-core-archive-recovery.md) und MASTER 152/157
+begründen die explizite Vertragsänderung. **PRIVATE_CORE_SCOPE_V2** verwendet
+**PRIVATE_CORE_ARCHIVE_RECOVERY_V1**. Der alte V1-Pfad behält seine dynamische
+Legacy-Pflicht; ursprüngliche Scope-/Manifest-/Scan-/Modelldateien wurden
+nicht umgeschrieben. Das alte Image bleibt archiviert und im getrennten
+`legacy-research`-Profil **SECURITY_BLOCKED**. Seine **1 Critical/47 High**
+bleiben sichtbar; sie wurden weder entfernt noch als behoben bewertet.
+
+### Welche Nachweise erhalten bleiben
+
+Der vorhandene Restoreproducer stellt PostgreSQL/S3 tatsächlich neu her,
+liest alle Rohobjekte zurück, führt den unveränderten Backendprüfer für alle
+zehn Archivverträge aus und exportiert das Modell aus genau der neuen Instanz.
+Modellbytes, Trainingskonfiguration, Locks, historische SBOM und alle **66 Pins**
+werden gegen unabhängig aufbewahrte Originalanker geprüft. Das geschützte
+Metadata-TAR wurde einmalig mit `docker create/cp` aus dem **niemals gestarteten**
+alten Image gewonnen; tägliche Archivprüfungen benötigen dieses Image danach
+nicht mehr. [Tatsächlicher Exportindex](security/pr11-20261029/archive-metadata-export.json).
+
+Ein ursprünglicher Restorebericht ist nur ein historischer Erwartungsanker,
+kein neuer Produzentennachweis. Der PR10-Berichtsvergleich bleibt unverändert
+begrenzt. Für jeden aktuellen Backupstand verlangt PR11 zusätzlich einen
+**vor Restorebeginn unabhängig gepinnten Erwartungsbeleg** mit aktuellem
+Backupmanifest-SHA, Run-ID, Datei-/Objektzahl und allen zehn aktuellen
+Archivhashes. Neue Backupnamen und wachsende Historien sind zulässig;
+ungepinnt geänderte Erwartungen scheitern. Der ursprüngliche Modellhash
+bleibt trotzdem unveränderlich. [Vorab gepinnter Abnahmecheckpoint](security/pr11-20261029/restore-expectations.json).
+
+Originale werden bytegenau gebunden. Der CRLF-Originalmanifestpin ist kein
+Hash eines LF-Gitclones; Normalisierung rechtfertigt keine Hashänderung.
+Originalbelege, ihre relative Struktur, Metadata-TAR und unabhängige Pins
+gehören zum geschützten Recoverymaterial. Dessen unabhängige Sicherung ist
+noch eine echte externe Betreiberpflicht.
+
+### Regression und unabhängige Gegenprüfung
+
+**18 gezielte neue Tests** sowie die bestehenden betroffenen V1-/Metadata-/
+Scope-/Releasefälle bestehen. Abgelehnt werden veränderte Originalanker,
+Locks, Pins, TAR-Pfade/Links/Duplikate/Größen sowie fehlende oder manipulierte
+aktuelle Checkpoints, Rawobjekte und Producerprüfungen. Der unabhängige Review
+fand und beseitigte vor dem tatsächlichen Restore zwei Fehler: zu feste
+Bindung an den alten Backupstand und einen schreibgeschützten Readbackpfad.
+Nur ein frisches Readbackverzeichnis wird jetzt eng schreibbar gebunden;
+das Backup bleibt read-only. Kein Root-/777-Fallback auf Unix.
+
+Die [tatsächliche Core-Wiederherstellung](security/pr11-20261029/restore-core.json)
+und der [separate Produktionsbuild-Restore](security/pr11-20261029/restore-standard-production.json)
+prüfen jeweils **1’387 Dateien, 1’378 zurückgelesene S3-Objekte, zehn
+Archivhashverträge und 66 Pins**, mit erfolgreicher Bereinigung. Der historische
+Python-Prozess wird in beiden Fällen **nicht gestartet**; historische
+numerische Reproduktion bleibt **NOT_EXECUTED_NOT_PROVEN**.
+
+Dies ist der vorhandene explizite Archiv-/Portfolio-Abnahmeprüfer, keine neue
+automatische Recoveryengine. Ein neu eröffnetes reales Depot muss keine
+synthetischen Researchmodelle anlegen. Sein eigener echter Restore bleibt
+mit seinen tatsächlichen Originalen und Erwartungen abzunehmen.
+
+## 3. Caddy: verbleibender tatsächlicher Securityentscheid
+
+[Frischer offizieller Patch-/Import-/JWK-Review](security/PR11_CADDY_REVIEW.md),
+geprüft 29.10.2026: Für **CVE-2026-116587 / GHSA-mgcc-cww5-fp2q** ist weiter
+kein unterstützter v3-Fix belegt. Das Entfernen allein des optionalen
+ACME-Servermoduls entfernt die interne CA-/Smallstep-/JOSE-Kette nicht.
+
+Die aktuelle Konfiguration aktiviert keinen ACME-Server oder On-Demand-Issuer.
+Im untersuchten aktiven Corepfad wurde kein fremder JWK-Eingang gefunden;
+vollständige Nichterreichbarkeit ist damit nicht bewiesen. Das Paket bleibt
+im Image. Ein Kryptografiefork oder eine neue Zertifikatsverwaltung wurde
+nicht als ungeprüfte Lösung eingebaut. Extern verwaltete Zertifikate brauchen
+einen tatsächlichen CA-/Renewal-/Recoverybetreiber; dieser fehlt weiterhin.
+
+Die neue tatsächliche Offline-Profilprobe ist bytegleich zu PR10, mit
+Netzwerk `none`, read-only Root und UID 10001. Neun vorhandene Profilfälle
+bestehen erneut. Die bestehenden Routing-/Nonroot-/CA-/S3-TLS-Nachweise bleiben
+datierte PR10-Evidenz; kein weiterer synthetischer Canary wurde erfunden.
+
+**Erforderlich:** unterstützter getesteter Fix oder echte autorisierte,
+digest-/finding-/profilbezogene, befristete Entscheidung nach bestehender
+Policy. Reviewer, Approvalreferenz, Beginn und Ablauf dürfen nicht aus einer
+Vorlage entstehen. Bis dahin bleibt der Paket- und Produktivstart gesperrt.
+
+## 4. Neues vollständiges exaktes Inventar
+
+[PR11-Scope](../ops/releases/pr11-core-v1-scope.json) und
+[neues Inventar](security/pr11-20261029/core-rc1/inventory.json):
+**12 notwendige Dienste / 8 unterschiedliche unveränderte Images**.
+Alle erforderlichen Runtime- und Recoveryimages wurden tatsächlich neu
+gescannt. **12/12 Original-SBOMs** sind
+[formal gültig](security/pr11-20261029/core-rc1/sbom-validation.json).
+[Scanursprünge](security/pr11-20261029/core-rc1/scan-origins.json) erlauben
+Aliase ausschließlich für identische Imagebytes.
+
+| Umfang | Critical | High |
+| --- | ---: | ---: |
+| api / worker / scheduler / web / postgres / valkey / minio / prometheus / backup | jeweils 0 | jeweils 0 |
+| caddy / ca-export / storage-init | jeweils 0 | jeweils 1 |
+| Über acht unterschiedliche erforderliche Images | **0** | **1** |
+| Optionaler alter Legacy-Prozess, außerhalb des neuen Core-Scope | **1** | **47**, weiterhin gesperrt laut unverändertem PR10-Scan |
+
+Die drei Caddyzeilen sind derselbe High-Befund. Medium-/Low-/Unknown-Zeilen
+bleiben sichtbar und reviewpflichtig. Der separate unveränderte normale
+[Produktionsbuild](security/pr11-20261029/standard-production/inventory.json)
+hat einen eigenen neuen Scan und eine formal gültige SBOM; keine Bitidentität
+zum Core-Backend wird behauptet. Es wurden keine neuen Images gebaut,
+numerischen Pins migriert oder historischen Versionen umdeklariert.
+
+Trivy **0.76.0**, Executable-SHA
+`51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42`;
+validierte DB vom **29.10.2026 13:09:46.269823229 UTC**, SHA
+`162d88bff697bee519561c90bb5766f2b9d27e3f0f0eb051b7a3d7bf1df42ff7`.
+Die frischen Scans benutzen diese geprüfte aktuelle DB; Paketanalysatoren
+beweisen keine vollständige beliebige native Exploitability.
+
+## 5. Übrige Gates und Ergebnis
+
+[Regression](security/pr11-20261029/regression-final.json),
+[unveränderte Locks / tatsächlicher Remote-Dependency-Audit](security/pr11-20261029/dependency-audit.json),
+[finaler Source-Secretscan](security/pr11-20261029/source-security.json),
+[Preflight](security/pr11-20261029/core-preflight-final.json) und
+[neuer lokaler RC](../ops/releases/pr11-core-v1-rc1-manifest.json) binden
+die konkreten Arbeitsbytes. Kein Scan oder Manifest erteilt automatisch eine
+Securityfreigabe. Native Restgrenzen, Unknown-/niedrigere Findings und die
+bestehende CSP-Styleattributgrenze benötigen weiterhin berechtigten Review.
+
+Private VPN-/DNS-/TLS-/Host-/Clientgrenzen, Secretverwaltung, unabhängig
+verschlüsselte Recovery samt Schlüsseln, Tagesjob und tatsächlicher
+Alarmempfang sind nicht auf einem realen Ziel geprüft. Die technische
+Legacytrennung schließt keine dieser Voraussetzungen und keine Quellen-,
+Forecast- oder Strategiegates. **SECURITY_APPROVED=false.**

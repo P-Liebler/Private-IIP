@@ -2,7 +2,7 @@
 
 This is an additional deployment target for the existing application. The base
 workloads have zero replicas, and the separate Alembic Job is suspended. Images use
-`registry.invalid` with the current unapproved PR10 Core candidate digests. No cluster was used;
+`registry.invalid` with the unchanged PR10 image bytes retained by the unapproved PR11 Core candidate. No cluster was used;
 restricted-v2 admission, storage, TLS, recovery and release approval remain open.
 
 Render locally, without cluster discovery or deployment:

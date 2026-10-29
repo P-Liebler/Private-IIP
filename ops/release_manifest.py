@@ -48,7 +48,7 @@ def validate_artifacts(manifest, root):
             raise ValueError("RELEASE_ARTIFACT_MISMATCH")
 
 
-def validate_scoped_restore(expected, restore):
+def validate_scoped_restore(expected, restore, scope=None, expectations=None):
     """A successful restore of another candidate cannot establish this scope."""
     restored = restore.get("image_contract", {})
     aliases = {"api": "api", "postgres": "postgres", "object_store": "minio", "s3_client": "backup"}
@@ -63,6 +63,53 @@ def validate_scoped_restore(expected, restore):
                 or legacy.get("image") != expected["legacy-verifier"]
                 or legacy.get("network") != "none" or legacy.get("read_only") is not True):
             raise ValueError("RELEASE_SCOPE_LEGACY_RESTORE_MISMATCH")
+    if scope and scope.get("contract") == "PRIVATE_CORE_SCOPE_V2":
+        from release_scope import validate_archive_recovery
+        from verify_archive_recovery import ARCHIVES, HASH, CORE_EXPECTATIONS, core_expectations
+        required = validate_archive_recovery(scope)
+        integrity = restore.get("archive_integrity", {})
+        verified = restore.get("restored_contract_verification", {})
+        raw = restore.get("restored_raw_verification", {})
+        if (restore.get("success") is not True or restore.get("cleanup_success") is not True
+                or restore.get("recovery_contract") != required["contract"]
+                or restore.get("restore_expectations_contract") != CORE_EXPECTATIONS
+                or not HASH.fullmatch(restore.get("restore_expectations_sha256", ""))
+                or not HASH.fullmatch(restore.get("backup_manifest_sha256", ""))
+                or integrity.get("contract") != required["contract"]
+                or integrity.get("original_manifest_sha256") != required["original_manifest_sha256"]
+                or integrity.get("metadata_bundle_sha256") != required["metadata_bundle_sha256"]
+                or integrity.get("historical_image") != scope["services"]["legacy-verifier"]["image"]
+                or integrity.get("checked_pins") != 66
+                or integrity.get("archive_bytes_verified") is not True
+                or integrity.get("original_metadata_verified") is not True
+                or integrity.get("historical_image_started") is not False
+                or integrity.get("archived_package_code_imported") is not False
+                or integrity.get("historical_runtime_execution") != "NOT_EXECUTED_NOT_PROVEN"
+                or integrity.get("optional_dynamic_legacy_status") != "SECURITY_BLOCKED"
+                or "legacy_verification" in restore
+                or set(restore.get("archive_contracts", {})) != ARCHIVES
+                or any(not HASH.fullmatch(value or "") for value in restore["archive_contracts"].values())
+                or integrity.get("artifact_sha256") != restore["archive_contracts"]["model"]
+                or verified.get("all_archive_contracts_verified") != sorted(ARCHIVES)
+                or verified.get("database_and_object_store_checks_executed") is not True
+                or verified.get("database_restored") is not True or verified.get("object_store_restored") is not True
+                or verified.get("model_envelope_origin") != "THIS_RESTORED_DATABASE_AND_OBJECT_STORE"
+                or verified.get("supplied_restore_receipt_used_as_fresh_evidence") is not False
+                or not HASH.fullmatch(verified.get("fixture_verifier_output_sha256", ""))
+                or type(raw.get("objects")) is not int or raw["objects"] < 1
+                or raw["objects"] != restore.get("raw_object_count")
+                or not HASH.fullmatch(raw.get("content_sha256", ""))):
+            raise ValueError("RELEASE_SCOPE_CORE_ARCHIVE_RESTORE_MISMATCH")
+        if not isinstance(expectations, dict):
+            raise ValueError("RELEASE_SCOPE_CURRENT_EXPECTATIONS_REQUIRED")
+        core_expectations(expectations, restore)
+        try:
+            recorded = datetime.fromisoformat(expectations["recorded_at"].replace("Z", "+00:00"))
+            started = datetime.fromisoformat(restore["started_at"].replace("Z", "+00:00"))
+            if recorded.tzinfo is None or started.tzinfo is None or recorded > started:
+                raise ValueError
+        except (KeyError, ValueError, TypeError, AttributeError):
+            raise ValueError("RELEASE_SCOPE_EXPECTATIONS_NOT_PRE_RESTORE") from None
 
 
 def main():
@@ -72,6 +119,8 @@ def main():
     parser.add_argument("--security-report", type=Path, required=True)
     parser.add_argument("--test-report", type=Path, action="append", required=True)
     parser.add_argument("--restore-status", type=Path, required=True)
+    parser.add_argument("--restore-expectations", type=Path,
+                        help="V2: exact independently retained pre-restore current-backup checkpoint")
     parser.add_argument("--migration-head", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--release-scope", type=Path, help="PR8 exact runtime and recovery scope")
@@ -89,6 +138,8 @@ def main():
     if args.release_scope:
         references.extend([args.release_scope, Path("docker-compose.prod.yml"),
                            Path("ops/docker-compose.core.yml"), Path("ops/caddy/Core.Caddyfile")])
+    if args.restore_expectations:
+        references.append(args.restore_expectations)
     artifacts = {}
     for reference in references:
         resolved = reference.resolve()
@@ -121,11 +172,23 @@ def main():
             for name, reference in expected.items()
         ):
             raise ValueError("RELEASE_SCOPE_INVENTORY_MISMATCH")
-        validate_scoped_restore(expected, restore)
+        expectations = None
+        if scope["contract"] == "PRIVATE_CORE_SCOPE_V2":
+            from verify_archive_recovery import current_expectations
+            if args.restore_expectations is None:
+                raise ValueError("RELEASE_SCOPE_CURRENT_EXPECTATIONS_REQUIRED")
+            expectations = current_expectations(args.restore_expectations,
+                restore.get("restore_expectations_sha256"), scope["archive_recovery"]["original_manifest_sha256"],
+                restore.get("archive_contracts", {}).get("model"))
+        validate_scoped_restore(expected, restore, scope, expectations)
         service_images = expected
         scope_fields = {"release_scope_reference": args.release_scope.resolve().relative_to(root).as_posix(),
                         "release_scope_sha256": sha256(args.release_scope),
-                        "configuration_contract_version": "PRIVATE_CORE_SCOPE_V1"}
+                        "configuration_contract_version": scope["contract"]}
+        if scope["contract"] == "PRIVATE_CORE_SCOPE_V2":
+            scope_fields["archive_recovery_contract"] = scope["archive_recovery"]
+            scope_fields["restore_expectations_reference"] = args.restore_expectations.resolve().relative_to(root).as_posix()
+            scope_fields["restore_expectations_sha256"] = sha256(args.restore_expectations)
     output_name = args.output.resolve().relative_to(root).as_posix()
     sources = source_snapshot(root, (output_name,))
     payload = {

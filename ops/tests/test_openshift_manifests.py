@@ -69,7 +69,7 @@ class OpenShiftManifestTests(unittest.TestCase):
         self.assertEqual(named(optional, "Deployment", "prometheus")["spec"]["replicas"], 0)
 
     def test_every_image_preserves_the_exact_current_core_candidate_digest(self):
-        scope = json.loads((REPO / "ops/releases/pr10-core-v1-scope.json").read_text())["services"]
+        scope = json.loads((REPO / "ops/releases/pr11-core-v1-scope.json").read_text())["services"]
         for name, obj in self.workloads.items():
             reference = container(obj)["image"]
             self.assertRegex(reference, r"^registry\.invalid/investment/.+@sha256:[0-9a-f]{64}$")

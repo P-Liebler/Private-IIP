@@ -8,9 +8,16 @@ belegt weder SCC-Zulassung noch einen erfolgreichen Start oder eine Freigabe.
 
 Die unveränderten fachlichen Zustände bleiben `REAL_DATA_LIMITED`,
 `FORECASTS_SHADOW_ONLY` und `RECOMMENDATIONS_GATED`. PR9-Sicherheit und
-Zielbetrieb benötigen ihre getrennten Entscheidungen. Die aktuellen PR10-Core-Digests bilden
+Zielbetrieb benötigen ihre getrennten Entscheidungen. Die in PR11 unverändert übernommenen PR10-Core-Digests bilden
 eine technische Ausgangsbasis, keine OpenShift-Freigabe; insbesondere bestehende
 Recovery- und Caddy-Befunde dürfen durch dieses zusätzliche Ziel nicht entfallen.
+
+PR11 trennt den optionalen historischen Python-Prozess über
+[ADR-029](../decisions/ADR-029-private-core-archive-recovery.md) vom vollständigen
+Core-Archivrestore. Die tatsächlichen DB-/S3-/Original-/Archivprüfungen bleiben
+erforderlich; geschützte ursprüngliche Metadaten und vorab unabhängig gepinnte
+aktuelle Erwartungen werden separat aufbewahrt. Diese lokale Vertragsprüfung
+beweist keine Cluster-Recovery oder Freigabe des alten Researchimages.
 
 PR10 ergänzt die terminale Sperre interner Pfade vor dem Frontendproxy und
 beschränkt Caddy auf HTTP/1.1 und HTTP/2, weil kein UDP-Zugang bereitgestellt

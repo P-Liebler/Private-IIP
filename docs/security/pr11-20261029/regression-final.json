@@ -1,0 +1,187 @@
+{
+  "recorded_at": "2026-10-29T15:53:07.252705+00:00",
+  "scope": "LOCAL_EXISTING_SYNTHETIC_ARCHIVE_REGRESSION_NOT_REAL_TARGET_OR_PORTFOLIO",
+  "passed": true,
+  "backend": [
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "d4f67b7c597dc3dced16a86636b5842d60e6e789fa1b44ee97abc2f2e984188b"
+    },
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "eb96ce66924bffd72e9e804144765820fc0ee7dc95540515df6d0c84ad7d3df2"
+    }
+  ],
+  "host": {
+    "tests": 210,
+    "passed": true,
+    "new_core_archive_contract_tests": 18,
+    "previous_baseline": 192
+  },
+  "static_quality": {
+    "backend-ruff": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-29T15:44:17.976601+00:00",
+      "completed_at": "2026-10-29T15:44:19.808232+00:00",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "backend-format": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-29T15:44:19.808310+00:00",
+      "completed_at": "2026-10-29T15:44:20.653452+00:00",
+      "log_sha256": "0beb92815a83401fd4abecd0a456e7a77e49eddf21ff85ed48b60de171354362"
+    },
+    "backend-mypy": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-29T15:44:20.653539+00:00",
+      "completed_at": "2026-10-29T15:46:17.518087+00:00",
+      "log_sha256": "913201c08d6920cfacfea77a5920444f948ee5e81cdaf969fc5e5ca153bb63be"
+    },
+    "ops-ruff": {
+      "exit_code": 0,
+      "passed": true,
+      "checked_files": 9,
+      "failures": [],
+      "log_sha256": "70d28761cea37736b58c4411ad57efffdd55afca202b6e5da6ca4d3b04c67929"
+    }
+  },
+  "frontend": {
+    "lint": 0,
+    "typecheck": 0,
+    "completed_standalone_build": 0,
+    "lint_and_typecheck_after_e2e_test_fix": 0,
+    "application_source_or_image_changed": false
+  },
+  "browser": {
+    "unique_cases_verified": 31,
+    "initial_full_run": {
+      "passed": 30,
+      "failed": 1,
+      "normal_mode_restored": true,
+      "receipt_sha256": "1c1c2da9645d841646497a181de280a9c6b457e9eb67b0069c253a620fb759ed"
+    },
+    "focused_corrected_case": {
+      "passed": 1,
+      "failed": 0,
+      "reused_existing_setup_fixture": true,
+      "normal_mode_restored": true,
+      "receipt_sha256": "8ebf530c068e63bea8ad04db77239d07db9e673da45f2b2c03932622a8f7a53a"
+    },
+    "failure": "Second transaction CSV commit asserted UI within5s while request pending. Preserved failure; actual HTTP response and created_count0 now awaited before original UI assertion.",
+    "changed_test_file": "frontend/web/e2e/private-beta.spec.ts",
+    "changed_test_file_sha256": "20ffe1ac1c064fe322327b6797faa7d738f07e5de88d4f32028912c25ae0f83e",
+    "single_all_green_full_run_claimed": false,
+    "application_ux_defect_claimed": false
+  },
+  "native": {
+    "core": 0,
+    "standard": 0
+  },
+  "migrations": {
+    "head": "0021_ui_requests",
+    "required_table_subset_count": 78,
+    "core_fresh": 0,
+    "core_drift": 0,
+    "standard_fresh": 0,
+    "standard_drift": 0,
+    "migrations_changed": false
+  },
+  "full_restores": {
+    "core": {
+      "exit_code": 0,
+      "success": true,
+      "cleanup_success": true,
+      "files": 1387,
+      "raw_readback": 1378,
+      "pins": 66,
+      "legacy_started": false,
+      "log_sha256": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+    },
+    "standard-production": {
+      "exit_code": 0,
+      "success": true,
+      "cleanup_success": true,
+      "files": 1387,
+      "raw_readback": 1378,
+      "pins": 66,
+      "legacy_started": false,
+      "log_sha256": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+    }
+  },
+  "core_security": {
+    "passed": true,
+    "core_services": 12,
+    "unique_core_images": 8,
+    "core_original_sboms_valid": 12,
+    "additional_standard_sbom_valid": 1,
+    "source_images_unchanged": true,
+    "release_approval": false
+  },
+  "invariants": {
+    "master_main_sections": 212,
+    "historical_artifacts_scopes_manifests_and_numerical_locks_unchanged": true,
+    "backend_source_and_images_unchanged": true,
+    "archive_hash_contracts_per_restore": 10,
+    "golden_chf": "10180",
+    "golden_as_of_utc": "2026-10-26T15:18:05.987683+00:00",
+    "today_old_price_status": "STALE_PRICE",
+    "historical_python_execution": "NOT_EXECUTED_NOT_PROVEN",
+    "optional_dynamic_legacy_status": "SECURITY_BLOCKED",
+    "new_manual_financial_fixture_archive_created": false
+  },
+  "failure_and_outage_checks": [
+    "Invalid/unpinned/current-future checkpoint and every changed original anchor fail before Docker start",
+    "Missing/extra/corrupt S3 readback and missing model export/fixture verification fail",
+    "TAR traversal/link/duplicate/extra/missing/changed metadata rejected",
+    "V1 dynamic legacy requirement still mandatory for V1 receipts",
+    "Existing offline source and provider retry/failure gate tests preserved",
+    "Existing standalone CSP/auth/session/data-gap/recommendation gates and structured LLM outage exercised",
+    "Actual target outage/VPN/CA/alarm delivery and real portfolio recovery remain external"
+  ],
+  "private_log_sha256": {
+    "backups/pr11-final-quality/status.json": "068aa1eddba8c490ff6938af4f268a115d73a21880ef7db104c1f76aa11dcd53",
+    "backups/pr11-runtime-status.json": "61afcaae3040d44ffdf324bfe5a4cdb5b92c42ab50d0e9cd42f6540c4cbe4fc1",
+    "backups/pr11-full-restores-status.json": "29e8903b2dbdb3d9dbb6af2af3bef2fd935a0c79d3049c52e9c2d8faedc5c9ed",
+    "backups/pr11-frontend-status.json": "aeec55793afd6462e956ec452b3174e635eb2d3e3024a908b92478acb554a2a9",
+    "backups/pr11-browser-v1-status.json": "1c1c2da9645d841646497a181de280a9c6b457e9eb67b0069c253a620fb759ed",
+    "backups/pr11-browser-focused-v2-status.json": "8ebf530c068e63bea8ad04db77239d07db9e673da45f2b2c03932622a8f7a53a",
+    "backups/pr11-browser-v1.txt": "9dedbefc64c3c85f48176d0f31b1c68b3dd9ae1349f80a40aad06c1fda4db5ba",
+    "backups/pr11-browser-focused-v2.txt": "36ba8fa35f25b23053dcd74df714ce8b44da52e5130d47540b212c312f415f2b",
+    "backups/pr11-migration-core-fresh.txt": "f7c9b62b8014aab583c359ccac29e6142a55afcc1ab11820683d7c78c4260a39",
+    "backups/pr11-migration-core-drift.txt": "1a82c00b6b9492c4581537ba0841f33f01650f7b8c62559cf8065bb1a8f9f717",
+    "backups/pr11-migration-standard-fresh.txt": "7653d92f99ed4a23bcd205e9b626217fd35729fed0643530073c95dd2914ac4e",
+    "backups/pr11-migration-standard-drift.txt": "c2cf68ab5608d1d0ef0660ee7865ae6651fe5220e396e9307e9dab16a323471e",
+    "backups/pr11-native-core.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr11-native-standard.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr11-frontend-stop.txt": "a4b6d628646eefc41d2276a4ed8c257a91012e6099d314aee030daee45cd0125",
+    "backups/pr11-frontend-lint.txt": "233955d518dbc471a279c54edac5977e917c17ed0b71fe89776340489f973147",
+    "backups/pr11-frontend-typecheck.txt": "bab0d4cb8fb355bcf69c073c9cba1ac623fcaa076132cce0fec019f70fc82b0b",
+    "backups/pr11-frontend-build.txt": "4c8bbe18927b86bc22216e9651b19e88e23190b2f64bfe73b4ce65a14b362e8c",
+    "backups/pr11-frontend-after-testfix-lint.txt": "023eb3827b126456403350bd0968045864d54bbfbbd8e15961a1f618ca36d8b5",
+    "backups/pr11-frontend-after-testfix-typecheck.txt": "3b18abf7a5bec06bc4b0c8997c82dc39d4e5f0d1989d316e5a5ec34d1ed80798",
+    "backups/pr11-restore-core-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4",
+    "backups/pr11-restore-standard-production-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+  },
+  "release_approval": false,
+  "security_approved": false,
+  "target_deployed": false,
+  "live_source_verified": false,
+  "automatic_refresh_verified": false,
+  "real_portfolio_verified": false,
+  "human_usability_validated": false,
+  "forecasts_validated": false,
+  "recommendations_validated": false
+}

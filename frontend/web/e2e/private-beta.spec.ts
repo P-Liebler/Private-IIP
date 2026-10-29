@@ -79,7 +79,12 @@ test("PR5 synthetic private-beta onboarding, reviewed imports, FX, reconciliatio
   await page.getByRole("button", { name: "Vorschau prüfen", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "2 Duplikate" })).toBeVisible({ timeout: 30000 });
   await page.getByRole("checkbox", { name: /Ich habe Konto, Instrumente/ }).check();
+  const duplicateCommit = page.waitForResponse(r => r.url().endsWith("/transactions/import/commit")
+    && r.request().method() === "POST", { timeout: 30000 });
   await page.getByRole("button", { name: "Import übernehmen", exact: true }).click();
+  const duplicateResponse = await duplicateCommit;
+  expect(duplicateResponse.status()).toBe(200);
+  expect((await duplicateResponse.json()).created_count).toBe(0);
   await expect(page.getByRole("status").filter({ hasText: "0 Buchungen übernommen" })).toBeVisible();
   await page.getByRole("link", { name: "Kurs- oder FX-Datei importieren", exact: true }).click();
   async function importMarket(kind: string, data: string) {

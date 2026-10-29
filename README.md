@@ -1,5 +1,28 @@
 # Private Investment Intelligence Platform
 
+## PR11 – Recoveryvertrag geklärt, reale Abnahme offen (29.10.2026)
+
+**LOCAL_TECHNICALLY_VERIFIED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**
+Der vollständige Core-Archivrestore prüft Originale und gespeicherte Ergebnisse
+ohne den verwundbaren historischen Python-Prozess. Der optionale alte
+Researchpfad bleibt separat gesperrt; ursprüngliche Modelle und Pins unverändert.
+
+**321 Backendtests je Image, 210 Hosttests und 31 unterschiedliche Browserfälle**
+geprüft (30/31 im Gesamtlauf, korrigierter Import-Test danach separat 1/1).
+Zwei vollständige Restores prüfen je **1’387 Dateien, 1’378 S3-Readbackobjekte,
+zehn Archivverträge und 66 Pins**. Zwölf notwendige Dienste, acht unveränderte
+Images und zwölf gültige SBOMs. Der Core enthält noch **Caddy 1 High**;
+keine Securityfreigabe ist erteilt.
+
+Offen bleiben tatsächlicher Zielhost/Cluster, unabhängige verschlüsselte
+Recovery, Quellenfreigaben/Livebelege, echte Brokeroriginale mit Depotabgleich
+und unabhängiger Benutzertest. Compose und OpenShift/Argo CD sind vorbereitet.
+Kein Push, Release oder produktiver Cutover.
+
+[PR11-Abschluss und konkrete Operatorübergabe](docs/PR11_ACCEPTANCE_REPORT.md) ·
+[Securityfinalreview](docs/PR11_SECURITY_FINAL_REVIEW.md) ·
+[Releasecheckliste](docs/PR11_CORE_RELEASE_CHECKLIST.md).
+
 ## PR10 – Lokal geprüft, reale Freigaben offen (29.10.2026)
 
 **LOCAL_SYNTHETIC_VERIFIED / SECURITY_BLOCKED / NOT_RELEASED.**

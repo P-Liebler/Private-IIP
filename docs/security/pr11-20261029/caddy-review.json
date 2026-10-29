@@ -1,0 +1,328 @@
+{
+  "recorded_at": "2026-10-29T15:26:21.398328+00:00",
+  "status": "SECURITY_OPERATOR_DECISION_REQUIRED",
+  "security_approved": false,
+  "new_image_built": false,
+  "new_package_scan_performed_by_this_review": false,
+  "live_financial_endpoint_requested": false,
+  "upstream_review": {
+    "checked_at": "2026-10-29T15:24:49.187749+00:00",
+    "security_approved": false,
+    "sources": [
+      {
+        "name": "advisory",
+        "url": "https://api.github.com/repos/go-jose/go-jose/security-advisories/GHSA-mgcc-cww5-fp2q",
+        "http_status": 200,
+        "sha256": "fca6c13c0d0d7802d70c9f071e7abde85cd84c026e9393e062a9facc3f1e170f",
+        "bytes": 5055,
+        "original_path": "backups/pr11-caddy-upstream-v1/advisory.txt"
+      },
+      {
+        "name": "jose-tags",
+        "url": "https://api.github.com/repos/go-jose/go-jose/tags?per_page=100",
+        "http_status": 200,
+        "sha256": "bbf0cf51b1bc024320c4e5c3b98d15d9b4154b325955a6799ad6b668bfcd2caa",
+        "bytes": 22519,
+        "original_path": "backups/pr11-caddy-upstream-v1/jose-tags.txt"
+      },
+      {
+        "name": "certificates-latest",
+        "url": "https://api.github.com/repos/smallstep/certificates/releases/latest",
+        "http_status": 200,
+        "sha256": "8b0a77b6a04a5e62a0ba4dd7040b84f5b53f8131315e6da9b43881e8913d68c4",
+        "bytes": 142173,
+        "original_path": "backups/pr11-caddy-upstream-v1/certificates-latest.txt"
+      },
+      {
+        "name": "certificates-latest-go-mod",
+        "url": "https://raw.githubusercontent.com/smallstep/certificates/v0.30.2/go.mod",
+        "http_status": 200,
+        "sha256": "c4a90f197698ed952946c25f6ed180770513deeb0f900d8e17a58e3519c22fb1",
+        "bytes": 8646,
+        "original_path": "backups/pr11-caddy-upstream-v1/certificates-latest-go-mod.txt"
+      },
+      {
+        "name": "crypto-latest",
+        "url": "https://api.github.com/repos/smallstep/crypto/releases/latest",
+        "http_status": 200,
+        "sha256": "e841fdedf8581755b8aec2d950f18f6b6b2cef6d3e252f9c10e8e0592744ce71",
+        "bytes": 1941,
+        "original_path": "backups/pr11-caddy-upstream-v1/crypto-latest.txt"
+      },
+      {
+        "name": "crypto-latest-go-mod",
+        "url": "https://raw.githubusercontent.com/smallstep/crypto/v0.91.1/go.mod",
+        "http_status": 200,
+        "sha256": "8cf1560197d65d341352fbaad4be90e67379d83d7d1bfbf366c0500c046ee292",
+        "bytes": 16003,
+        "original_path": "backups/pr11-caddy-upstream-v1/crypto-latest-go-mod.txt"
+      },
+      {
+        "name": "caddy-latest",
+        "url": "https://api.github.com/repos/caddyserver/caddy/releases/latest",
+        "http_status": 200,
+        "sha256": "e375bd53580ca262e92b24c65b597bd00c70177913b5db56c48afc735dd8f620",
+        "bytes": 222758,
+        "original_path": "backups/pr11-caddy-upstream-v1/caddy-latest.txt"
+      },
+      {
+        "name": "caddy-latest-go-mod",
+        "url": "https://raw.githubusercontent.com/caddyserver/caddy/v2.11.7/go.mod",
+        "http_status": 200,
+        "sha256": "62fdd786b2f9ced74c818132ebaeba320e25528ed316202902918afa73473b72",
+        "bytes": 8385,
+        "original_path": "backups/pr11-caddy-upstream-v1/caddy-latest-go-mod.txt"
+      }
+    ],
+    "summaries": {
+      "advisory": {
+        "ghsa_id": "GHSA-mgcc-cww5-fp2q",
+        "cve_id": "CVE-2026-116587",
+        "updated_at": "2026-10-26T21:11:18Z",
+        "severity": "high",
+        "vulnerabilities": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/go-jose/go-jose/v4"
+            },
+            "vulnerable_version_range": "<= 4.1.5",
+            "patched_versions": "4.1.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/go-jose/go-jose/v3"
+            },
+            "vulnerable_version_range": "<= 3.0.5",
+            "patched_versions": "",
+            "vulnerable_functions": []
+          }
+        ]
+      },
+      "jose-tags": [
+        "v4.1.6",
+        "v4.1.5",
+        "v4.1.4",
+        "v4.1.3",
+        "v4.1.2",
+        "v4.1.1",
+        "v4.1.0",
+        "v4.0.5",
+        "v4.0.4",
+        "v4.0.3",
+        "v4.0.2",
+        "v4.0.1",
+        "v4.0.0",
+        "v3.0.5",
+        "v3.0.4",
+        "v3.0.3",
+        "v3.0.2",
+        "v3.0.1",
+        "v3.0.0",
+        "v3.0.0-rc.1",
+        "v2.6.3",
+        "v2.6.2",
+        "v2.6.1",
+        "v2.6.0",
+        "v2.5.1",
+        "v2.5.0",
+        "v2.4.1",
+        "v2.4.0",
+        "v2.3.1",
+        "v2.3.0",
+        "v2.2.2",
+        "v2.2.1",
+        "v2.2.0",
+        "v2.1.9",
+        "v2.1.8",
+        "v2.1.7",
+        "v2.1.6",
+        "v2.1.5",
+        "v2.1.4",
+        "v2.1.3",
+        "v2.1.2",
+        "v2.1.1",
+        "v2.1.0",
+        "v2.0.1",
+        "v2.0.0",
+        "v1.1.3",
+        "v1.1.2",
+        "v1.1.1",
+        "v1.1.0",
+        "v1.0.5",
+        "v1.0.4",
+        "v1.0.3",
+        "v1.0.2",
+        "v1.0.1",
+        "v1.0.0"
+      ],
+      "certificates-latest": {
+        "tag_name": "v0.30.2",
+        "published_at": "2026-03-23T00:17:17Z",
+        "html_url": "https://github.com/smallstep/certificates/releases/tag/v0.30.2",
+        "target_commitish": "master",
+        "relevant_module_lines": [
+          "module github.com/smallstep/certificates",
+          "github.com/go-jose/go-jose/v3 v3.0.4",
+          "go.step.sm/crypto v0.77.1",
+          "github.com/go-jose/go-jose/v4 v4.1.3 // indirect"
+        ]
+      },
+      "crypto-latest": {
+        "tag_name": "v0.91.1",
+        "published_at": "2026-10-27T17:43:02Z",
+        "html_url": "https://github.com/smallstep/crypto/releases/tag/v0.91.1",
+        "target_commitish": "516f3a2010a5c63c4e71357a3f813e0b9e84d090",
+        "relevant_module_lines": [
+          "module go.step.sm/crypto",
+          "github.com/go-jose/go-jose/v3 v3.0.5"
+        ]
+      },
+      "caddy-latest": {
+        "tag_name": "v2.11.7",
+        "published_at": "2026-10-03T05:58:33Z",
+        "html_url": "https://github.com/caddyserver/caddy/releases/tag/v2.11.7",
+        "target_commitish": "master",
+        "relevant_module_lines": [
+          "github.com/smallstep/certificates v0.30.2",
+          "go.step.sm/crypto v0.91.0",
+          "github.com/go-jose/go-jose/v3 v3.0.5 // indirect",
+          "github.com/go-jose/go-jose/v4 v4.1.5 // indirect"
+        ]
+      }
+    }
+  },
+  "profile_review": {
+    "status": "STATIC_PROFILE_REVIEW_ONLY",
+    "handlers": [
+      "encode",
+      "headers",
+      "reverse_proxy",
+      "static_response",
+      "subroute"
+    ],
+    "issuers": [
+      "internal"
+    ],
+    "upstreams": [
+      "api:8000",
+      "minio:9000",
+      "web:3000"
+    ],
+    "configured_acme_server": false,
+    "configured_on_demand": false,
+    "admin": "localhost:2019",
+    "admin_default_inferred": true,
+    "whole_program_unreachability_proven": false,
+    "security_approved": false,
+    "http_protocols": [
+      "h1",
+      "h2"
+    ],
+    "internal_terminal_404_before_application_proxy": true,
+    "openshift_routing": {
+      "internal_terminal_404_before_application_proxy": true
+    },
+    "checked_at": "2026-10-29T15:25:30.475288+00:00",
+    "image": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+    "image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+    "image_default_user": "",
+    "probe_user": "10001:10001",
+    "probe_is_production_deployment": false,
+    "probe_source_sha256": "a33a02cbeb8a9c062f08d9b9b54589eeab764e73b10a79d432aee2880bc23513",
+    "caddyfile_sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+    "adapted_config_sha256": "8f579e5c20e12a5da63329cd2559e029ab274b4b5706d6661ade3c4c32b88d0e",
+    "registered_modules_sha256": "cb76321368ea119f77e2fad1d58d4f7c74b292bd860cb02062a243b87efedfc2",
+    "build_info_sha256": "e584ef5426618420ea4299e3382b3bc02a61d302e327a1f0e81e5a5b1bc5eff1",
+    "openshift_configmap_sha256": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+    "openshift_adapted_sha256": "568339ced278ebaab9912ec932030a67be8e12ee5086e00a0e6ec0d768e9555b",
+    "acme_server_registered": true,
+    "go_jose_v3_in_build": true,
+    "server_started": false,
+    "network": "none"
+  },
+  "unchanged_against_pr10": {
+    "image": true,
+    "image_id": true,
+    "probe_source_sha256": true,
+    "caddyfile_sha256": true,
+    "adapted_config_sha256": true,
+    "registered_modules_sha256": true,
+    "build_info_sha256": true,
+    "openshift_configmap_sha256": true,
+    "openshift_adapted_sha256": true
+  },
+  "historical_evidence_retained": [
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile-hardened/receipt.json",
+      "sha256": "a49954eca31634a07c8086f739029bbbc8eb63c285422b4a05ab51d00f86c9c8",
+      "bytes": 1837
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-profile/source-review.json",
+      "sha256": "6d14196b1804c53c6ed413f1db8691f054589928bde5545396b266d098437f4e",
+      "bytes": 6431
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-nonroot-canary.json",
+      "sha256": "68f90705ea2948fc5b51b8fecaef04e123a791eda3e47c67b7838ebdc0d86148",
+      "bytes": 1276
+    },
+    {
+      "path": "docs/security/pr10-20261029/caddy-storage-init.json",
+      "sha256": "46bb66e0d88885eacbb9b669d9445cd6c5e1d9aa7d248fb2cda2397e801b99c4",
+      "bytes": 663
+    },
+    {
+      "path": "docs/security/pr10-20261029/core-rc1/inventory.json",
+      "sha256": "d16209a3ab2225ba02598ff09322a20cb02445956bfef34ab4152dbd35dda622",
+      "bytes": 708161
+    }
+  ],
+  "current_inputs": [
+    {
+      "path": "ops/caddy/Core.Caddyfile",
+      "sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+      "bytes": 1036
+    },
+    {
+      "path": "ops/caddy/pr10_profile_probe.py",
+      "sha256": "a33a02cbeb8a9c062f08d9b9b54589eeab764e73b10a79d432aee2880bc23513",
+      "bytes": 9628
+    },
+    {
+      "path": "ops/openshift/base/caddy-config.json",
+      "sha256": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+      "bytes": 1212
+    },
+    {
+      "path": "ops/tests/test_pr10_caddy_profile.py",
+      "sha256": "4c9859746ff31b16541ebcf125f376a8cf810ee2271e6cb862c7c67e0007ed56",
+      "bytes": 3976
+    }
+  ],
+  "profile_regression": {
+    "command": "python -m unittest ops.tests.test_pr10_caddy_profile -v",
+    "exit_code": 0,
+    "tests": 9,
+    "failures": 0,
+    "observed_at": "2026-10-29T15:25:30Z",
+    "new_tests_added": 0,
+    "evidence_kind": "EXECUTED_COMMAND_TOOL_RESULT",
+    "full_host_regression_claimed": false
+  },
+  "conclusions": {
+    "official_supported_v3_fix_found": false,
+    "affected_v3_dependency_present": true,
+    "configured_acme_server": false,
+    "configured_on_demand": false,
+    "network_jwk_input_identified_in_current_core_profile": false,
+    "whole_program_unreachability_proven": false,
+    "internal_ca_removal_contract_proven": false,
+    "operator_review_approved": false,
+    "deployment_authorized": false,
+    "scope": "CURRENT_CADDY_BINARY_AND_TLS_CONFIGURATION_ONLY"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "contract": "OPENSHIFT_OFFLINE_DRAFT_PREFLIGHT_V1",
+  "executed_cluster_actions": false,
+  "status": "DRAFT_NOT_DEPLOYABLE",
+  "release_status": "NOT_APPROVED",
+  "technical_checks": "OFFLINE_CONTRACTS_VALID",
+  "errors": [],
+  "resource_count": 48,
+  "artifact_sha256": {
+    "base/caddy-config.json": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+    "base/config.json": "fc7ea9061e2c9605289c7a7a00d9a7967a401cd336626974f4a669500bb8e12c",
+    "base/kustomization.yaml": "95bdf509443b65d76e513564e3a63d9ef19716443d990f714511fd9467bb6b1b",
+    "base/network-policies.json": "cc72e52f4ea10efcc2b147842b2bc6f852bb01e89b87375c674e42c6c29e705e",
+    "base/service-ca.json": "02e7390c4f94505203508fd24d46a6528fba864012ce96d2246a33a2922eb40d",
+    "base/serviceaccount.json": "9c8455daa0b2c948e6f085fa769e4811df6caeb77053ac9fd630f27c96936c63",
+    "base/services.json": "b6e408d67b72906a2a7c701c4adb9484e5c2eb55f92527e528c6ad071b7a96ca",
+    "base/storage.json": "81d6dcdb7a2cd8518a155261d9a928bf53449d431d839e2ed286b511b8a78122",
+    "base/workloads.json": "e81bbff06b6f6310d13b67ee0f202d6081650b238e020e0393b37d65be1aa400",
+    "bootstrap/gitops-role.json": "3a2064a005b25b62a3b8fdfb88cfa36689210dae4d78792f32ce70627ff4e619",
+    "bootstrap/gitops-rolebinding.json": "069c6f0151e3ddeb6e68aafa2681c36fe829f2fcba33bfe1e13a071747563f7b",
+    "bootstrap/namespace.json": "f78db78a517f48cd662fcfb20c587269d77275fd79b3d0fe25a0e348da61642a",
+    "components/prometheus/kustomization.yaml": "2ef1edfb163384012b7f2664e28a25c43eae361f57bf29a426d2bca0ef7ed143",
+    "components/prometheus/resources.json": "8a2429f6e43220023aba931968603a04aad68ffae8e6956340cc1b731d1abda9",
+    "draft-contract.json": "aa5f91855dc8ab48b3fe4c704ecd2cfa11509f475fe132539f600476a112bc9d",
+    "examples/argocd/application.json": "ce1558a7550dd158bf4b64a78eab75348f3dd5b60cafa9f818233c03c61dfc00",
+    "examples/argocd/project.json": "02e183a5c46029b124d7c5e4c15da2e77ee1831f5f2e6fbfc6200607539a7050",
+    "examples/backup-operator-receipt.json": "bb2ef9e88023a8114df1771dacc817e79852ac7c7abd331792892a2806f5ff3b",
+    "examples/backup-transport.json": "f56492a051e3f38f248fc82eee728deba810528e14e711f76fcad5a5cc64f98a",
+    "examples/private-route/network-policy.json": "5fac94436bf922a45d81108c4880fe98c56a9607a363f0d9c8364aa363eab74e",
+    "examples/private-route/route.json": "cab9e46d0b61a5d033cc10084878761c5503031ee9a2b35fc6f057fd10a0500f",
+    "manual/backup-agent.json": "137b7ad361db3d37343405eae56f80f81ed541251579746d2fe3165fca65c690",
+    "manual/migration-job.json": "b4b02dc53915aba11ad0bfa014865f9b6368bea3d6e4315b3a225c853a965ff4",
+    "overlays/example/kustomization.yaml": "33a2360f3e5402eee21142565528722f8fa6430e2f0bb8fcb9a5edab695441ea",
+    "overlays/staging/kustomization.yaml": "dc7bd1baa3e6435a8675800601f5f2b64f34d2cb2ac809cb02deaafb0680d7f7",
+    "overlays/staging-infra/kustomization.yaml": "9ba1361cf850f5de35947f1e59ec6779536e84c833f50c496af02c4beb77d3d1",
+    "preflight.py": "cc73b5b47edf663b5aeca9e4ee874694589ae579b3ad28aa4f6e8729d3dbf1e6",
+    "README.md": "f09b0e2d4dceb08a06802295aafaebba7c7fae38bb974fe01a8299c91b2256eb"
+  },
+  "open_external_gates": {
+    "target_cluster": "NOT_AVAILABLE",
+    "security_approval": "NOT_APPROVED",
+    "scc_arbitrary_uid_verification": "NOT_VERIFIED",
+    "storage_csi_permissions": "NOT_VERIFIED",
+    "private_ingress_and_tls": "NOT_VERIFIED",
+    "backup_restore_and_schedule": "NOT_VERIFIED",
+    "secret_recovery": "NOT_VERIFIED",
+    "operator_approval": "NOT_APPROVED"
+  },
+  "financial_gates": [
+    "REAL_DATA_LIMITED",
+    "FORECASTS_SHADOW_ONLY",
+    "RECOMMENDATIONS_GATED"
+  ],
+  "blockers": [
+    "DRAFT_PACKAGE_HAS_NO_DEPLOYMENT_AUTHORITY",
+    "EXACT_TARGET_CONFIGURATION_REQUIRES_ITS_OWN_IMMUTABLE_RELEASE_REVIEW",
+    "CLUSTER_SCC_STORAGE_TLS_BACKUP_AND_OPERATOR_EVIDENCE_NOT_AVAILABLE"
+  ]
+}

@@ -1,5 +1,70 @@
 # Implementation status
 
+## PR11 – Core-Recovery V2 lokal abgenommen, reale Gates offen (29.10.2026)
+
+**LOCAL_TECHNICALLY_VERIFIED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**
+HEAD/origin `d0feaa67…`, tatsächlicher CI-Lauf 40900032608 grün mit 321/192/31;
+vollständiger privater Core-/Recoveryaudit remote nicht angefordert.
+Aktuelle Arbeitsbytes sind uncommittet und nicht remote geprüft.
+
+[ADR-029](decisions/ADR-029-private-core-archive-recovery.md) und MASTER 152/157
+trennen historische wissenschaftliche Python-Ausführung vom vollständigen
+Core-Archivrestore. Neuer expliziter Scope V2: zwölf Dienste, acht unveränderte
+Images. Alle zehn Archivverträge, Originalmodell, Locks, SBOM und 66 Pins bleiben
+zwingend; alte V1-Pfade/Artefakte/Hashes bleiben erhalten. Historisches Image
+archiviert, optionaler dynamischer Researchpfad weiter SECURITY_BLOCKED.
+Keine Abschwächung der numerischen Modellloader-/Forecast-/Strategiegates.
+
+Vorhandenen Restoreproducer gezielt erweitert: unabhängig gepinnte aktuelle
+Backuperwartungen getrennt vom alten Modellanker, tatsächlicher SQL/S3-Restore,
+vollständiger S3-Readback und neuer Producerbeleg. Originalbackup read-only;
+nur frisches Readbackziel schreibbar, kein Root-/777-Fallback. Exakte historische
+Originalbelege/Metadata-TAR müssen geschützt bytegleich erhalten bleiben,
+auch über Betriebssystem-/Zeilenendenwechsel. Keine neue Recoveryengine.
+
+**321 Backendtests je Image, 210 Hosttests (18 neue gezielte Vertragsfälle),
+31 verschiedene Browserfälle** geprüft: 30/31 im Vollsatz und 1/1 gezielt nach
+Synchronisationskorrektur des zweiten CSV-Commits. Originalfehler erhalten,
+HTTP 200/null neue Buchungen vor unveränderter UIassertion. Kein Appredesign,
+keine neuen manuellen synthetischen Archive oder Änderungen an Appimages.
+Ruff/Format/Mypy, Frontend-Lint/Typecheck/Standalone-Build, beide native Proben,
+Fresh Migrations/Schema Drift erfolgreich; weiterhin `0021_ui_requests`.
+
+Zwei tatsächliche isolierte Restores des vorhandenen PR10-Satzes mit je
+**1’387 Dateien, 1’378 Raw-Readbackobjekten, zehn Archivverträgen, 66 Pins** und
+erfolgreicher Bereinigung; kein alter Python-Start oder historische numerische
+Reproduktion behauptet. CHF 10’180 nur am ursprünglichen 26.10.2026-Stichtag,
+heute weiter STALE_PRICE. Masterplan weiterhin 212 Hauptabschnitte.
+
+Frische vollständige Scans aller zwölf Dienste / acht Images und zwölf gültige
+Original-SBOMs; normaler Produktionsbuild separat. Über erforderliche Images
+0 Critical / 1 High bei Caddy. Optionales historisches Legacyimage behält
+1 Critical / 47 High laut
+unverändertem PR10-Beleg. Kein offizieller belegter v3-Fix; echte Security-
+Entscheidung und zusätzliche native/Unknown-/CSP-/TLS-/Zielreviews offen.
+
+Neuer lokaler Preflight/Installationsplan konsistent, keine Dienste gestartet;
+OpenShift-Offlineentwurf weiter DRAFT_NOT_DEPLOYABLE. Tatsächliche Registry
+read-only geprüft: ECB/OpenFIGI UNKNOWN/deaktiviert. Alle kontrollierten Rollen,
+Testmodus, Collection und Forward-Scheduling zurückgesetzt. Kein externer
+Finanzprovideraufruf oder eigener Rechteentscheid.
+
+Nächste Schritte sind externe Autorisierung/Abnahme: Security, tatsächliches
+Primärziel/VPN/DNS/TLS/Clients, unabhängige verschlüsselte Recovery/Schlüssel/
+Zeitplan/Alarmempfang, optional ECB-Livefreigabe, echter kleiner Depotabgleich
+und unabhängiger Anfängertest. Status TARGET_NOT_AVAILABLE,
+LIVE_SOURCE_BLOCKED_BY_APPROVAL, REAL_PORTFOLIO_PILOT_PENDING,
+PENDING_USER_TEST. Kein automatischer Push/Release, Cutover, Quellenapproval,
+Modellpromotion oder Handel. **STOP nach lokalem Abschluss.**
+
+[Gesamtübergabe](PR11_ACCEPTANCE_REPORT.md),
+[Security](PR11_SECURITY_FINAL_REVIEW.md),
+[Releasecheckliste](PR11_CORE_RELEASE_CHECKLIST.md),
+[Quellen](PR11_LIVE_SOURCE_ACCEPTANCE.md),
+[echtes Portfolio](PR11_REAL_PORTFOLIO_ACCEPTANCE.md),
+[Bedienbarkeit](PR11_USABILITY_ACCEPTANCE.md),
+[Regressionsbeleg](security/pr11-20261029/regression-final.json).
+
 ## PR10 – Lokaler Abschluss, echte Nutzung weiter gesperrt (29.10.2026)
 
 **TECHNICALLY_VERIFIED (lokal synthetisch) / SECURITY_BLOCKED / NOT_RELEASED.**

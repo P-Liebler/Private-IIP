@@ -3,14 +3,14 @@
 name: ${COMPOSE_PROJECT_NAME:?explicit isolated project}
 services:
   legacy-verifier:
-    profiles: [ops]
+    profiles: [legacy-research]
     image: private-iip/backend@sha256:acb9d2027e8925f756ccd7d1a22e1fae989c0db3bf8bf486400e0bc963e21816
     network_mode: none
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    # Recovery uses verify_legacy_model.py's bounded read-only invocation.
-    # This service records its required image; it is never started by Core up.
+    # Optional historical research only; excluded from daily Core recovery V2.
+    # Its separate High/Critical security gate remains closed.
     entrypoint: [python, -c]
     command: ["raise SystemExit('Use the isolated archive verifier')"]
   api:

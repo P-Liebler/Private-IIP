@@ -62,7 +62,7 @@ def startup_commands(base, scope):
 def plan(scope, env_path):
     base = ["docker", "compose", "-f", "docker-compose.prod.yml", "-f", "ops/docker-compose.core.yml",
             "--env-file", str(env_path), "--profile", "ops"]
-    return {
+    result = {
         "status": base + ["ps", "--format", "json"],
         "after_separate_approval_only": startup_commands(base, scope),
         "rollback": ["Stop new writes; preserve volumes and new raw originals.",
@@ -70,6 +70,16 @@ def plan(scope, env_path):
                      "Reconcile post-cutover ledger/object deltas before choosing a recovery set.",
                      "Run ops/restore_verify.py in its random isolated project and verify immutable history.",
                      "Require separate operator cutover approval; never down -v, downgrade a volume, or discard new writes."]}
+    if scope.get("contract") == "PRIVATE_CORE_SCOPE_V2":
+        result["archive_recovery_contract"] = scope["archive_recovery"]
+        result["protected_recovery_inputs"] = [
+            "Independently retained original manifest SHA-256 and immutable original manifest/references.",
+            "Data-only metadata TAR matching metadata_bundle_sha256; keep outside the repository with recovery material.",
+            "For each backup: independently pin current PRIVATE_CORE_RESTORE_EXPECTATIONS_V1 JSON and exact backup manifest SHA-256 before restoring; growing histories require a new pin.",
+            "Run existing ops/restore_verify.py --recovery-contract PRIVATE_CORE_ARCHIVE_RECOVERY_V1 with all explicit anchors.",
+            "Historical image execution remains optional research and SECURITY_BLOCKED; never start it during Core restore.",
+        ]
+    return result
 
 
 def main():

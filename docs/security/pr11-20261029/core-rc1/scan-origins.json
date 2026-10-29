@@ -1,0 +1,53 @@
+{
+  "scope": "EXACT_IDENTICAL_BYTES_ONLY_NO_BUILD_PULL_OR_DIGEST_SUBSTITUTION",
+  "origins": {
+    "api": {
+      "original_component": "api",
+      "original_record_sha256": "95bf5fb6b40ace2177b87752f53587ef8a550f4e3b7b0df3bc7f298ec2f6ae22"
+    },
+    "worker": {
+      "original_component": "api",
+      "original_record_sha256": "95bf5fb6b40ace2177b87752f53587ef8a550f4e3b7b0df3bc7f298ec2f6ae22"
+    },
+    "scheduler": {
+      "original_component": "api",
+      "original_record_sha256": "95bf5fb6b40ace2177b87752f53587ef8a550f4e3b7b0df3bc7f298ec2f6ae22"
+    },
+    "web": {
+      "original_component": "web",
+      "original_record_sha256": "9672b50cad30ef6458f687d6a0de97d8afa2546752b794e7a929e18e01c05221"
+    },
+    "postgres": {
+      "original_component": "postgres",
+      "original_record_sha256": "0f7cc2a316b4d841e0813390d6c78568af3a4fb3f9d6f05bc544e35862fa8f7b"
+    },
+    "valkey": {
+      "original_component": "valkey",
+      "original_record_sha256": "0f4f45b1fa6a690de1d51a1f99265a0a1dc29b758577493e4a511e8b3064813f"
+    },
+    "minio": {
+      "original_component": "minio",
+      "original_record_sha256": "26ba4c110b730118afb903dbf25a2393f251f8ca8c985ae84f157d9b9f1de51e"
+    },
+    "caddy": {
+      "original_component": "caddy",
+      "original_record_sha256": "09878df021e0d6dded771308bd5a55f7b71d6b1ef64448d9a12909dc5543b214"
+    },
+    "ca-export": {
+      "original_component": "caddy",
+      "original_record_sha256": "09878df021e0d6dded771308bd5a55f7b71d6b1ef64448d9a12909dc5543b214"
+    },
+    "prometheus": {
+      "original_component": "prometheus",
+      "original_record_sha256": "f3135c1d560dd37dd16b0b3f7bbbe2333f9649594f44e5e4494dbe4d5d80a1b0"
+    },
+    "backup": {
+      "original_component": "backup",
+      "original_record_sha256": "1f5eae9266ea34ede925f38f6a28e745cf4b4fc7759e1e1a7d6b6e04da025e67"
+    },
+    "storage-init": {
+      "original_component": "caddy",
+      "original_record_sha256": "09878df021e0d6dded771308bd5a55f7b71d6b1ef64448d9a12909dc5543b214"
+    }
+  }
+}

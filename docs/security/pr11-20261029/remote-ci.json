@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-10-29T15:26:16.955Z",
+  "run_id": 40900032608,
+  "head_sha": "d0feaa67f1505ef247fb5dd199938f0f592230d7",
+  "url": "https://github.com/P-Liebler/Private-IIP/actions/runs/40900032608",
+  "verify": "SUCCESS",
+  "security_job": "SUCCESS",
+  "dependency_audit": "SUCCESS",
+  "scanner_and_database": "SUCCESS",
+  "api_web_package_gate": "SUCCESS",
+  "source_secrets": "NO_KNOWN_SECRET_FINDINGS",
+  "full_runtime_recovery_audit": "SKIPPED_NOT_REQUESTED_NOT_VERIFIED",
+  "release_approval": false,
+  "artifact_id": 12908811858,
+  "artifact_sha256": "7ec4d036546214a5c0e36aaeaf55664bb474029de7f8f9f6a8729679d98c3f54",
+  "original_artifact_members_sha256": {
+    "pr4-historical-policy.json": "7579f125aa0e2209a07f0ac37760a3fb591cc068985946f563c5164e082378a3",
+    "vulnerability-db.json": "50e76bed488c3e519596ed86d407af5e157eee36d8db731839648a859dcd05ad",
+    "security-status.json": "ca585ff46e28ee133771a33019d31ae11fbc430175954330ce4ef96a63db18d4",
+    "pr4-images/api.cdx.json": "727e3f906332b18c3d6274573a077f671353bcabe7f2c242fd4a84cd525d31b8",
+    "pr4-images/api.record.json": "cabb77e88fd60920b1388a8aae1e9dd792ad68001d995dfa2f88575a0cd2322e",
+    "pr4-images/inventory.json": "64444f7e175eeb6551875404382077a97b9d36bfc50720dc7a3495791ba957d0",
+    "pr4-images/web.cdx.json": "0572416de492a5a5c6a63b9a04f647d77cd9fe3a5f6c93d99796b54e30ba978b",
+    "pr4-images/web.record.json": "84b8b51bd53f6266e7e0842e88f946b7857e3bdb3ecd480438c9b8bf24c3722f",
+    "pr4-source/source-security.json": "45fb61b577f4a1bf39448b92dfab44ccb17501ff3ba46ab842a6f58af5623ee6",
+    "pr4-core-dependencies.json": "5d9c1af895e6fa70e8b94db1717b5e4b86b9c2dd390569c71a99392fab897d0f",
+    "pr4-mlflow-dependencies.json": "165b8e21c8f88cd8c28e094d13633dffc2642c89fc754bf91da553f4f8a5bda8",
+    "pr4-npm-dependencies.json": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3",
+    "pr4-core-sbom-validation.json": "f44e39be9f56a9590cb7e510b01c9c945ab938c956a82c6e882eca827c97982a"
+  },
+  "reported_baseline": {
+    "backend": 321,
+    "host": 192,
+    "browser": 31
+  }
+}

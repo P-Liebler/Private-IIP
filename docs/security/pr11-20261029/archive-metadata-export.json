@@ -1,0 +1,13 @@
+{
+  "exported_at": "2026-10-29T15:29:25.454187+00:00",
+  "original_manifest_reference": "ops/releases/pr10-core-v1-rc1-manifest.json",
+  "independently_retained_original_manifest_file_sha256": "15fc6ab75221056b958f67cfcaefd004d0233300e6bcc5089e37e09a162f92fe",
+  "git_original_lf_content_sha256": "467ab1a65001a6598c23297ec5ee4c7dcca41c3d3cc30a3c6fd98e6da4e40b7d",
+  "checkout_lf_content_equal_to_original": true,
+  "metadata_bundle_sha256": "c0f2ad0cd5602fbaa3cd68877005c5ae601ec7493a30efc8d9efbd85fbf3cf97",
+  "metadata_export_receipt_sha256": "b7f5137c4b11c529ae4d524bb0cf9206830f3b212f422598ca8934ae32847435",
+  "historical_runtime_started": false,
+  "source": "EXACT_ARCHIVED_IMAGE_STATIC_COPY_ONLY",
+  "bundle_private": true,
+  "original_image_unchanged": true
+}

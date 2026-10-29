@@ -4057,6 +4057,8 @@ Ein Backup gilt nicht als sicher, solange ein Restore nie getestet wurde.
 
 V1-Produktionsfreigabe verlangt mindestens einen erfolgreichen Restore in eine isolierte Testinstanz mit Prüfung von Datenbank, Rohobjekt, Login und Portfolio-Wert. Danach werden Restore-Tests regelmässig wiederholt und protokolliert.
 
+Private Core V1 verwendet ab dem expliziten Vertrag `PRIVATE_CORE_ARCHIVE_RECOVERY_V1` einen tatsächlichen DB-/Objektspeicher-Restore mit erneuter Prüfung aller bestehenden Archivhashverträge, unveränderlicher Modelloriginale und gespeicherter Ergebnisse. Originalmanifeste, erwartete Hashes, Lockbytes, historische SBOM-Metadaten und die 66 historischen Dependency-Pins werden gegen unabhängig aufbewahrte exakte Originalbytes geprüft. Der historische Python-Prozess gehört dabei zum getrennten, weiterhin sicherheitsgesperrten Research-/Reproduktionspfad; seine Ausführung wird weder behauptet noch durch Integrität ersetzt. Frühere Restoreverträge bleiben unverändert erhalten. Die Entscheidung und ihre Grenzen stehen in [ADR-029](docs/decisions/ADR-029-private-core-archive-recovery.md).
+
 ---
 
 # 153. Tests
@@ -4164,6 +4166,8 @@ parameters
 ```
 
 Reproduzierbarkeit umfasst auch verwendete Raw-/Canonical-Versionen, Universe-Membership, Markt-Kalender, Target-, Corporate-Action- und Execution-Policy-Version sowie Quelle der FX-Reihe. Der Test rekonstruiert eine gespeicherte Prognose aus genau diesen Eingaben oder meldet explizit, welche historische Quelle fehlt.
+
+Ein bestandener Core-Integritätsrestore nach Abschnitt 152 beweist keine historische Modellinferenz, kein erneutes Training und keine Forecastvalidierung. Die wissenschaftliche Wiederholung verlangt weiterhin die exakten archivierten Eingaben und Dependency-Gates; notwendige historische Ausführung bleibt bis zu einer eigenen Security- und Operatorfreigabe gesperrt und wird als `NOT_EXECUTED_NOT_PROVEN` ausgewiesen. Alte Modelle, Prognosen, Lockfiles und Manifesthashes werden dafür nicht geändert.
 
 ---
 
