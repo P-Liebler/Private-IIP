@@ -1,0 +1,20 @@
+{
+  "apiVersion": "kustomize.config.k8s.io/v1beta1",
+  "kind": "Kustomization",
+  "namespace": "gitops-demo",
+  "resources": ["../../base"],
+  "patches": [
+    {
+      "target": {"kind": "ConfigMap", "name": "iip-config"},
+      "patch": "[{\"op\":\"replace\",\"path\":\"/data/MINIO_ENDPOINT\",\"value\":\"caddy.gitops-demo.svc:9002\"}]"
+    },
+    {
+      "target": {"kind": "NetworkPolicy", "name": "default-deny"},
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/podSelector\",\"value\":{\"matchLabels\":{\"app.kubernetes.io/part-of\":\"investment\"}}}]"
+    },
+    {
+      "target": {"kind": "NetworkPolicy", "name": "dns-only"},
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/podSelector\",\"value\":{\"matchLabels\":{\"app.kubernetes.io/part-of\":\"investment\"}}}]"
+    }
+  ]
+}
