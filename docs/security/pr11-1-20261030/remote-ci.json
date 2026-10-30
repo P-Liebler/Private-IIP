@@ -1,0 +1,68 @@
+{
+  "checked_at": "2026-10-30T07:25:50.900195+00:00",
+  "runs": [
+    {
+      "run_id": 40907365492,
+      "head_sha": "cb1489962c92fdd8fcb8fed4133cea11e836e28c",
+      "url": "https://github.com/P-Liebler/Private-IIP/actions/runs/40907365492",
+      "verify": "SUCCESS",
+      "security_job": "SUCCESS",
+      "full_core_recovery_audit": "SKIPPED_NOT_REQUESTED_NOT_VERIFIED",
+      "reported_tests": {
+        "backend": 321,
+        "host": 210,
+        "browser": 31
+      },
+      "artifact_id": 12911657786,
+      "original_artifact_sha256": "3a7f79271841c34234fe317a6a1c111d1af252a880826294b0d4d72486f32ae2",
+      "original_members_sha256": {
+        "security-status.json": "fd1e7cf0579317dd5047f8c00d4e8f058bbe4b51eb8840b500e63914e822ec1f",
+        "pr4-historical-policy.json": "7579f125aa0e2209a07f0ac37760a3fb591cc068985946f563c5164e082378a3",
+        "vulnerability-db.json": "ae7b74620c9b39d7276d431d3f5d6984b86ac576a19510717adbfe26f6ec4c0f",
+        "pr4-images/api.cdx.json": "9ccae91ada1faca283bdead353bee801d050b3678877bf58b74d34cd8c1ad08e",
+        "pr4-images/api.record.json": "bfa63c952c51ae661abb86117db8542bb2c7550782f53367341a47606737be92",
+        "pr4-images/inventory.json": "2ebaab5454076f4adf58a1d1a86b303a3eefad91cf61b1f65b64b4458b367639",
+        "pr4-images/web.cdx.json": "c8a9b714fac6c9014e50bc23327d0f87faf49449439a2753d6341ecf12df0b55",
+        "pr4-images/web.record.json": "e1602c76b8a1f407d65d3857ea7f49c0240be76069f04a19a316f5598bf49512",
+        "pr4-source/source-security.json": "43640b0b7eb4d6265bd8ffad810d0d5958e72caa921f390b6237f43320c971fa",
+        "pr4-core-dependencies.json": "5d9c1af895e6fa70e8b94db1717b5e4b86b9c2dd390569c71a99392fab897d0f",
+        "pr4-mlflow-dependencies.json": "165b8e21c8f88cd8c28e094d13633dffc2642c89fc754bf91da553f4f8a5bda8",
+        "pr4-npm-dependencies.json": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3",
+        "pr4-core-sbom-validation.json": "f44e39be9f56a9590cb7e510b01c9c945ab938c956a82c6e882eca827c97982a"
+      },
+      "release_approval": false
+    },
+    {
+      "run_id": 41018607349,
+      "head_sha": "bc0f8d8872e879c01bcbe05198fc9095575fab6d",
+      "url": "https://github.com/P-Liebler/Private-IIP/actions/runs/41018607349",
+      "verify": "SUCCESS",
+      "security_job": "SUCCESS",
+      "full_core_recovery_audit": "SKIPPED_NOT_REQUESTED_NOT_VERIFIED",
+      "reported_tests": {
+        "backend": 321,
+        "host": 210,
+        "browser": 31
+      },
+      "artifact_id": 12960502046,
+      "original_artifact_sha256": "4e65c539691a63502d6f50f60f15cad8264f87cb08dcabc773fd55f59af4d923",
+      "original_members_sha256": {
+        "security-status.json": "1236403995311948629e1b68e83b772f33a67e15209c824c7bddb02a91c852ac",
+        "vulnerability-db.json": "ef29f5d1199019d78b9b852fac7acc835fb2528b7a3f15b9fab5cc5375545155",
+        "pr4-historical-policy.json": "7579f125aa0e2209a07f0ac37760a3fb591cc068985946f563c5164e082378a3",
+        "pr4-images/api.cdx.json": "6e21c41820035625a055384435eb8a26efcdfea436c0fba531300e3b5c3e1b31",
+        "pr4-images/api.record.json": "e33d4a925c23f9a8cf7ebcec4b5d4a33d4461501eb3293f1223b05a0230c5a65",
+        "pr4-images/inventory.json": "345836ee8dd527658611d92952cae9de0df3911b355c63dde197850f76cfdf6b",
+        "pr4-images/web.cdx.json": "f8ec2ea68a60e30bd3b45370dfb997a28df969303224c3523bff65aafd47973a",
+        "pr4-images/web.record.json": "c60383075d14a16929f045ba2ab885d89550860f22bf0246818ed32925467451",
+        "pr4-source/source-security.json": "b587de52658e738e80c8f3d32a1bc5d01ba8fcca9eb275c93c94c5a50eb29674",
+        "pr4-core-dependencies.json": "5d9c1af895e6fa70e8b94db1717b5e4b86b9c2dd390569c71a99392fab897d0f",
+        "pr4-mlflow-dependencies.json": "165b8e21c8f88cd8c28e094d13633dffc2642c89fc754bf91da553f4f8a5bda8",
+        "pr4-npm-dependencies.json": "c2c2017422dba29b8a74481c0c2b0ee79feee90d0677b452d29fd9e7a2ac1bb3",
+        "pr4-core-sbom-validation.json": "f44e39be9f56a9590cb7e510b01c9c945ab938c956a82c6e882eca827c97982a"
+      },
+      "release_approval": false
+    }
+  ],
+  "dispatch_or_image_transfer": false
+}

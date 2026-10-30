@@ -20,7 +20,7 @@
         "accessModes": [
           "ReadWriteOnce"
         ],
-        "storageClassName": "REPLACE_REVIEWED_STORAGE_CLASS",
+        "storageClassName": " truenas-nfs",
         "resources": {
           "requests": {
             "storage": "20Gi"
@@ -46,7 +46,7 @@
         "accessModes": [
           "ReadWriteOnce"
         ],
-        "storageClassName": "REPLACE_REVIEWED_STORAGE_CLASS",
+        "storageClassName": " truenas-nfs",
         "resources": {
           "requests": {
             "storage": "2Gi"
@@ -72,7 +72,7 @@
         "accessModes": [
           "ReadWriteOnce"
         ],
-        "storageClassName": "REPLACE_REVIEWED_STORAGE_CLASS",
+        "storageClassName": " truenas-nfs",
         "resources": {
           "requests": {
             "storage": "100Gi"

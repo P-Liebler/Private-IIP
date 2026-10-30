@@ -1,0 +1,136 @@
+{
+  "recorded_at": "2026-10-30T07:24:07.553459+00:00",
+  "head": "bc0f8d8872e879c01bcbe05198fc9095575fab6d",
+  "origin_main": "bc0f8d8872e879c01bcbe05198fc9095575fab6d",
+  "requested_commit": "cb1489962c92fdd8fcb8fed4133cea11e836e28c",
+  "scope_sha256": "f30e480388aa0060783c8f4fa8e0ac9df8bdc5dcb0efaa7269fe1736aa3fe0c0",
+  "local_exact_images": [
+    {
+      "reference": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "services": [
+        "api",
+        "worker",
+        "scheduler"
+      ],
+      "image_id": "sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "repo_digests": [
+        "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "services": [
+        "web"
+      ],
+      "image_id": "sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5",
+      "repo_digests": [
+        "private-iip/web@sha256:6f316c3ee13108daf042ca2bfcd4b5d36d59fbef8deaa1e316ed98cc137588d5"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "services": [
+        "postgres"
+      ],
+      "image_id": "sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+      "repo_digests": [
+        "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "services": [
+        "valkey"
+      ],
+      "image_id": "sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507",
+      "repo_digests": [
+        "valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "services": [
+        "minio"
+      ],
+      "image_id": "sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+      "repo_digests": [
+        "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "services": [
+        "caddy",
+        "ca-export",
+        "storage-init"
+      ],
+      "image_id": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "repo_digests": [
+        "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "prom/prometheus:v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "services": [
+        "prometheus"
+      ],
+      "image_id": "sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+      "repo_digests": [
+        "prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    },
+    {
+      "reference": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+      "services": [
+        "backup"
+      ],
+      "image_id": "sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f",
+      "repo_digests": [
+        "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "matches_exact_pin": true
+    }
+  ],
+  "head_ci_lookup": {
+    "status": "READ_ONLY_PUBLIC_API_SUCCESS",
+    "runs": [
+      {
+        "id": 41018607349,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "bc0f8d8872e879c01bcbe05198fc9095575fab6d",
+        "html_url": "https://github.com/P-Liebler/Private-IIP/actions/runs/41018607349",
+        "created_at": "2026-10-30T07:11:57Z",
+        "updated_at": "2026-10-30T07:19:40Z"
+      }
+    ]
+  },
+  "remote_private_image_availability": "NOT_VERIFIED_NO_AUTHORIZED_RUNNER_OR_TRANSFER_PROVIDED",
+  "local_development_device_is_remote_runner": false,
+  "network_requests": "GITHUB_API_ONLY_NO_FINANCIAL_PROVIDER",
+  "transfer_or_dispatch_executed": false
+}

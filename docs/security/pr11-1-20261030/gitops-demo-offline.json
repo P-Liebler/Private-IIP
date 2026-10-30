@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-30T07:32:45.202465+00:00",
+  "scope": "READ_ONLY_LOCAL_RENDER_NO_CLUSTER_ACCESS_OR_SYNC",
+  "contract_script_sha256": "a2d92364157b2a2b404a5d25d1e26396aa3011af491a0e8a1d84f2c7c2e8e490",
+  "contract_exit_code": 0,
+  "kustomize_executable_sha256": "06243561c85e0156b3e50cbd2892e0c831fd2c56d69aa8e1bf4ce5ec02294bf8",
+  "render_sha256": "57c61aa7d6cb19cee79b96b111f0793b04821cdf784f7a071dfb1c45963121b0",
+  "zero_replica_workloads": 8,
+  "namespace": "gitops-demo",
+  "creates_namespace_or_rbac_or_secret": false,
+  "actual_cluster_dry_run": false,
+  "release_approval": false
+}

@@ -77,3 +77,28 @@ separat von Security, Quellenfreigabe, echtem Brokerabgleich und Recovery.
 **Menschliche Bedienbarkeit bleibt unvalidiert.** Nach technischer Regression
 ist die konkrete unabhängige Beobachtung der nächste Schritt; weitere
 automatisierte Fälle werden nicht als Ersatz gezählt.
+
+---
+
+## Ergänzung PR11.1 – Vollständiger Browserlauf am 30.10.2026
+
+**FULL_BROWSER_REGRESSION_PASSED: 31/31 in einem einzigen neuen vollständigen
+Standalone-Lauf.** Frontend-Lint, Typecheck und Build sind zuvor erfolgreich
+abgeschlossen. Das bestehende Setup wurde wiederverwendet; fachliche
+Bewertungs-/Idempotenzassertions bleiben erhalten. Testmodus und temporäre
+Rollen sind danach zurückgesetzt. Neue tatsächliche Belege und die gesonderte
+Kontrolle der Collector-/Forward-Schalter stehen im
+[PR11.1-Verifikationsbericht](PR11_FINAL_VERIFICATION.md).
+
+Der vorherige Bericht bleibt datiert richtig: Am 29.10. waren es zunächst
+30/31 und danach der gezielte korrigierte Fall mit 1/1. Beide ursprünglichen
+Läufe und der nachgewiesene Synchronisationsfehler bleiben erhalten. Erst der
+hier ergänzte tatsächliche Gesamtlauf begründet die neue 31/31-Aussage.
+
+Eine unabhängige Person wurde weiterhin nicht beobachtet. **PENDING_USER_TEST**
+bleibt bestehen; automatische Browserfälle sind keine menschliche Bedien-
+oder echte Android-/VPN-Zielabnahme. Das vorhandene PR7-Protokoll, die Suche
+nach Einstellungen vor dem Logout und die
+[konkrete Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md) bleiben der
+nächste reale Schritt. Kein neues Design oder synthetisches Testarchiv wurde
+als Ersatz begonnen.

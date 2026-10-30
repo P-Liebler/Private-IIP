@@ -139,3 +139,37 @@ gestoppt und kontrollierte Rollen zurückgesetzt.
 automatische Installation/Migration, Quellenapproval, Modellpromotion,
 Brokerhandel, Push oder Veröffentlichung. Der nächste Schritt ist die oben
 konkret benannte reale Autorisierung und Abnahme.
+
+---
+
+## Ergänzung PR11.1 – Tatsächliche Nachweise vom 30.10.2026
+
+Dieser datierte Zusatz ergänzt den unveränderten Bericht vom 29.10.; die
+ursprünglichen 30/31 im Gesamtlauf und die anschließenden 1/1 bleiben mit ihren
+Originalbelegen erhalten. Der **neue vollständige Standalone-Browserlauf
+besteht mit 31/31 in einem einzigen Lauf** (`FULL_BROWSER_REGRESSION_PASSED`).
+Er verwendet das vorhandene Setup, behält die finanziellen Assertions und
+bestätigt die Rücksetzung des Testmodus und der temporären Rollen. Beide
+unveränderten Backendimages bestehen erneut mit **je 321 Tests**; Frontend-
+Lint, Typecheck und der vor dem Browserlauf abgeschlossene Build sind erfolgreich.
+Die neuen tatsächlichen Abschlussbelege sind im
+[PR11.1-Verifikationsbericht](PR11_FINAL_VERIFICATION.md) zusammengeführt;
+weitere Prüfungen werden nicht aus älteren Läufen als neu abgeleitet.
+
+Der [neue CI-Originalindex](security/pr11-1-20261030/remote-ci.json) bindet den
+angeforderten Run **40907365492** auf `cb1489962c92fdd8fcb8fed4133cea11e836e28c`
+und den tatsächlichen HEAD-Run **41018607349** auf
+`bc0f8d8872e879c01bcbe05198fc9095575fab6d`. Beide bestätigen
+**Verify/Security erfolgreich mit 321/210/31**. Der vollständige Core-/
+Recoveryaudit ist bei beiden **SKIPPED_NOT_REQUESTED_NOT_VERIFIED**; normale
+CI-Erfolge erteilen keine vollständige Release- oder Securityfreigabe.
+
+`bc0f8d8` ergänzt ein deaktiviertes `gitops-demo`-Draftoverlay, keinen
+verfügbaren Cluster und keine Zielabnahme. Es wurden keine tatsächlichen
+Security-/Quellenapprovals, privaten Originale oder unabhängige Testperson
+bereitgestellt. `SECURITY_OPERATOR_DECISION_REQUIRED`, `TARGET_NOT_AVAILABLE`,
+`LIVE_SOURCE_BLOCKED_BY_APPROVAL`, `REAL_PORTFOLIO_PILOT_PENDING` und
+`PENDING_USER_TEST` bleiben bestehen; **PRIVATE_CORE_V1_RELEASED=false**.
+Die [konkrete Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md) benennt
+Rollen, reale Eingaben, Aktionen und Erfolgskriterien. Danach gilt weiterhin
+STOP statt einer neuen künstlichen Entwicklungsphase.

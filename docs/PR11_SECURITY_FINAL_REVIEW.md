@@ -162,3 +162,40 @@ verschlüsselte Recovery samt Schlüsseln, Tagesjob und tatsächlicher
 Alarmempfang sind nicht auf einem realen Ziel geprüft. Die technische
 Legacytrennung schließt keine dieser Voraussetzungen und keine Quellen-,
 Forecast- oder Strategiegates. **SECURITY_APPROVED=false.**
+
+---
+
+## Ergänzung PR11.1 – Aktueller Review vom 30.10.2026
+
+Die obigen 29.10.-Scans, Hashes und Restores bleiben historische Originale.
+Der [neue CI-Originalindex](security/pr11-1-20261030/remote-ci.json) bestätigt
+für Run **40907365492** auf `cb1489962c92fdd8fcb8fed4133cea11e836e28c` sowie
+HEAD-Run **41018607349** auf `bc0f8d8872e879c01bcbe05198fc9095575fab6d`
+Verify/Security erfolgreich mit **321/210/31**. Der vollständige Core-/
+Recoveryaudit wurde jeweils **nicht angefordert** und bleibt
+**SKIPPED_NOT_REQUESTED_NOT_VERIFIED**. Ein nicht autorisierter Dispatch oder
+Imagetransfer wurde nicht ausgeführt. Der Scope bleibt zwölf notwendige
+Dienste aus acht exakten Images; fehlende Runnerbytes ergeben `SCAN_INCOMPLETE`.
+
+Der [erneute offizielle Caddy-Review](security/pr11-1-20261030/caddy-review.json)
+bestätigt am 30.10. weiterhin **keinen belegten unterstützten v3-Fix** für
+`CVE-2026-116587 / GHSA-mgcc-cww5-fp2q`. Der dokumentierte v4-Fix ersetzt den
+v3-Paketpfad nicht. Aktive Konfiguration und exakte Binaryidentität stimmen
+mit den vorherigen Profilbelegen überein; diese Hashprüfung ist kein neuer
+Canary- oder Serverlauf. Im aktiven Profil ist weiterhin kein fremder
+JWK-Eingang nachgewiesen; vollständige Nichterreichbarkeit bleibt unbewiesen.
+
+Der [konkrete Ausnahmeentwurf](security/pr11-1-20261030/caddy-exception-review-draft.json)
+ist **DRAFT_NOT_APPROVED**, ohne tatsächlichen Reviewer, Approvalreferenz oder
+Beginn/Ablauf und mit **effective_exceptions=[]**. Die vorgeschlagene Dauer
+von höchstens sieben Tagen ab echter Autorisierung ist keine bereits erteilte
+Gültigkeit. Native-/Unknown-/niedrigere Befunde, CSP, TLS, Netzwerk und
+Zielbetrieb benötigen weiter ihre eigenen echten Reviews.
+
+Tatsächliche neue lokale Scan-/SBOM-/Restore-/Regressionsbelege und ihre
+Aussagegrenzen stehen im [PR11.1-Verifikationsbericht](PR11_FINAL_VERIFICATION.md).
+`PRIVATE_CORE_ARCHIVE_RECOVERY_V1` bleibt verbindlich; historische Python-
+Ausführung und numerische Reproduktion werden nicht behauptet. Das
+`gitops-demo`-Draftoverlay schließt keine Cluster- oder Sourcegates.
+**SECURITY_APPROVED=false / SECURITY_OPERATOR_DECISION_REQUIRED** bleibt
+gültig; [Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md).
