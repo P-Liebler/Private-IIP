@@ -44,7 +44,7 @@ assert all("Prune=false" in item["metadata"]["annotations"]["argocd.argoproj.io/
 builds = load(ROOT / "builds-application.json")["items"]
 streams = [x for x in builds if x["kind"] == "ImageStream"]
 configs = [x for x in builds if x["kind"] == "BuildConfig"]
-assert len(streams) == len(configs) == 5
+assert len(streams) == 5 and len(configs) == 6, "Only one additional BuildConfig for Caddy retry"
 for name, wave in COMPONENTS.items():
     bc = next(x for x in configs if x["metadata"]["name"] == "iip-" + name)
     assert bc["spec"]["source"]["git"]["ref"] == PIN
@@ -52,6 +52,17 @@ for name, wave in COMPONENTS.items():
     assert bc["spec"]["output"]["to"]["name"] == f"iip-{name}:{TAG}"
     assert bc["spec"]["triggers"] == [{"type": "ConfigChange"}]
     assert int(bc["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == wave
+
+# A new BuildConfig is required because ConfigChange does not retry a failed
+# existing Build on an unchanged BuildConfig. Preserve old builders and images.
+retry_build = next(x for x in configs if x["metadata"]["name"] == "iip-caddy-retry-1")
+original_caddy = next(x for x in configs if x["metadata"]["name"] == "iip-caddy")
+assert retry_build["spec"] == original_caddy["spec"], "Retry must reproduce the exact pinned Caddy image"
+assert retry_build["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"] == "-44"
+assert retry_build["spec"]["output"]["to"]["name"] == "iip-caddy:" + TAG
+assert {x["metadata"]["name"] for x in configs} == (
+    {"iip-" + name for name in COMPONENTS} | {"iip-caddy-retry-1"}
+)
 
 startup_cfg = load(STARTUP / "kustomization.yaml")
 assert set(startup_cfg["resources"]) == {"build-waiters.json", "runtime-preflight.json", "s3-bootstrap.json", "db-bootstrap-job.json"}
@@ -69,6 +80,18 @@ for name, wave in COMPONENTS.items():
     assert job["metadata"]["annotations"]["argocd.argoproj.io/hook"] == "Sync"
     body = job["spec"]["template"]["spec"]["containers"][0]["args"][0]
     assert "get imagestreamtag" in body and "get build" in body
+    if name == "caddy":
+        assert "name='iip-caddy-retry-1'" in body
+        assert "stream='iip-caddy'" in body
+        assert 'get buildconfig "$name"' in body
+        assert 'get build "$name-$version"' in body
+        assert 'get imagestreamtag "$stream:$tag"' in body
+        assert 'get imagestreamtag "$name:$tag"' not in body
+        assert job["metadata"]["annotations"]["argocd.argoproj.io/hook-delete-policy"] == (
+            "HookSucceeded,BeforeHookCreation"
+        )
+    else:
+        assert "name='iip-" + name + "'" in body
     assert not any(s in body for s in ("start-build", "oc delete", "oc apply", "oc patch"))
 
 registry = "image-registry.openshift-image-registry.svc:5000/gitops-demo/"
