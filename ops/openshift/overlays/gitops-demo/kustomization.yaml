@@ -3,7 +3,12 @@
   "kind": "Kustomization",
   "namespace": "gitops-demo",
   "resources": [
-    "../../base"
+    "../../base",
+    "build-waiters.json",
+    "builds-application.json",
+    "runtime-preflight.json",
+    "private-ingress-policy.yaml",
+    "private-route.yaml"
   ],
   "patches": [
     {
@@ -11,7 +16,7 @@
         "kind": "ConfigMap",
         "name": "iip-service-ca"
       },
-      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1ignore-differences\",\"value\":\"jsonPointers:\\n  - /data/service-ca.crt\"}]"
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1ignore-differences\",\"value\":\"jsonPointers:\\n  - /data\"}]"
     },
     {
       "target": {
@@ -89,6 +94,142 @@
         "name": "seaweed-internal-self"
       },
       "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-config"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/data/CODE_COMMIT\",\"value\":\"dbf6b892f16f380f4784acf1884ef964f7a13e8a\"},{\"op\":\"replace\",\"path\":\"/data/FRONTEND_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"replace\",\"path\":\"/data/API_PUBLIC_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-service-ca"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-caddy"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "ServiceAccount",
+        "name": "iip-runtime"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "Service"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "PersistentVolumeClaim"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "NetworkPolicy"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "postgres"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"},{\"op\":\"add\",\"path\":\"/spec/template/spec/initContainers\",\"value\":[{\"name\":\"check-postgres-volume-access\",\"image\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-dbf6b892\",\"imagePullPolicy\":\"Always\",\"command\":[\"/bin/sh\",\"-ec\"],\"args\":[\"set -eu\\nprintf 'PostgreSQL UID=%s GID=%s\\\\n' \\\"$(id -u)\\\" \\\"$(id -g)\\\"\\nif [ ! -w /var/lib/postgresql/data ]; then echo 'Postgres PVC not writable by OpenShift runtime UID. Check NFS CSI ownership without deleting data.' >&2; exit 41; fi\\nif [ -d /var/lib/postgresql/data/pgdata ] && [ ! -w /var/lib/postgresql/data/pgdata ]; then echo 'Existing PGDATA is not writable; preserve volume and request an ownership review.' >&2; exit 42; fi\\necho 'PostgreSQL PVC write-access precheck passed (initdb still needs separate validation).'\"],\"securityContext\":{\"allowPrivilegeEscalation\":false,\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true,\"capabilities\":{\"drop\":[\"ALL\"]}},\"volumeMounts\":[{\"name\":\"data\",\"mountPath\":\"/var/lib/postgresql/data\",\"readOnly\":false}],\"resources\":{\"requests\":{\"cpu\":\"25m\",\"memory\":\"32Mi\"},\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "valkey"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"valkey/valkey:8.1.11-alpine\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "minio"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "caddy"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-caddy:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "api"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "web"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "worker"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "scheduler"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+    }
+  ],
+  "replicas": [
+    {
+      "name": "api",
+      "count": 1
+    },
+    {
+      "name": "worker",
+      "count": 1
+    },
+    {
+      "name": "scheduler",
+      "count": 1
+    },
+    {
+      "name": "web",
+      "count": 1
+    },
+    {
+      "name": "postgres",
+      "count": 1
+    },
+    {
+      "name": "valkey",
+      "count": 1
+    },
+    {
+      "name": "minio",
+      "count": 1
+    },
+    {
+      "name": "caddy",
+      "count": 1
     }
   ]
 }
