@@ -19,6 +19,10 @@ The live main branch remains rolled back, with all eight IIP workloads at zero.
    Their own service account has only get permissions for BuildConfigs,
    Builds and ImageStreamTags. They cannot create or restart builds.
    No manual oc start-build, file transfer or local image building is needed.
+   The active Sync Jobs and read-only Role are defined in the separately
+   opt-in ops/gitops-startup Kustomize base. The pre-existing draft
+   preflight under ops/openshift remains untouched and cannot be used
+   to approve this deployment. A separate admission/security review is mandatory.
 3. GitOps then applies existing namespaced services, scoped NetworkPolicies,
    PVCs, ConfigMaps and ServiceAccounts. The three PVCs remain protected
    from pruning and deletion. There is no cluster-scoped registry change.
