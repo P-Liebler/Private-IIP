@@ -151,7 +151,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-s3-bootstrap-dbf6",
+        "name": "iip-s3-bootstrap-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-1",
@@ -181,7 +181,7 @@
             "containers": [
               {
                 "name": "bucket-bootstrap",
-                "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-dbf6b892",
+                "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-4f3b8b83",
                 "imagePullPolicy": "Always",
                 "command": [
                   "/bin/sh",
