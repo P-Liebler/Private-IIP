@@ -4,9 +4,8 @@
   "namespace": "gitops-demo",
   "resources": [
     "../../base",
-    "build-waiters.json",
+    "../../../gitops-startup",
     "builds-application.json",
-    "runtime-preflight.json",
     "private-ingress-policy.yaml",
     "private-route.yaml"
   ],
