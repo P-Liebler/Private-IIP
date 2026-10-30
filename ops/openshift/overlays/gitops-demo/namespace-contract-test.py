@@ -82,11 +82,12 @@ for name in NAMES:
 
 config_patches = operations(cfg, "ConfigMap", "iip-config")
 origin = "https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local"
-assert {x["path"]: x["value"] for x in config_patches if x["op"] == "replace"} >= {
+values = {x["path"]: x["value"] for x in config_patches if x["op"] == "replace"}
+assert all(values.get(k) == v for k, v in {
     "/data/FRONTEND_ORIGIN": origin,
     "/data/API_PUBLIC_ORIGIN": origin,
     "/data/CODE_COMMIT": PIN,
-}
+}.items())
 assert f"host: {origin[8:]}" in (ROOT / "private-route.yaml").read_text(encoding="utf-8")
 ca_patch = operations(cfg, "ConfigMap", "iip-service-ca")
 assert any(x["path"].endswith("ignore-differences") and
