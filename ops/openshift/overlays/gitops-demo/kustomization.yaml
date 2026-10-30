@@ -173,28 +173,28 @@
         "kind": "Deployment",
         "name": "api"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "web"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "worker"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "scheduler"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"2\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     }
   ],
   "replicas": [
