@@ -207,7 +207,7 @@
         "accessModes": [
           "ReadWriteOnce"
         ],
-        "storageClassName": " truenas-nfs",
+        "storageClassName": "truenas-nfs",
         "resources": {
           "requests": {
             "storage": "5Gi"
