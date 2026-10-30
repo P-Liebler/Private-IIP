@@ -1,0 +1,19 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: privat-iip
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    haproxy.router.openshift.io/ip_whitelist: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+  labels:
+    app.kubernetes.io/part-of: investment
+spec:
+  to:
+    kind: Service
+    name: caddy
+    weight: 100
+  port:
+    targetPort: https
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
