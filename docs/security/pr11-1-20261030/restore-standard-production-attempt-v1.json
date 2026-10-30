@@ -1,0 +1,52 @@
+{
+  "started_at": "2026-10-30T07:48:41.734591+00:00",
+  "success": false,
+  "object_store_kind": "seaweed-synthetic",
+  "backup_run_id": "20261029T141550Z-8532",
+  "image_contract": {
+    "api": "private-iip/backend@sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+    "postgres": "private-iip/postgres@sha256:2c9e0b298784e97215aef421ec0b2058631527d0872ce9fbf4c03592baed764f",
+    "object_store": "private-iip/seaweed@sha256:6bdab6cd91262be0040850c1a6a8add2cf14e0edfdd5d7bbcd7894e8c7177039",
+    "s3_client": "private-iip/mc@sha256:a6648014767c128e3bbc04bae0d731c1426413bfa4a64d9e451085ea872eda0f"
+  },
+  "verified_backup_files": 1387,
+  "expected_value": "10180",
+  "valuation_as_of": "2026-10-26T15:18:05.987683+00:00",
+  "expected_current_issue": "STALE_PRICE",
+  "archive_contracts": {
+    "dataset": "dd5cd6ef97b9248eb148725797470069b9b33635df15f8506d61bf99761ea538",
+    "model": "9706d2dc2631d0cfde24ddaad3ccd4f41b686351cd5b82ecd5e0a96fc18f5c94",
+    "predictions": "dee7d0b8e9662a34fba5b54022362cda518510a9dbbdbcbf8fff74877115957e",
+    "risk": "38d6143c6d4c9bb8e206c5d05a738a42b3f2231ef9a37c5812510e9ef4b9aabd",
+    "recommendations": "3fe74a07747ae287ba01fe8ed0af26fede8c153b12bf9980b503265383dadc2a",
+    "intelligence": "445c5f8b65c775ba3a3bb1be6903f81d82bcf373d4c22ff50da5e43178c2b88c",
+    "document_removals": "c978ef8ed043e850a739ff1d0e6159476ecbdb4befe71b82ed9d5a48e5f8daa8",
+    "ui_requests": "b9411db6bf57a01cae88079fa063b9eecf59795ee5b001d77bec109554528fef",
+    "collections": "497b649110dd38d4887806eb411181ec36c4ea4ccbd77f57f77ddd8c6c16543d",
+    "validation": "59d4f6efc9ae3bb0159fbb805eb6c3aab314a91e4ef5502fa939ca89a806e8ae"
+  },
+  "recovery_contract": "PRIVATE_CORE_ARCHIVE_RECOVERY_V1",
+  "restore_execution_id": "iip-restore-b42f1614ba",
+  "restore_expectations_contract": "PRIVATE_CORE_RESTORE_EXPECTATIONS_V1",
+  "restore_expectations_sha256": "87e4a709e49c9f4948445111e9b00f29a89e6ae7302d7e9c3975105972496e5a",
+  "expectations_recorded_at": "2026-10-29T15:41:40.484765+00:00",
+  "backup_manifest_sha256": "9ef36872d9c43f306ff0720a881760e3de135566c5c134d4ad0c2134c1829ab5",
+  "raw_object_count": 1378,
+  "historical_runtime_execution": "NOT_EXECUTED_NOT_PROVEN",
+  "optional_dynamic_legacy_status": "SECURITY_BLOCKED",
+  "postgres_environment": {
+    "server_version": "17.11",
+    "lc_collate": "en_US.utf8",
+    "lc_ctype": "en_US.utf8",
+    "vector": "0.8.6",
+    "collation_provider": "c",
+    "recorded_collation_version": null,
+    "actual_collation_version": null,
+    "timezone_contract": "UTC_INSTANT_PRESERVED"
+  },
+  "postgres_contract_probe": "PASS",
+  "completed_at": "2026-10-30T07:50:51.862376+00:00",
+  "error": "ValueError",
+  "cleanup_success": true,
+  "cleanup_completed_at": "2026-10-30T07:50:59.256157+00:00"
+}

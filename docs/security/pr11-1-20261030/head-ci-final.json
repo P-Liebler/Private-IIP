@@ -1,0 +1,149 @@
+{
+  "contract": "PR11_1_CURRENT_COMMITTED_HEAD_CI_RECHECK_V1",
+  "checked_at": "2026-10-30T07:56:14Z",
+  "repository": "P-Liebler/Private-IIP",
+  "local_head_at_check": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "local_origin_main_at_check": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "remote_main_at_check": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "run_id": 41021964813,
+  "run_attempt": 1,
+  "run_number": 41,
+  "run_url": "https://github.com/P-Liebler/Private-IIP/actions/runs/41021964813",
+  "workflow_path": ".github/workflows/ci.yml",
+  "event": "push",
+  "created_at": "2026-10-30T07:44:44Z",
+  "updated_at": "2026-10-30T07:50:33Z",
+  "status": "completed",
+  "conclusion": "success",
+  "head_sha": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "matching_head_runs_returned": 1,
+  "verify": {
+    "job_id": 123951115635,
+    "status": "completed",
+    "conclusion": "success",
+    "backend_tests": 321,
+    "backend_warnings": 1,
+    "host_tests": 210,
+    "browser_tests": 31,
+    "evidence_lines": [
+      "2026-10-30T07:46:31.7630783Z Ran 210 tests in 2.497s",
+      "2026-10-30T07:47:38.8392760Z 321 passed, 1 warning in 41.96s",
+      "2026-10-30T07:50:25.5610627Z   31 passed (1.3m)"
+    ],
+    "selected_steps": [
+      {
+        "name": "Backend checks",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Frontend checks",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Prepare P5/P6 fixtures and run browser tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "Stop services",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11
+      }
+    ]
+  },
+  "security": {
+    "job_id": 123951116035,
+    "status": "completed",
+    "conclusion": "success",
+    "machine_status_observed_in_job_log": "SECURITY_CHECK_PASSED",
+    "source_status_observed_in_job_log": "NO_KNOWN_SECRET_FINDINGS",
+    "evidence_lines": [
+      "2026-10-30T07:45:08.8679415Z NO_KNOWN_SECRET_FINDINGS",
+      "2026-10-30T07:47:08.9939282Z SBOM_VALID",
+      "2026-10-30T07:47:09.1404351Z   SECURITY_FULL_REQUESTED: false",
+      "2026-10-30T07:47:09.1861782Z SECURITY_CHECK_PASSED"
+    ],
+    "selected_steps": [
+      {
+        "name": "Install checksum-pinned scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Verify or acquire current vulnerability database",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Offline contracts and source secrets",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7
+      },
+      {
+        "name": "Dependency audit",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Build core production images and scan",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "High and Critical package gate (not release approval)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10
+      }
+    ]
+  },
+  "full_runtime_recovery_audit": {
+    "status": "NOT_REQUESTED_NOT_VERIFIED",
+    "requested": false,
+    "step": "Exact Core runtime and recovery inventory audit",
+    "actual_step_status": "completed",
+    "actual_step_conclusion": "skipped",
+    "successful_api_web_ci_implies_complete_private_core_audit": false
+  },
+  "security_artifact_api_metadata": [
+    {
+      "id": 12961683945,
+      "name": "security-evidence-41021964813",
+      "size_in_bytes": 96241,
+      "digest": "sha256:88af933a4b6a87137f253656854305ae9c5c680c3cce9954ea3e27eb0c26387f",
+      "expired": false,
+      "payload_downloaded_for_this_recheck": false
+    }
+  ],
+  "earlier_requested_run": {
+    "id": 40907365492,
+    "head_sha": "cb1489962c92fdd8fcb8fed4133cea11e836e28c",
+    "status": "HISTORICAL_EVIDENCE_RETAINED_NOT_CURRENT_HEAD"
+  },
+  "evidence_source": {
+    "transport": "READ_ONLY_GITHUB_CONNECTOR",
+    "run_list_api": "https://api.github.com/repos/P-Liebler/Private-IIP/actions/runs?head_sha=64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1&per_page=20",
+    "jobs_api": "https://api.github.com/repos/P-Liebler/Private-IIP/actions/runs/41021964813/jobs",
+    "decoded_verify_job_log_read": true,
+    "decoded_security_job_log_read": true,
+    "full_logs_republished": false
+  },
+  "dispatch_performed": false,
+  "image_transfer_performed": false,
+  "push_performed": false,
+  "security_approval": false,
+  "release_approval": false,
+  "target_deployment_approval": false,
+  "coverage": "COMMITTED_HEAD_ONLY; subsequent working-tree evidence and local reports are not represented as remotely tested source"
+}

@@ -1,5 +1,53 @@
 # Implementation status
 
+## PR11.1 – Abschließende Verifikation und reale Operatoraufgaben (30.10.2026)
+
+**FULL_BROWSER_REGRESSION_PASSED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**
+Neuer vollständiger Standalone-Lauf **31/31 in einem Lauf**; bestehendes Setup,
+unveränderte Assertions, Normalmodus und alle Operator-/Automatikschalter
+anschließend separat in vier Containern geprüft. **321 Backendtests je
+unverändertem Image, 210 Hosttests**, Ruff/Format/Mypy, Frontend-Lint/Typecheck/
+Build, beide nativen Proben und Fresh-/Drift-Migrationen bestanden.
+
+Beide vollständigen Core-Archivrestores ohne Legacy-Python bestehen mit je
+**1’387 Dateihashes, 1’378 tatsächlichen S3-Readbackobjekten, zehn Archivverträgen,
+66 Pins und Cleanup**. Erster Standardversuch fehlgeschlagen und erhalten:
+683 unveränderte Dateien waren mit 261 Zeichen langen Vollpfaden für normalen
+Win32-Zugriff unsichtbar; dieselben Bytes über erweiterten Pfad vollständig
+hashgeprüft. Frischer vollständiger kurzer Stagingpfad besteht mit demselben
+strengen Producer. Keine Modell-/Hash-/Finanzdatenverträge geändert; CHF10’180
+nur am alten belegten Stichtag, aktuell weiterhin STALE_PRICE.
+
+Frische offizielle Scanner-DB, vollständige Scans und zwölf formale Original-
+SBOMs für zwölf Dienste / acht unveränderte Images; normales Produktionsimage
+separat. Core über unterschiedliche Images **0 Critical / 1 High** bei Caddy.
+Offiziell weiterhin kein unterstützter v3-Fix; neue finding-/digest-/profil-
+und scanbezogene Ausnahmevorlage V2 bleibt DRAFT_NOT_APPROVED und unwirksam.
+Historischer dynamischer Forschungsweg weiter SECURITY_BLOCKED.
+
+Während der Arbeit wurden die Nutzercommits 41249ee/64f7445 mit PVC-
+StorageClassänderungen erhalten. Danach 210 Hosttests und echtes Kustomize-
+Render erneut bestanden; CSI/Cluster nicht nachgewiesen. Aktueller HEAD/origin/
+Remote-main **64f7445b…**, tatsächliche CI **41021964813 erfolgreich321/210/31**.
+Früher geprüfte Runs40907365492/41018607349 bleiben erhalten. Bei allen ist
+der vollständige Core-/Recoveryaudit nicht angefordert: NOT_REQUESTED_NOT_VERIFIED.
+Kein autorisierter Remote-Runner samt privaten Originalimages bereitgestellt.
+
+Neue read-only Registry belegt ECB/OpenFIGI UNKNOWN/deaktiviert; keine
+Providerrequests oder Sourceapprovals. Neuer lokaler Preflight/Plan bleibt
+STAGING/NOT_APPROVED, OpenShift offline DRAFT_NOT_DEPLOYABLE. Neue finale
+Arbeitsbytes erhalten eigene Source-/Manifestbelege; alte Belege bleiben erhalten.
+
+[Verifikation](PR11_FINAL_VERIFICATION.md) und
+[Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md) benennen konkret
+Securityreviews, echten autorisierten Zielbetrieb, unabhängige verschlüsselte
+Recovery mit Schlüsseln/Tagesjob/Alarmempfang/Restore, optionale reale ECB-
+Versorgung, echte Brokeroriginale mit Depotabgleich und unabhängige Testperson.
+Diese Nachweise kann zusätzlicher Code allein nicht liefern. Kein Deployment,
+Cutover, automatischer Push/Release, Quellenapproval, Modellpromotion oder
+Handel durch diesen Auftrag. **STOP nach lokalem Abschluss.**
+
+
 ## PR11 – Core-Recovery V2 lokal abgenommen, reale Gates offen (29.10.2026)
 
 **LOCAL_TECHNICALLY_VERIFIED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**

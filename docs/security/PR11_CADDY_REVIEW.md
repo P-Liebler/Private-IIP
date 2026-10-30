@@ -206,3 +206,30 @@ Damit ist die am 30.10.2026 unabhängig mögliche technische Caddy-Nachprüfung
 abgeschlossen. Der fehlende tatsächliche Securityentscheid wird nicht durch
 eine neue Konfigurationsplattform, neue synthetische Archive oder eine
 automatisch genehmigte Ausnahme ersetzt.
+
+
+### Frische Scanbindung der Vorlage V2 am 30.10.2026
+
+Der neue [vollständige Imageaudit vom 30.10.2026](pr11-1-20261030/core-rc1/inventory.json)
+umfasst zwölf erforderliche Dienste und acht unterschiedliche unveränderte
+Images. [Zwölf Original-SBOMs](pr11-1-20261030/core-rc1/sbom-validation.json)
+sind formal gültig. Die tatsächlich verwendete DB trägt UpdatedAt
+**2026-10-30T07:16:25.054174501Z**; ihre eigenen Hashes bleiben im Inventar sichtbar.
+Das unveränderte Caddy-Image hat in diesem neuen Scan **0 Critical /
+1 High**. Der konkrete High-Befund
+`CVE-2026-116587 / GHSA-mgcc-cww5-fp2q` bleibt vorhanden. Weitere Findings
+bleiben einzeln sichtbar und erhalten keine pauschale Ausnahme.
+
+Die [gesonderte Reviewvorlage V2](pr11-1-20261030/caddy-exception-review-draft-v2.json)
+bindet jetzt dieses neue Inventar, die drei exakten Komponenten-/Configdigests
+sowie ihre neuen Scan-, SBOM-, Scanner- und DB-Hashes. Der finale vorliegende
+Caddy-Bericht ist ebenfalls gehasht. Die
+[Vorlage V1](pr11-1-20261030/caddy-exception-review-draft.json) bleibt unverändert
+als zuvor erstellter Entwurf mit historischer Scanbindung erhalten.
+
+**Die neue Scanbindung ist keine Genehmigung:** Alle Reviewer-, Freigabe-
+und Gültigkeitsfelder bleiben leer, `effective_exceptions=[]`. Die bestehende
+Policy lehnt alle drei vorgeschlagenen V2-Zeilen weiterhin ab. Zuständig ist
+weiterhin eine tatsächlich autorisierte Securityperson; ohne gültigen
+Entscheid bleibt **SECURITY_OPERATOR_DECISION_REQUIRED / SECURITY_BLOCKED**.
+Keine Image-, Laufzeit-, Quellen- oder Produktionsfreigabe wurde erteilt.

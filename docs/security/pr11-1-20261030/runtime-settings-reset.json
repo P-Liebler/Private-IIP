@@ -1,0 +1,72 @@
+{
+  "recorded_at": "2026-10-30T07:47:13.756173+00:00",
+  "scope": "READ_ONLY_SETTINGS_PROBES_IN_FOUR_EXISTING_SERVICE_CONTAINERS_NOT_TARGET_DEPLOYMENT",
+  "probe_method": "GET_SETTINGS_IN_CHILD_PROCESS_USING_EACH_RUNNING_CONTAINER_ENVIRONMENT_AND_SHARED_SETTINGS_CODE",
+  "running_process_memory_inspection": false,
+  "all_services_normal": true,
+  "services": [
+    {
+      "service": "api",
+      "verified": true,
+      "container_id": "7859e749c93e942d639142d26df063ccabcc927bdfdd6c53e1aa9244076a5e61",
+      "container_started_at": "2026-10-30T07:37:39.507134299Z",
+      "actual_image_id": "sha256:ad1b04887b02d53f92882c8a3608d459619f7de6dcf906f5a5cbf59f77b40d38",
+      "settings": {
+        "app_env": "local",
+        "assistant_test_mode": false,
+        "data_operator_usernames": [],
+        "ml_operator_usernames": [],
+        "data_collection_enabled": false,
+        "forward_shadow_enabled": false
+      }
+    },
+    {
+      "service": "worker",
+      "verified": true,
+      "container_id": "33a72d94558c2e45a0df80c2099f307af4a6e6aef22642948c4d501c75b37edf",
+      "container_started_at": "2026-10-30T07:37:39.465251081Z",
+      "actual_image_id": "sha256:ad1b04887b02d53f92882c8a3608d459619f7de6dcf906f5a5cbf59f77b40d38",
+      "settings": {
+        "app_env": "local",
+        "assistant_test_mode": false,
+        "data_operator_usernames": [],
+        "ml_operator_usernames": [],
+        "data_collection_enabled": false,
+        "forward_shadow_enabled": false
+      }
+    },
+    {
+      "service": "scheduler",
+      "verified": true,
+      "container_id": "4c346e347c2b343f9c226bc9387fbd06b530ee400c195b8d15c74e91ccbcf942",
+      "container_started_at": "2026-10-30T07:37:39.40642551Z",
+      "actual_image_id": "sha256:ad1b04887b02d53f92882c8a3608d459619f7de6dcf906f5a5cbf59f77b40d38",
+      "settings": {
+        "app_env": "local",
+        "assistant_test_mode": false,
+        "data_operator_usernames": [],
+        "ml_operator_usernames": [],
+        "data_collection_enabled": false,
+        "forward_shadow_enabled": false
+      }
+    },
+    {
+      "service": "ml-worker",
+      "verified": true,
+      "container_id": "4082b754cecd466cf4400b791ead55f064617ba9a4cbc69f92977a85790a57d8",
+      "container_started_at": "2026-10-30T07:37:39.454426363Z",
+      "actual_image_id": "sha256:ad1b04887b02d53f92882c8a3608d459619f7de6dcf906f5a5cbf59f77b40d38",
+      "settings": {
+        "app_env": "local",
+        "assistant_test_mode": false,
+        "data_operator_usernames": [],
+        "ml_operator_usernames": [],
+        "data_collection_enabled": false,
+        "forward_shadow_enabled": false
+      }
+    }
+  ],
+  "settings_mutations": false,
+  "provider_requests": false,
+  "secrets_included": false
+}

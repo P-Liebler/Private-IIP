@@ -173,3 +173,49 @@ bereitgestellt. `SECURITY_OPERATOR_DECISION_REQUIRED`, `TARGET_NOT_AVAILABLE`,
 Die [konkrete Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md) benennt
 Rollen, reale Eingaben, Aktionen und Erfolgskriterien. Danach gilt weiterhin
 STOP statt einer neuen künstlichen Entwicklungsphase.
+
+Die inzwischen abgeschlossenen [frischen vollständigen Imagescans](security/pr11-1-20261030/core-rc1/inventory.json)
+und die [formale SBOM-Prüfung](security/pr11-1-20261030/core-rc1/sbom-validation.json)
+belegen **12/12 notwendige Dienste, acht verschiedene exakte Images und zwölf
+gültige Original-SBOMs**. Über die acht Imageidentitäten ergibt sich
+**0 Critical / 1 High**, weiterhin Caddy; keine Securityfreigabe.
+
+**Nachträgliche Repositoryänderung am 30.10.:** `bc0f8d8` bezeichnet den
+anfangs beobachteten HEAD und seinen oben dokumentierten CI-Lauf. Während der
+lokalen Prüfung kamen die Nutzercommits `41249ee` und anschließend
+**`64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1`** hinzu; letzterer ändert drei
+OpenShift-PVC-JSONdateien auf `storageClassName=truenas-nfs`. Das ist kein
+Nachweis eines verfügbaren Clusters. Der [neue Namespace-/Renderbeleg V2](security/pr11-1-20261030/gitops-demo-offline-v2.json)
+prüft die tatsächlich geänderten Dateien: acht Workloads mit null Replikaten,
+Namespace `gitops-demo` und drei gerenderte PVCs mit dieser StorageClass.
+Deren tatsächliche Existenz, CSI-/UID-/Persistenzverhalten und Clusteradmission
+bleiben ungetestet. Der anfängliche Beleg bleibt erhalten; der neue Commit
+wird nicht mit dem alten CI-Lauf gleichgesetzt.
+
+**Abschluss der tatsächlichen PR11.1-Regression:** Der
+[neue Gesamtbeleg](security/pr11-1-20261030/regression-final.json) bestätigt
+321 Backendtests je Image, **210 Hosttests erneut nach den PVC-Änderungen**,
+31/31 im vollständigen Browserlauf, Ruff/Format/Mypy, Frontend-Lint/Typecheck/
+Build sowie native Proben und Fresh Migration/Drift für beide Backendimages.
+[Core-Restore](security/pr11-1-20261030/restore-core.json) und
+[separater Produktionsbuild-Restore](security/pr11-1-20261030/restore-standard-production.json)
+bestehen jeweils mit **1’387 Dateihashes, 1’378 S3-Readbackobjekten, zehn
+Archivverträgen, 66 Metadatenpins und erfolgreicher Bereinigung**. Derselbe
+unveränderte Backupsatz und unabhängig gepinnte Erwartungen wurden verwendet;
+keine historische Python-Ausführung und keine unabhängige reale Zielrecovery
+werden behauptet.
+
+Der [erste fehlgeschlagene Standardrestore](security/pr11-1-20261030/restore-standard-production-attempt-v1.json)
+bleibt fehlgeschlagen erhalten. Die [Diagnose](security/pr11-1-20261030/windows-path-diagnosis.json)
+beweist die Windows-Pfadgrenze: 683 unveränderte Dateien mit 261 Zeichen langen
+Vollpfaden waren über den normalen Win32-Pfad unsichtbar; über den erweiterten
+Pfad bestehen alle 1’378 strengen Hashprüfungen. Ein weiterer Kopierversuch
+scheiterte vor Docker an WinError 3. Erst der neue vollständige Lauf mit kurzem
+Stagingroot besteht unverändert; **kein S3-Datenverlust und keine gelockerten
+Archivgates**. Der historische CHF-10’180-Stichtag und heutiges `STALE_PRICE`
+bleiben erhalten.
+
+Der [tatsächliche neue HEAD-CI-Lauf 41021964813](security/pr11-1-20261030/head-ci-final.json)
+auf `64f7445…` ist ebenfalls erfolgreich mit 321/210/31; sein vollständiger
+Core-/Recoveryaudit bleibt **NOT_REQUESTED_NOT_VERIFIED**. Spätere lokale
+Arbeitsbytes werden dadurch nicht nachträglich als remote getestet ausgegeben.

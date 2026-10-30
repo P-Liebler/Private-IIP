@@ -1,0 +1,193 @@
+{
+  "contract": "PR11_1_CADDY_HUMAN_REVIEW_DRAFT_V2",
+  "status": "DRAFT_NOT_APPROVED",
+  "recorded_at": "2026-10-30T07:49:49.263186+00:00",
+  "security_approved": false,
+  "effective_exceptions": [],
+  "proposal_only": true,
+  "proposed_maximum_duration_days_after_actual_authorization": 7,
+  "automatic_renewal": false,
+  "actual_target_identity": null,
+  "reviewer": null,
+  "approval_reference": null,
+  "approved_at": null,
+  "expires_at": null,
+  "finding_aliases": [
+    "CVE-2026-116587",
+    "GHSA-mgcc-cww5-fp2q"
+  ],
+  "original_inventory": {
+    "path": "docs/security/pr11-1-20261030/core-rc1/inventory.json",
+    "sha256": "da6f8d4b61bec11108b09ca84d7fd408fbcb251e44f8f058631e535edecd2c2c",
+    "bytes": 397580
+  },
+  "bound_current_inputs": [
+    {
+      "path": "ops/caddy/Core.Caddyfile",
+      "sha256": "2fc6df71c4b79b45f0ccd58a38a2bfb0e0af561a3961f3e9c8b2c73a0a2a236c",
+      "bytes": 1036
+    },
+    {
+      "path": "ops/caddy/pr10_profile_probe.py",
+      "sha256": "a33a02cbeb8a9c062f08d9b9b54589eeab764e73b10a79d432aee2880bc23513",
+      "bytes": 9628
+    },
+    {
+      "path": "ops/openshift/base/caddy-config.json",
+      "sha256": "72ea153e2ad17a862b8d06116b12faecb519334668e681aa78ea764a2461131d",
+      "bytes": 1212
+    },
+    {
+      "path": "ops/docker-compose.core.yml",
+      "sha256": "4430a036c637a705cc5ec2230ab1f95d9eeaa7709bc8a7b0abab612b6a63a6f3",
+      "bytes": 6484
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "sha256": "7cb0c5cc176f008e7e21658f0e5926b1afdf975f826cc6e3472a55b880758217",
+      "bytes": 15027
+    },
+    {
+      "path": "ops/openshift/base/workloads.json",
+      "sha256": "e81bbff06b6f6310d13b67ee0f202d6081650b238e020e0393b37d65be1aa400",
+      "bytes": 44152
+    },
+    {
+      "path": "ops/releases/pr11-core-v1-scope.json",
+      "sha256": "f30e480388aa0060783c8f4fa8e0ac9df8bdc5dcb0efaa7269fe1736aa3fe0c0",
+      "bytes": 5582
+    },
+    {
+      "path": "ops/security_policy.py",
+      "sha256": "242a6faa4f2079cd767c3cb99a083add03085a7fba9516fc82a9a7d10c1c54f1",
+      "bytes": 4415
+    }
+  ],
+  "operator_requirements": [
+    "Current full exact Core image scan and original SBOM validation before any approved start",
+    "Actual authorized reviewer, approval reference, exact target and UTC validity interval required",
+    "Private VPN/loopback boundaries, administration access and CA/recovery controls verified on actual target",
+    "No configured acme_server, on_demand, new JWT/auth handler, public CA endpoint or unreviewed upstream",
+    "Monitoring, alert delivery, resource/restart response and data-preserving recovery tested on actual target",
+    "No independent native, CSP, TLS, source, model, strategy or production gate closed by this draft"
+  ],
+  "proposed_rows": [
+    {
+      "component": "caddy",
+      "finding_id": "CVE-2026-116587",
+      "cve": "CVE-2026-116587",
+      "digest": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "technical_reason": "The affected v3 parser remains in the binary. No untrusted JWK input was identified in the unchanged active proxy/internal-CSR paths; whole-program unreachability is not proven.",
+      "reachability_evidence": "PR11 profile/build/import proofs plus 2026-10-30 exact configuration/image identity recheck; not a whole-program absence proof",
+      "mitigations": "Declared private ingress and loopback administration; exact profile; UID10001:10001, caps drop ALL, read-only root and no-new-privileges; Compose 1 CPU/256MiB; actual target monitoring, network, CA and recovery approval still required",
+      "reviewer": null,
+      "approval_reference": null,
+      "approved_at": null,
+      "expires_at": null,
+      "re_review_trigger": "Upstream patch/advisory, image/Go/module/profile/admin/network/target change, ACME/on-demand/new handler, unexpected restart or DoS/CA/backup incident",
+      "proposed_status": "DRAFT_NOT_APPROVED",
+      "original_sbom_sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+      "original_scan_sha256": "bd5b3b41e7d69d9fa80ec2e9000db5905c48dd3ddb5aedbab304807aeae23ddf",
+      "config_digest": "sha256:785dbc56c1c476a478b84965c86df1111259c11bc7a3e79ad93cadde3817c909",
+      "policy_approved_at_recording": false,
+      "scanner_version": "0.76.0",
+      "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+      "scanner_database_sha256": "ed3be3de4f440d6f8c068be57b69210bed6a3015aa4930a01100c3ef4d46d836",
+      "scan_status": "SCANNED_EXACT_IMAGE",
+      "original_sbom": {
+        "path": "docs/security/pr11-1-20261030/core-rc1/caddy.cdx.json",
+        "sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+        "bytes": 233472
+      },
+      "scan_inventory_sha256": "da6f8d4b61bec11108b09ca84d7fd408fbcb251e44f8f058631e535edecd2c2c"
+    },
+    {
+      "component": "ca-export",
+      "finding_id": "CVE-2026-116587",
+      "cve": "CVE-2026-116587",
+      "digest": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "technical_reason": "Bound command copies only the existing public CA root file and does not start Caddy or parse JWK data. The full image finding is retained.",
+      "reachability_evidence": "PR11 profile/build/import proofs plus 2026-10-30 exact configuration/image identity recheck; not a whole-program absence proof",
+      "mitigations": "Exact shell-only public CA-root copy; UID10001:10001, caps drop ALL, read-only root and no-new-privileges; original CA source read-only and reviewed export directory; does not start Caddy or parse JWKs",
+      "reviewer": null,
+      "approval_reference": null,
+      "approved_at": null,
+      "expires_at": null,
+      "re_review_trigger": "Upstream patch/advisory, image/Go/module/profile/admin/network/target change, ACME/on-demand/new handler, unexpected restart or DoS/CA/backup incident",
+      "proposed_status": "DRAFT_NOT_APPROVED",
+      "original_sbom_sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+      "original_scan_sha256": "bd5b3b41e7d69d9fa80ec2e9000db5905c48dd3ddb5aedbab304807aeae23ddf",
+      "config_digest": "sha256:785dbc56c1c476a478b84965c86df1111259c11bc7a3e79ad93cadde3817c909",
+      "policy_approved_at_recording": false,
+      "scanner_version": "0.76.0",
+      "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+      "scanner_database_sha256": "ed3be3de4f440d6f8c068be57b69210bed6a3015aa4930a01100c3ef4d46d836",
+      "scan_status": "SCANNED_EXACT_IMAGE",
+      "original_sbom": {
+        "path": "docs/security/pr11-1-20261030/core-rc1/ca-export.cdx.json",
+        "sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+        "bytes": 233472
+      },
+      "scan_inventory_sha256": "da6f8d4b61bec11108b09ca84d7fd408fbcb251e44f8f058631e535edecd2c2c"
+    },
+    {
+      "component": "storage-init",
+      "finding_id": "CVE-2026-116587",
+      "cve": "CVE-2026-116587",
+      "digest": "sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "image_reference": "private-iip/caddy@sha256:6416b8c2e10d8d62b131dbf3755c01069d7b3dcdb7af720b76c8aeed8bc9dcaf",
+      "technical_reason": "Bound network-none shell command initializes only the reviewed new storage/export volume roots with CHOWN. It does not start Caddy or parse JWK data. The full image finding is retained.",
+      "reachability_evidence": "PR11 profile/build/import proofs plus 2026-10-30 exact configuration/image identity recheck; not a whole-program absence proof",
+      "mitigations": "Exact shell-only new-volume initialization; network none, UID0 and only CHOWN capability, read-only root and no-new-privileges; refuses unreviewed nonempty old CA-export ownership; does not start Caddy or parse JWKs",
+      "reviewer": null,
+      "approval_reference": null,
+      "approved_at": null,
+      "expires_at": null,
+      "re_review_trigger": "Upstream patch/advisory, image/Go/module/profile/admin/network/target change, ACME/on-demand/new handler, unexpected restart or DoS/CA/backup incident",
+      "proposed_status": "DRAFT_NOT_APPROVED",
+      "original_sbom_sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+      "original_scan_sha256": "bd5b3b41e7d69d9fa80ec2e9000db5905c48dd3ddb5aedbab304807aeae23ddf",
+      "config_digest": "sha256:785dbc56c1c476a478b84965c86df1111259c11bc7a3e79ad93cadde3817c909",
+      "policy_approved_at_recording": false,
+      "scanner_version": "0.76.0",
+      "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+      "scanner_database_sha256": "ed3be3de4f440d6f8c068be57b69210bed6a3015aa4930a01100c3ef4d46d836",
+      "scan_status": "SCANNED_EXACT_IMAGE",
+      "original_sbom": {
+        "path": "docs/security/pr11-1-20261030/core-rc1/storage-init.cdx.json",
+        "sha256": "c8173d1d1d1b1295c4075b5f447536d91219701d1479fda174539af2a60ce7a1",
+        "bytes": 233472
+      },
+      "scan_inventory_sha256": "da6f8d4b61bec11108b09ca84d7fd408fbcb251e44f8f058631e535edecd2c2c"
+    }
+  ],
+  "binding_update_only_not_approval": true,
+  "previous_draft": {
+    "path": "docs/security/pr11-1-20261030/caddy-exception-review-draft.json",
+    "sha256": "2a8bc96ecac03b3b2e28621548b7d7d2b7836c373f404d8a6414db5ef4a86f53",
+    "bytes": 7712
+  },
+  "formal_sbom_validation": {
+    "path": "docs/security/pr11-1-20261030/core-rc1/sbom-validation.json",
+    "sha256": "22d470393f4d8ddcdf1817ad60cf34d4a592a10f3a151dd40c40a69cc3516c78",
+    "bytes": 1554
+  },
+  "upstream_review_receipt": {
+    "path": "docs/security/pr11-1-20261030/caddy-review.json",
+    "sha256": "a09386fa4188631dd6a3fc5d9d0fc5770d39eb70acdd35a82d2fef2bff34c655",
+    "bytes": 13116
+  },
+  "scanner_database": {
+    "Version": 2,
+    "NextUpdate": "2026-10-31T07:16:25.05417423Z",
+    "UpdatedAt": "2026-10-30T07:16:25.054174501Z",
+    "DownloadedAt": "2026-10-30T07:30:08.2903801Z"
+  },
+  "review_report": {
+    "path": "docs/security/PR11_CADDY_REVIEW.md",
+    "sha256": "b9997ea898db7c5e7a809f6bb5b641ced11957adb3857c3f71d08d1119cb4d92",
+    "bytes": 19064
+  }
+}

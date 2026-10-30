@@ -1,0 +1,204 @@
+{
+  "recorded_at": "2026-10-30T08:01:27.705824+00:00",
+  "scope": "LOCAL_EXISTING_SYNTHETIC_ARCHIVE_REGRESSION_NOT_REAL_TARGET_OR_PORTFOLIO",
+  "passed": true,
+  "git_head": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "backend": [
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:c1e07fe093e36a214e8e8c343d98600a609573e09a8ec15ab94ab5aaba17a869",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "b78f5eb1d932a106083562139092b7d1866cccf7ffd7d074d86a6eedf52d1c09"
+    },
+    {
+      "scope": "EXACT_PRODUCTION_RUNTIME_WITH_READ_ONLY_TEST_TOOLS",
+      "image": "private-iip/backend@sha256:a09316ca4d1af9a289a1042ef6164db0c09bb384dfa0d39dece65685dc565fca",
+      "exit_code": 0,
+      "passed": true,
+      "production_dependencies_replaced": false,
+      "tests": 321,
+      "log_sha256": "6f678601ef4c3336e7993993778c7766d95055e24ceb8a5d73fc37a347e74d00"
+    }
+  ],
+  "host": {
+    "scope": "NEW_HOST_REGRESSION_AFTER_CONCURRENT_COMMITTED_OPENSHIFT_PVC_CONFIGURATION_CHANGES",
+    "started_at": "2026-10-30T07:54:59.730153+00:00",
+    "completed_at": "2026-10-30T07:55:26.945782+00:00",
+    "head_before": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+    "head_after": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+    "head_stable_during_run": true,
+    "configuration_file_hashes": {
+      "ops/openshift/base/storage.json": "fc55cd42510379b92baa4b9204b9173ccccf92d6ca3a32a596717dddeb79d9a4",
+      "ops/openshift/components/prometheus/resources.json": "e0047456a03ba243542ba2b204bbbff4935426ada66252abbcfc91abaeb7cf54",
+      "ops/openshift/manual/backup-agent.json": "4cf775173394262ddabae71d7bc5f1f7b915bad55fdef2144953c597f0b8743f",
+      "ops/openshift/overlays/gitops-demo/kustomization.yaml": "2b47c5e93e5e527843b4c3b67e1cf10729bd04df49cb97e90857b1b2027b8a29",
+      "ops/openshift/overlays/gitops-demo/namespace-contract-test.py": "a2d92364157b2a2b404a5d25d1e26396aa3011af491a0e8a1d84f2c7c2e8e490"
+    },
+    "configuration_unchanged_during_run": true,
+    "exit_code": 0,
+    "test_count": 210,
+    "log_sha256": "05138fd3e38836d252cd00b13c16a80ce665aee8fe71690c395a828a425f61ee",
+    "integration_or_browser_run": false,
+    "passed": true
+  },
+  "initial_host": {
+    "exit_code": 0,
+    "passed": true,
+    "started_at": "2026-10-30T07:38:38.892638+00:00",
+    "completed_at": "2026-10-30T07:39:36.770373+00:00",
+    "log_sha256": "36e8076950f60c0aef2e35c1a64e75d38ebf290bf2b838582cb5edecd6ebe904",
+    "test_count": 210
+  },
+  "static_quality": {
+    "backend-ruff": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-30T07:38:38.895414+00:00",
+      "completed_at": "2026-10-30T07:38:42.258630+00:00",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "backend-format": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-30T07:38:42.258701+00:00",
+      "completed_at": "2026-10-30T07:38:47.911895+00:00",
+      "log_sha256": "0beb92815a83401fd4abecd0a456e7a77e49eddf21ff85ed48b60de171354362"
+    },
+    "backend-mypy": {
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-10-30T07:38:47.911960+00:00",
+      "completed_at": "2026-10-30T07:43:33.297132+00:00",
+      "log_sha256": "913201c08d6920cfacfea77a5920444f948ee5e81cdaf969fc5e5ca153bb63be"
+    },
+    "ops-ruff": {
+      "exit_code": 0,
+      "passed": true,
+      "checked_files": 1,
+      "failures": [],
+      "log_sha256": "3bca771a4795e6d8675b50858012272dfe65136af60c3588a3054beba98441c0"
+    }
+  },
+  "frontend": {
+    "started_at": "2026-10-30T07:30:49.658030+00:00",
+    "completed_at": "2026-10-30T07:38:37.716228+00:00",
+    "stop": 0,
+    "lint": 0,
+    "typecheck": 0,
+    "build": 0,
+    "browser_launcher": 0,
+    "passed": true
+  },
+  "browser": {
+    "status": "FULL_BROWSER_REGRESSION_PASSED",
+    "cases": 31,
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "single_all_green_full_run": true,
+    "duration": "3.7m",
+    "completed_standalone_build": true,
+    "normal_mode_restored": true,
+    "existing_setup_reused": true,
+    "assertions_changed": false,
+    "receipt_sha256": "7ffe1d9d0e1cadc6e27763a05f4c93a70c8e67f337fc0fe9586299c2a4a71293",
+    "original_prior_30_plus_1_evidence_retained": true
+  },
+  "native": {
+    "core": 0,
+    "standard": 0
+  },
+  "migrations": {
+    "head": "0021_ui_requests",
+    "core_fresh": 0,
+    "core_drift": 0,
+    "standard_fresh": 0,
+    "standard_drift": 0,
+    "migration_staging_stopped": true,
+    "migrations_changed": false
+  },
+  "full_restores": {
+    "core": {
+      "exit_code": 0,
+      "success": true,
+      "cleanup_success": true,
+      "files": 1387,
+      "raw_readback": 1378,
+      "pins": 66,
+      "legacy_started": false,
+      "log_sha256": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+    },
+    "standard-production": {
+      "exit_code": 0,
+      "success": true,
+      "cleanup_success": true,
+      "files": 1387,
+      "raw_readback": 1378,
+      "pins": 66,
+      "legacy_started": false,
+      "log_sha256": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4"
+    }
+  },
+  "retained_failed_restore": {
+    "receipt": "docs/security/pr11-1-20261030/restore-standard-production-attempt-v1.json",
+    "receipt_sha256": "e762a24d2d2e95c9a9053cf32a25fad0f93e881f81f5c6d12552066997c5c4c8",
+    "diagnosis": "docs/security/pr11-1-20261030/windows-path-diagnosis.json"
+  },
+  "core_security": {
+    "passed": true,
+    "core_services": 12,
+    "unique_core_images": 8,
+    "core_original_sboms_valid": 12,
+    "additional_standard_sbom_valid": 1,
+    "source_images_unchanged": true,
+    "release_approval": false
+  },
+  "invariants": {
+    "master_main_sections": 212,
+    "backend_frontend_ops_model_locks_migrations_scopes_and_old_evidence_unchanged_from_HEAD": true,
+    "expected_restore_contract_sha256": "87e4a709e49c9f4948445111e9b00f29a89e6ae7302d7e9c3975105972496e5a",
+    "archive_hash_contracts_per_restore": 10,
+    "golden_chf": "10180",
+    "golden_as_of_utc": "2026-10-26T15:18:05.987683+00:00",
+    "today_old_price_status": "STALE_PRICE",
+    "historical_python_execution": "NOT_EXECUTED_NOT_PROVEN",
+    "optional_dynamic_legacy_status": "SECURITY_BLOCKED",
+    "new_manual_financial_fixture_archive_created": false
+  },
+  "private_log_sha256": {
+    "backups/pr11-1-final-quality/status.json": "51434aef1cf188c48118f130542aaf55e2ca12f83ea16f2366582388b7e14623",
+    "backups/pr11-1-complete-runtime-status.json": "6a7d2f766e749966480fb45c556f4f20efcb594859df40179a96e2b5a5e4c188",
+    "backups/pr11-1-complete-restores-status.json": "b04af561c9780d28de58a7db26d53fbb522ecb7ec6d2d892be1564ca6cff42b2",
+    "backups/pr11-1-published-scans-status.json": "5aa82cccb49d56aa719c4e8c9fe78bbb2c3c12a9042cb04f2a4066d2e81c22ff",
+    "backups/pr11-1-frontend-status.json": "305dbbe3c11047f587f64f30b94546fd75663d0782e87daddf65f2df1564af05",
+    "backups/pr11-1-browser-v1-status.json": "7ffe1d9d0e1cadc6e27763a05f4c93a70c8e67f337fc0fe9586299c2a4a71293",
+    "backups/pr11-1-browser-v1.txt": "7c505e780ed376bfb84bd8e843b06ccbf2606463e3bc18da3721e2ddd87f2e80",
+    "backups/pr11-1-migration-core-fresh.txt": "2e74db759913f39fef2145b3ac16d2e6301879192cafc4fe93bf719385717684",
+    "backups/pr11-1-migration-core-drift.txt": "0f1eabf78de4e8828c2a08a7c4ca78594a90f591d76d70b4bbfb9f3d7e975288",
+    "backups/pr11-1-migration-standard-fresh.txt": "83c409b244e7e3293e85dd9efde7b64f6a64e4ded32b09e375ba241ae0a60988",
+    "backups/pr11-1-migration-standard-drift.txt": "5d974a617eb726f1294d8d59b19406a6c3502b77ac938bc4ccb70b82f33a7602",
+    "backups/pr11-1-native-core.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr11-1-native-standard.txt": "ce9b72ad31d88de6f6be3b148f6346f939e97c618c83be3d51d2abe152b417ac",
+    "backups/pr11-1-frontend-stop.txt": "a4b6d628646eefc41d2276a4ed8c257a91012e6099d314aee030daee45cd0125",
+    "backups/pr11-1-frontend-lint.txt": "2a2c2eff6ea5451aca8ced94edfc6a1ef4afa26dfa20c828a6f6514cd8945cb8",
+    "backups/pr11-1-frontend-typecheck.txt": "ebc8495e75c585a55b3af6f3b7b43585d60c443d9407e11f167c3d7bd4f30055",
+    "backups/pr11-1-frontend-build.txt": "2473ce4f03aa2c7f9d2c8a043472e436b6cbe64c4fa8f5b9207bc2adc60b84b1",
+    "backups/pr11-1-restore-core-v1.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4",
+    "backups/pr11-1-restore-standard-production-v1.txt": "fda2b94e8c7af0993ce2315ecd9d1bf2eafec0aef25f17058d53f8a96ea7639d",
+    "backups/pr11-1-restore-standard-production-v3.txt": "334c58dbec36d73c75987b022d661cf987ecd1439bb5170a4c34e22f37a3f6f4",
+    "backups/pr11-1-host-final-v2/status.json": "0ebeb9be25c00023aa47f6204ba90851f52eac9f6458266f186a5817ef94f627",
+    "backups/pr11-1-host-final-v2/host.txt": "05138fd3e38836d252cd00b13c16a80ce665aee8fe71690c395a828a425f61ee"
+  },
+  "release_approval": false,
+  "security_approved": false,
+  "target_deployed": false,
+  "live_source_verified": false,
+  "automatic_refresh_verified": false,
+  "real_portfolio_verified": false,
+  "human_usability_validated": false,
+  "forecasts_validated": false,
+  "recommendations_validated": false
+}

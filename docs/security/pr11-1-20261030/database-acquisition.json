@@ -1,0 +1,28 @@
+{
+  "contract": "PR7_TRIVY_DB_V1",
+  "status": "DATABASE_READY",
+  "attempts": [
+    {
+      "repository": "ghcr.io/aquasecurity/trivy-db:2",
+      "attempt": 1,
+      "status": "DATABASE_VERIFIED"
+    }
+  ],
+  "scanner_version": "0.76.0",
+  "scanner_sha256": "51e50a34f8739424bc88282602d10945b25249ffdb51703fe3c9453c20217c42",
+  "maximum_database_age_seconds": 172800,
+  "scope": "DATABASE_ACQUISITION_ONLY_NOT_SECURITY_APPROVAL",
+  "cache_status": "VULNERABILITY_DB_UNAVAILABLE",
+  "transport": "OFFICIAL_REGISTRY",
+  "repository": "ghcr.io/aquasecurity/trivy-db:2",
+  "metadata": {
+    "Version": 2,
+    "NextUpdate": "2026-10-31T07:16:25.05417423Z",
+    "UpdatedAt": "2026-10-30T07:16:25.054174501Z",
+    "DownloadedAt": "2026-10-30T07:30:08.2903801Z"
+  },
+  "age_seconds": 831,
+  "database_sha256": "ed3be3de4f440d6f8c068be57b69210bed6a3015aa4930a01100c3ef4d46d836",
+  "metadata_sha256": "aebbffedaa69700e9481e9171205fa1050c422d2a5a6365ffcb6911b1fe94558",
+  "recorded_at": "2026-10-30T07:30:20.574524+00:00"
+}

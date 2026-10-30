@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-10-30T07:55:01.243163+00:00",
+  "scope": "READ_ONLY_LOCAL_RENDER_AFTER_COMMITTED_PVC_CHANGE_NO_CLUSTER_ACCESS_OR_SYNC",
+  "head_sha": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "head_after": "64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1",
+  "configuration_file_hashes": {
+    "ops/openshift/base/storage.json": "fc55cd42510379b92baa4b9204b9173ccccf92d6ca3a32a596717dddeb79d9a4",
+    "ops/openshift/components/prometheus/resources.json": "e0047456a03ba243542ba2b204bbbff4935426ada66252abbcfc91abaeb7cf54",
+    "ops/openshift/manual/backup-agent.json": "4cf775173394262ddabae71d7bc5f1f7b915bad55fdef2144953c597f0b8743f",
+    "ops/openshift/overlays/gitops-demo/kustomization.yaml": "2b47c5e93e5e527843b4c3b67e1cf10729bd04df49cb97e90857b1b2027b8a29",
+    "ops/openshift/overlays/gitops-demo/namespace-contract-test.py": "a2d92364157b2a2b404a5d25d1e26396aa3011af491a0e8a1d84f2c7c2e8e490"
+  },
+  "contract_script_sha256": "a2d92364157b2a2b404a5d25d1e26396aa3011af491a0e8a1d84f2c7c2e8e490",
+  "contract_exit_code": 0,
+  "contract_stdout_sha256": "f344864cc94c2b2bac333c1bab3513a2486f9b64cf7710aa70af873a6f74f548",
+  "kustomize_executable_sha256": "06243561c85e0156b3e50cbd2892e0c831fd2c56d69aa8e1bf4ce5ec02294bf8",
+  "render_sha256": "f08dc2c15ed8d68a3ef349690eaca11dd22bfcbe02b2e8cce2a4e11fdc008740",
+  "zero_replica_workloads": 8,
+  "namespace": "gitops-demo",
+  "rendered_storage_class_names": [
+    "truenas-nfs",
+    "truenas-nfs",
+    "truenas-nfs"
+  ],
+  "storage_class_existence_or_csi_behavior_verified": false,
+  "creates_namespace_or_rbac_or_secret": false,
+  "actual_cluster_dry_run": false,
+  "release_approval": false,
+  "previous_proof": "docs/security/pr11-1-20261030/gitops-demo-offline.json"
+}

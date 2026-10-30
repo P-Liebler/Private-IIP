@@ -1,5 +1,27 @@
 # Private Investment Intelligence Platform
 
+## PR11.1 – Verifikation und Operatorübergabe (30.10.2026)
+
+**FULL_BROWSER_REGRESSION_PASSED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**
+Neuer vollständiger Lauf: **31/31 Browserfälle**, **321 Backendtests je Image**,
+**210 Hosttests**, Ruff/Format/Mypy, Frontend-Build und Migrationen bestanden.
+Beide vollständigen Restores prüfen je **1’387 Dateien, 1’378 S3-Objekte,
+zehn Archivverträge und 66 Pins** ohne historischen Python-Start.
+Ein zunächst fehlgeschlagener Windowslauf bleibt dokumentiert; der erneute
+vollständige Restore mit kurzem Stagingpfad besteht unverändert streng.
+
+Aktuelle exakte Scans: zwölf Dienste / acht Images, zwölf gültige SBOMs,
+**0 Critical / 1 High** über unterschiedliche Coreimages. Caddy benötigt weiter
+einen echten Securityentscheid; der Ausnahmeentwurf ist ungenehmigt.
+Aktueller HEAD `64f7445…` und CI 41021964813 grün; der vollständige private
+Remoteaudit wurde nicht angefordert. Kein produktiver Betrieb freigegeben.
+
+[Abschließende Verifikation](docs/PR11_FINAL_VERIFICATION.md) ·
+[Ausführbare Operatorübergabe](docs/PRIVATE_CORE_V1_OPERATOR_HANDOVER.md).
+Offen bleiben reale Security-/Ziel-/Recoveryentscheidungen, Quellenversorgung,
+Brokeroriginale mit Depotabgleich und unabhängige Bedienabnahme. **STOP.**
+
+
 ## PR11 – Recoveryvertrag geklärt, reale Abnahme offen (29.10.2026)
 
 **LOCAL_TECHNICALLY_VERIFIED / SECURITY_OPERATOR_DECISION_REQUIRED / NOT_RELEASED.**

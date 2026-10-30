@@ -1,0 +1,53 @@
+{
+  "scope": "EXACT_IDENTICAL_BYTES_ONLY_NO_BUILD_PULL_OR_DIGEST_SUBSTITUTION",
+  "origins": {
+    "api": {
+      "original_component": "api",
+      "original_record_sha256": "3035772f6bd66d30211704b6265c0df771f85fb164d02a34415de1bfd9207ceb"
+    },
+    "worker": {
+      "original_component": "api",
+      "original_record_sha256": "3035772f6bd66d30211704b6265c0df771f85fb164d02a34415de1bfd9207ceb"
+    },
+    "scheduler": {
+      "original_component": "api",
+      "original_record_sha256": "3035772f6bd66d30211704b6265c0df771f85fb164d02a34415de1bfd9207ceb"
+    },
+    "web": {
+      "original_component": "web",
+      "original_record_sha256": "764fe0fc24d1950782b90ef540254e4c809870c566a7cce85d5fac212de31e96"
+    },
+    "postgres": {
+      "original_component": "postgres",
+      "original_record_sha256": "570ddd5f39c1fecce11a10d0dc48c5801e03ca0b12f5260cd84f586d7fd53908"
+    },
+    "valkey": {
+      "original_component": "valkey",
+      "original_record_sha256": "dfe04d572f1fa7415d448bc5abad2892ebe531a0227c463fe1b3c0715e2aabc1"
+    },
+    "minio": {
+      "original_component": "minio",
+      "original_record_sha256": "8145e70ef8a3b58dadf5964524fbeed51ef20148a9c37d5b23cf87ad37bfe98b"
+    },
+    "caddy": {
+      "original_component": "caddy",
+      "original_record_sha256": "960ee4046af18c4ae235716e218735256b80349c9ff56d15fb8a26bf769d9d72"
+    },
+    "ca-export": {
+      "original_component": "caddy",
+      "original_record_sha256": "960ee4046af18c4ae235716e218735256b80349c9ff56d15fb8a26bf769d9d72"
+    },
+    "prometheus": {
+      "original_component": "prometheus",
+      "original_record_sha256": "c972406b3866f119181b681509c2b9f672301bbcb977b9ab74ecca094c0a7d8d"
+    },
+    "backup": {
+      "original_component": "backup",
+      "original_record_sha256": "6de138cd45c7987aefb92cf78312c3a34e7e85fd3f1122aa3571e299646c54d2"
+    },
+    "storage-init": {
+      "original_component": "caddy",
+      "original_record_sha256": "960ee4046af18c4ae235716e218735256b80349c9ff56d15fb8a26bf769d9d72"
+    }
+  }
+}

@@ -199,3 +199,43 @@ Ausführung und numerische Reproduktion werden nicht behauptet. Das
 `gitops-demo`-Draftoverlay schließt keine Cluster- oder Sourcegates.
 **SECURITY_APPROVED=false / SECURITY_OPERATOR_DECISION_REQUIRED** bleibt
 gültig; [Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md).
+
+Der abgeschlossene [30.10.-Coreaudit](security/pr11-1-20261030/core-rc1/inventory.json)
+prüft **zwölf Dienste aus acht exakten Images: 0 Critical / 1 High** über die
+acht unterschiedlichen Imageidentitäten; [12/12 Original-SBOMs sind formal gültig](security/pr11-1-20261030/core-rc1/sbom-validation.json).
+Die drei Caddydienstzeilen zählen denselben High-Befund. Der
+[aktuelle Entwurf V2](security/pr11-1-20261030/caddy-exception-review-draft-v2.json)
+bindet diese neuen Scan-/SBOM-/Scanner-/DB-/Configbytes und den final ergänzten
+Caddy-Review; der oben verlinkte V1-Entwurf bleibt als Vorgänger erhalten.
+V2 ist ebenfalls **DRAFT_NOT_APPROVED / effective_exceptions=[]**;
+`SECURITY_BLOCKED` und die getrennten menschlichen Reviews bleiben bestehen.
+
+**Revisionsnachtrag am 30.10.:** Der oben genannte `bc0f8d8`-HEAD/CI-Stand war
+der anfänglich gelesene Stand. Neue Nutzercommits führten über `41249ee` zu
+**`64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1`** mit drei geänderten OpenShift-
+PVC-JSONdateien (`storageClassName=truenas-nfs`). Der
+[erneute Offline-Namespace-/Kustomizebeleg](security/pr11-1-20261030/gitops-demo-offline-v2.json)
+bindet diese tatsächlichen Configbytes und neue Revision; er ist kein
+serverseitiger Dry-Run oder Storage-/Clusterapproval. Die vorhandenen
+Caddyprofil-/Imagebytes und die Anwendung wurden dadurch nicht geändert;
+der alte CI-Erfolg wird nicht als CI-Prüfung dieser neuen Revision ausgegeben.
+
+Der [abschließende tatsächliche Regressionsbeleg](security/pr11-1-20261030/regression-final.json)
+bindet **210 erneut bestandene Hosttests nach den geänderten PVC-Configs**,
+321 Backendtests je Image, den neuen 31/31-Gesamtlauf und beide vollständigen
+neuen Restores. [Core](security/pr11-1-20261030/restore-core.json) und
+[separater Produktionsbuild](security/pr11-1-20261030/restore-standard-production.json)
+prüfen jeweils **1’387 Dateien, 1’378 zurückgelesene S3-Objekte, zehn
+Archivverträge und 66 Pins**, mit erfolgreicher Bereinigung und ohne alten
+Python-Start. Die [erhaltene erste Fehlprobe](security/pr11-1-20261030/restore-standard-production-attempt-v1.json)
+und die [belegte Windows-MAX_PATH-Diagnose](security/pr11-1-20261030/windows-path-diagnosis.json)
+werden nicht als Erfolg umetikettiert: 261-Zeichen-Pfade, kein S3-Datenverlust;
+ein zweiter Kopierversuch brach vor Docker ab. Der vollständige neue Lauf im
+kurzen Root benutzt denselben strengen unveränderten Restoreproducer und
+dieselben unabhängigen Erwartungspins. Kein Archivgate wurde abgeschwächt.
+
+Der [neue HEAD-Beleg](security/pr11-1-20261030/head-ci-final.json) bestätigt
+CI **41021964813** auf `64f7445…` mit Verify/Security erfolgreich und 321/210/31.
+Der vollständige private Core-/Recoveryaudit bleibt auch dort ausdrücklich
+**NOT_REQUESTED_NOT_VERIFIED**; lokaler technischer Erfolg, normale CI und
+tatsächliche menschliche Securityfreigabe bleiben getrennte Zustände.

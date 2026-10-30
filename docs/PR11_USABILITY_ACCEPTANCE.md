@@ -102,3 +102,24 @@ nach Einstellungen vor dem Logout und die
 [konkrete Operatorübergabe](PRIVATE_CORE_V1_OPERATOR_HANDOVER.md) bleiben der
 nächste reale Schritt. Kein neues Design oder synthetisches Testarchiv wurde
 als Ersatz begonnen.
+
+Die [tatsächliche Read-only-Nachkontrolle](security/pr11-1-20261030/source-registry-readonly.json)
+bestätigt danach deaktivierte Collection/Forward-Schalter und Testmodus,
+leere temporäre Operatorlisten sowie ECB/OpenFIGI weiterhin UNKNOWN und aus.
+Die [Settingsproben der vier Dienste](security/pr11-1-20261030/runtime-settings-reset.json)
+prüfen deren Containerumgebung über denselben Settingscode in Kindprozessen;
+sie behaupten keine Inspektion des Speichers laufender Prozesse.
+
+Der 31/31-Browserbefund bleibt an seinen tatsächlich geprüften Stand gebunden.
+Die während des Auftrags hinzugekommenen Nutzercommits bis `64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1`
+ändern OpenShift-PVC-Konfiguration, nicht die geprüften Anwendungsimagebytes.
+Ihre [neue lokale Renderprüfung](security/pr11-1-20261030/gitops-demo-offline-v2.json)
+ist kein neuer Browserlauf und keine reale Cluster-/Bedienabnahme.
+
+Der nun vollständige [PR11.1-Regressionsbeleg](security/pr11-1-20261030/regression-final.json)
+bindet den neuen 31/31-Gesamtlauf, 210 nach den PVC-Änderungen erneut bestandene
+Hosttests und die tatsächlichen Backend-/Restoreprüfungen. Zusätzlich bestätigt
+der [neue HEAD-CI-Beleg](security/pr11-1-20261030/head-ci-final.json) den Lauf
+41021964813 auf `64f7445…` mit 321/210/31. Sein vollständiger Core-/Recoveryaudit
+war nicht angefordert. Diese technischen Nachweise ersetzen weiterhin keine
+unabhängige Person oder echte Ziel-/Portfolioabnahme.

@@ -78,6 +78,19 @@ Kursquelle. Quellen-/Modell-/Strategiegates bleiben unabhängig.
    keine künstlichen Researchmodelle. Der alte dynamische Legacypfad bleibt
    außerhalb des täglichen Core-Restores **SECURITY_BLOCKED**.
 
+   **Windows-Staging:** Einen ausreichend kurzen neuen Root wählen, sodass
+   jeder vollständige Backup- und Readbackdateipfad einschließlich der
+   Unterordner kürzer als 260 Zeichen bleibt. Die
+   [tatsächliche PR11.1-Diagnose](security/pr11-1-20261030/windows-path-diagnosis.json)
+   belegt bei 261 Zeichen unsichtbare Dateien über normale Win32-Pfade;
+   dieselben unveränderten 1’378 Objekte bestehen über den erweiterten Pfad
+   alle Hashprüfungen. Das ist kein S3-Datenverlust. Die Diagnose ersetzt
+   keinen Restore: erst der
+   [vollständige frische Wiederholungslauf im kurzen Root](security/pr11-1-20261030/restore-standard-production.json)
+   mit unveränderten Images, Originalbytes, Erwartungspins und strengen
+   Prüfungen ist der erfolgreiche Nachweis. Fehlbelege erhalten; kein
+   Auslassen langer Pfade oder Abschwächen von Hash-/Mengenvergleichen.
+
 Der Commit **`bc0f8d8`** ergänzt lediglich das
 [`gitops-demo`-Draftoverlay](../ops/openshift/overlays/gitops-demo/README.md).
 Null Replikate, Platzhalterregistry und fehlende echte Secret-/Storage-/
@@ -86,6 +99,16 @@ verfügbaren Cluster noch ausreichende Controllerrechte; bei einem geteilten
 Namespace zusätzlich tatsächliche NetworkPolicyselektoren und bestehende
 Ressourcen prüfen. Die früher bestätigte fehlende Zielverfügbarkeit bleibt
 maßgeblich.
+
+Während PR11.1 kamen weitere Nutzercommits bis
+**`64f7445b4aef10a7b7dabe6a9a62dd051a53d1a1`** hinzu. Drei OpenShift-PVC-
+JSONdateien nennen jetzt `storageClassName=truenas-nfs`.
+Der [neue Offlinebeleg V2](security/pr11-1-20261030/gitops-demo-offline-v2.json)
+prüft die tatsächlichen Dateien und den erneut gerenderten Draft. Der Name
+beweist weder einen erreichbaren Cluster noch eine existierende geeignete
+StorageClass; CSI-/UID-/NFS-/Persistenz-/Recoveryverhalten und ausreichende
+Kapazität muss der Zielbetreiber tatsächlich abnehmen. Der anfängliche
+`bc0f8d8`-CI-Lauf wird nicht als Prüfung dieser neuen Revision ausgegeben.
 
 ## 3. Freigabe, Abschluss und Stop
 

@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-30T07:59:20.843072+00:00",
+  "status": "ROOT_CAUSE_PROVEN_WINDOWS_MAX_PATH_NOT_S3_DATA_LOSS",
+  "failed_restore_receipt_sha256": "e762a24d2d2e95c9a9053cf32a25fad0f93e881f81f5c6d12552066997c5c4c8",
+  "failed_restore_receipt": "restore-standard-production-attempt-v1.json",
+  "failed_attempt_remains_failed": true,
+  "cleanup_success": true,
+  "expected_raw_objects": 1378,
+  "normal_visible_files": 695,
+  "archive_files_hidden_by_win32_path_limit": 683,
+  "affected_file_path_length_characters": 261,
+  "normal_path_length_limit_characters": 260,
+  "same_unchanged_files_via_extended_windows_path": {
+    "objects": 1378,
+    "content_sha256": "454de8590edf9d12c0da67cb38e590b9ae79783701c6f58718b4f40091a38ecd"
+  },
+  "strict_verifier_source_sha256": "d1334f1503c9202f448132e74d6d97d06a6a31904581e3b311ab5d59cac400fd",
+  "existing_verifier_and_all_hash_contracts_unchanged": true,
+  "original_backup_mutated": false,
+  "diagnosis_is_a_new_full_restore": false,
+  "separate_retry_v2": "STAGING_COPY_ABORTED_WINERROR_3_LONGER_PATH_BEFORE_DOCKER_START",
+  "mitigation": "Use a shorter fresh Windows staging root so every complete backup and readback file path stays below MAX_PATH; rerun existing complete producer with the same immutable images, raw bytes and independently pinned expectations.",
+  "fresh_retry_root": "C:/Users/liebler/Private-IIP-Local-Staging-Backups/pr11s1",
+  "fresh_retry_receipt": "restore-standard-production.json",
+  "recovery_from_independent_target_proven": false
+}
