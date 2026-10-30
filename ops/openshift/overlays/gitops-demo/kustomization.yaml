@@ -174,19 +174,19 @@
     },
     {
       "name": "api",
-      "count": 1
+      "count": 0
     },
     {
       "name": "web",
-      "count": 1
+      "count": 0
     },
     {
       "name": "worker",
-      "count": 1
+      "count": 0
     },
     {
       "name": "scheduler",
-      "count": 1
+      "count": 0
     }
   ]
 }
