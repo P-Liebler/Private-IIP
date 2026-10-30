@@ -4,7 +4,9 @@
   "namespace": "gitops-demo",
   "resources": [
     "../../base",
-    "builds-application.json"
+    "builds-application.json",
+    "private-ingress-policy.yaml",
+    "private-route.yaml"
   ],
   "patches": [
     {
