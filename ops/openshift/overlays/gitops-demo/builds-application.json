@@ -34,7 +34,7 @@
           "type": "Git",
           "git": {
             "uri": "https://github.com/P-Liebler/Private-IIP.git",
-            "ref": "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
           }
         },
         "strategy": {
@@ -46,7 +46,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "iip-backend:bootstrap-dbf6b892"
+            "name": "iip-backend:bootstrap-4f3b8b83"
           }
         },
         "triggers": [
@@ -88,7 +88,7 @@
           "type": "Git",
           "git": {
             "uri": "https://github.com/P-Liebler/Private-IIP.git",
-            "ref": "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
           }
         },
         "strategy": {
@@ -106,7 +106,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "iip-web:bootstrap-dbf6b892"
+            "name": "iip-web:bootstrap-4f3b8b83"
           }
         },
         "triggers": [
@@ -148,19 +148,19 @@
           "type": "Git",
           "git": {
             "uri": "https://github.com/P-Liebler/Private-IIP.git",
-            "ref": "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
           }
         },
         "strategy": {
           "type": "Docker",
           "dockerStrategy": {
-            "dockerfilePath": "ops/postgres/Dockerfile.pr5"
+            "dockerfilePath": "ops/postgres/Dockerfile.gitops"
           }
         },
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "iip-postgres:bootstrap-dbf6b892"
+            "name": "iip-postgres:bootstrap-4f3b8b83"
           }
         },
         "triggers": [
@@ -202,7 +202,7 @@
           "type": "Git",
           "git": {
             "uri": "https://github.com/P-Liebler/Private-IIP.git",
-            "ref": "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
           }
         },
         "strategy": {
@@ -220,7 +220,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "iip-seaweed:bootstrap-dbf6b892"
+            "name": "iip-seaweed:bootstrap-4f3b8b83"
           }
         },
         "triggers": [
@@ -262,7 +262,7 @@
           "type": "Git",
           "git": {
             "uri": "https://github.com/P-Liebler/Private-IIP.git",
-            "ref": "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
           }
         },
         "strategy": {
@@ -280,7 +280,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "iip-caddy:bootstrap-dbf6b892"
+            "name": "iip-caddy:bootstrap-4f3b8b83"
           }
         },
         "triggers": [
