@@ -3,7 +3,8 @@
   "kind": "Kustomization",
   "namespace": "gitops-demo",
   "resources": [
-    "../../base"
+    "../../base",
+    "builds-application.json"
   ],
   "patches": [
     {
@@ -89,6 +90,52 @@
         "name": "seaweed-internal-self"
       },
       "patch": "[{\"op\":\"add\",\"path\":\"/spec/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/ingress/0/from/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"},{\"op\":\"add\",\"path\":\"/spec/egress/0/to/0/podSelector/matchLabels/app.kubernetes.io~1part-of\",\"value\":\"investment\"}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "postgres"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "minio"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "caddy"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-caddy:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "StatefulSet",
+        "name": "valkey"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507\"}]"
+    }
+  ],
+  "replicas": [
+    {
+      "name": "postgres",
+      "count": 1
+    },
+    {
+      "name": "valkey",
+      "count": 1
+    },
+    {
+      "name": "minio",
+      "count": 1
+    },
+    {
+      "name": "caddy",
+      "count": 1
     }
   ]
 }
