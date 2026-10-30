@@ -90,7 +90,9 @@ assert all(values.get(k) == v for k, v in {
     "/data/API_PUBLIC_ORIGIN": origin,
     "/data/CODE_COMMIT": PIN,
 }.items())
-assert f"host: {origin[8:]}" in (ROOT / "private-route.yaml").read_text(encoding="utf-8")
+route = (ROOT / "private-route.yaml").read_text(encoding="utf-8")
+assert f"host: {origin[8:]}" in route
+assert 'argocd.argoproj.io/sync-wave: "4"' in route, "Do not expose route before readiness gate"
 ca_patch = operations(cfg, "ConfigMap", "iip-service-ca")
 assert any(x["path"].endswith("ignore-differences") and
            "/data" in x["value"] for x in ca_patch)
