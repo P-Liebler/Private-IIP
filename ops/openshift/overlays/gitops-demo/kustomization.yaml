@@ -99,7 +99,7 @@
         "kind": "ConfigMap",
         "name": "iip-config"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/data/CODE_COMMIT\",\"value\":\"dbf6b892f16f380f4784acf1884ef964f7a13e8a\"},{\"op\":\"replace\",\"path\":\"/data/FRONTEND_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"replace\",\"path\":\"/data/API_PUBLIC_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/data/CODE_COMMIT\",\"value\":\"4f3b8b83e58554fd74fc21c3c338ee0af62bb07a\"},{\"op\":\"replace\",\"path\":\"/data/FRONTEND_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"replace\",\"path\":\"/data/API_PUBLIC_ORIGIN\",\"value\":\"https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-20\"}]"
     },
     {
       "target": {
@@ -145,7 +145,7 @@
         "kind": "StatefulSet",
         "name": "postgres"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"},{\"op\":\"add\",\"path\":\"/spec/template/spec/initContainers\",\"value\":[{\"name\":\"check-postgres-volume-access\",\"image\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-dbf6b892\",\"imagePullPolicy\":\"Always\",\"command\":[\"/bin/sh\",\"-ec\"],\"args\":[\"set -eu\\nprintf 'PostgreSQL UID=%s GID=%s\\\\n' \\\"$(id -u)\\\" \\\"$(id -g)\\\"\\nif [ ! -w /var/lib/postgresql/data ]; then echo 'Postgres PVC not writable by OpenShift runtime UID. Check NFS CSI ownership without deleting data.' >&2; exit 41; fi\\nif [ -d /var/lib/postgresql/data/pgdata ] && [ ! -w /var/lib/postgresql/data/pgdata ]; then echo 'Existing PGDATA is not writable; preserve volume and request an ownership review.' >&2; exit 42; fi\\necho 'PostgreSQL PVC write-access precheck passed (initdb still needs separate validation).'\"],\"securityContext\":{\"allowPrivilegeEscalation\":false,\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true,\"capabilities\":{\"drop\":[\"ALL\"]}},\"volumeMounts\":[{\"name\":\"data\",\"mountPath\":\"/var/lib/postgresql/data\",\"readOnly\":false}],\"resources\":{\"requests\":{\"cpu\":\"25m\",\"memory\":\"32Mi\"},\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"},{\"op\":\"add\",\"path\":\"/spec/template/spec/initContainers\",\"value\":[{\"name\":\"check-postgres-volume-access\",\"image\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-postgres:bootstrap-4f3b8b83\",\"imagePullPolicy\":\"Always\",\"command\":[\"/bin/sh\",\"-ec\"],\"args\":[\"set -eu\\nprintf 'PostgreSQL UID=%s GID=%s\\\\n' \\\"$(id -u)\\\" \\\"$(id -g)\\\"\\nif [ ! -w /var/lib/postgresql/data ]; then echo 'Postgres PVC not writable by OpenShift runtime UID. Check NFS CSI ownership without deleting data.' >&2; exit 41; fi\\nif [ -d /var/lib/postgresql/data/pgdata ] && [ ! -w /var/lib/postgresql/data/pgdata ]; then echo 'Existing PGDATA is not writable; preserve volume and request an ownership review.' >&2; exit 42; fi\\necho 'PostgreSQL PVC write-access precheck passed (initdb still needs separate validation).'\"],\"securityContext\":{\"allowPrivilegeEscalation\":false,\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true,\"capabilities\":{\"drop\":[\"ALL\"]}},\"volumeMounts\":[{\"name\":\"data\",\"mountPath\":\"/var/lib/postgresql/data\",\"readOnly\":false}],\"resources\":{\"requests\":{\"cpu\":\"25m\",\"memory\":\"32Mi\"},\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}]"
     },
     {
       "target": {
@@ -159,42 +159,42 @@
         "kind": "StatefulSet",
         "name": "minio"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "caddy"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-caddy:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-caddy:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"-10\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "api"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "web"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "worker"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     },
     {
       "target": {
         "kind": "Deployment",
         "name": "scheduler"
       },
-      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1sync-wave\",\"value\":\"3\"}]"
     }
   ],
   "replicas": [
