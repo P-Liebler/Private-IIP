@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 BASE = ROOT.parents[1] / "base"
+STARTUP = ROOT.parents[2] / "gitops-startup"
 PIN = "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
 TAG = "bootstrap-dbf6b892"
 NAMES = {"api", "worker", "scheduler", "web", "postgres", "valkey", "minio", "caddy"}
@@ -27,8 +28,8 @@ def operations(config, kind, name):
 cfg = load(ROOT / "kustomization.yaml")
 assert cfg["namespace"] == "gitops-demo"
 assert set(cfg["resources"]) == {
-    "../../base", "builds-application.json", "build-waiters.json",
-    "runtime-preflight.json", "private-ingress-policy.yaml", "private-route.yaml",
+    "../../base", "../../../gitops-startup", "builds-application.json",
+    "private-ingress-policy.yaml", "private-route.yaml",
 }
 assert {p["name"]: p["count"] for p in cfg["replicas"]} == dict.fromkeys(NAMES, 1)
 
@@ -52,7 +53,8 @@ for name, wave in COMPONENTS.items():
     assert bc["spec"]["triggers"] == [{"type": "ConfigChange"}]
     assert int(bc["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == wave
 
-waiters = load(ROOT / "build-waiters.json")["items"]
+assert set(load(STARTUP / "kustomization.yaml")["resources"]) == {"build-waiters.json", "runtime-preflight.json"}
+waiters = load(STARTUP / "build-waiters.json")["items"]
 role = next(x for x in waiters if x["kind"] == "Role")
 assert all(rule["verbs"] == ["get"] for rule in role["rules"])
 assert {x["kind"] for x in waiters} == {"Role", "RoleBinding", "ServiceAccount", "Job"}
@@ -93,7 +95,7 @@ ca_patch = operations(cfg, "ConfigMap", "iip-service-ca")
 assert any(x["path"].endswith("ignore-differences") and
            "/data" in x["value"] for x in ca_patch)
 
-gate = load(ROOT / "runtime-preflight.json")
+gate = load(STARTUP / "runtime-preflight.json")
 assert gate["metadata"]["annotations"]["argocd.argoproj.io/hook"] == "Sync"
 assert int(gate["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == 1
 preflight = gate["spec"]["template"]["spec"]["containers"][0]["args"][0]
