@@ -2,7 +2,7 @@
   "apiVersion": "batch/v1",
   "kind": "Job",
   "metadata": {
-    "name": "iip-runtime-preflight-dbf6",
+    "name": "iip-runtime-preflight-4f3b",
     "annotations": {
       "argocd.argoproj.io/hook": "Sync",
       "argocd.argoproj.io/sync-wave": "2",
@@ -33,7 +33,7 @@
         "containers": [
           {
             "name": "check",
-            "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892",
+            "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83",
             "imagePullPolicy": "Always",
             "command": [
               "python",
