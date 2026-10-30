@@ -1,7 +1,7 @@
 # Private-IIP: Argo CD start candidate (NOT VERIFIED)
 
 **Branch:** feature/gitops-controlled-start-20261030
-**Source code pin:** dbf6b892f16f380f4784acf1884ef964f7a13e8a
+**Source code pin:** 4f3b8b83e58554fd74fc21c3c338ee0af62bb07a
 
 This is an optional release candidate, NOT a verified or approved deployment.
 **Do not change the Argo Application revision or Sync until authorized review.**
@@ -29,9 +29,12 @@ The live main branch remains rolled back, with all eight IIP workloads at zero.
 4. PostgreSQL, Valkey, SeaweedFS and Caddy use one replica each.
    A PostgreSQL initContainer only checks volume write access. It does
    not chmod, chown, delete or reinitialize an existing volume.
-5. A read-only Sync Job validates the exact Alembic schema heads and
-   checks that the raw-ingestions S3 bucket exists. It does not run a
-   database migration or create a bucket. It blocks later waves on failure.
+5. A first-use Argo Sync Job runs Alembic upgrade head ONLY if the PostgreSQL
+   database has no user relations. Existing databases with an unknown or
+   outdated schema are rejected; data is never wiped or migrated blindly.
+   Another Argo Sync Job creates ONLY the named SeaweedFS raw-ingestions
+   bucket through its namespace-restricted internal management endpoint,
+   if absent. A subsequent read-only gate checks schema and S3 access.
 6. API, web, worker and scheduler only start after the gates pass.
    The private re-encrypt HTTPS route is applied afterwards.
 
@@ -41,11 +44,13 @@ The live main branch remains rolled back, with all eight IIP workloads at zero.
   cause is NOT known. NFS permissions and OpenShift arbitrary UID remain
   possible issues, not proven causes. No PVC must be reset to work around this.
 - A schema migration is not approved or automated for existing data.
-  A fresh database has no Alembic version and will correctly fail the gate.
-  An independently backed-up, reviewed, GitOps-managed migration is required.
-- The raw-ingestions bucket was previously missing. The application S3
-  identity cannot create it, so an authorized administrator must provision
-  it and verify the least-privilege permissions.
+  A verified empty database is initialized by the new Argo migration job.
+  Any existing/outdated user schema still requires a reviewed backup and
+  migration outside this first-use path.
+- The raw-ingestions bucket was previously missing. A new scoped internal
+  SeaweedFS bootstrap Job creates it by name without giving the application
+  S3 identity global Admin rights. This internal management path and
+  resulting credentials still require a runtime acceptance check.
 - The proposed Route host is
   privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local.
   Its naming is inferred from the observed gitops-lab host. Actual routing,
@@ -98,3 +103,13 @@ the namespace, PVCs and audit logs.
 References:
 - https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
 - https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/builds_using_buildconfig/triggering-builds-build-hooks
+
+## Data-safety invariant
+
+The new database hook checks for existing PostgreSQL relations and refuses
+all writes to any non-empty schema without an exact matching Alembic head.
+It cannot fix PostgreSQL's previous CrashLoop if NFS permissions still fail.
+The S3 hook can create one bucket named raw-ingestions, but cannot delete
+existing objects. Its internal master/filer endpoint is namespaced and
+NetworkPolicy-restricted; operator approval of that management boundary
+is required before the first real sync.
