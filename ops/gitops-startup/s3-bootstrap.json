@@ -215,6 +215,13 @@
                     "name": "tmp",
                     "mountPath": "/tmp"
                   }
+                ],
+                "workingDir": "/tmp",
+                "env": [
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  }
                 ]
               }
             ],
