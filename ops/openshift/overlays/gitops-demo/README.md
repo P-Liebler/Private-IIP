@@ -37,6 +37,30 @@ The app remains offline until Argo CD Sync succeeds, and may stop on any gate.
    Healthy. No financial data collection, forward shadow or SEC scraping
    is enabled by this deployment.
 
+## Recovery: Caddy BuildPodDeleted by Descheduler
+
+On 2026-10-30 the first Caddy build `iip-caddy-1` was evicted by the
+cluster Descheduler and ended with `BuildPodDeleted`. The earlier PostgreSQL
+and SeaweedFS image builds had succeeded.
+
+The Argo CD recovery changes ONLY Caddy build orchestration:
+- `BuildConfig/iip-caddy-retry-1` is a distinct, new build configuration,
+  pinning the SAME Git source, Dockerfile, build arguments and ImageStreamTag
+  as `iip-caddy`. Its ConfigChange trigger starts the retry upon its first
+  GitOps creation. The old failed Build and original BuildConfig are retained.
+- The existing Argo `iip-wait-caddy-4f3b` Sync hook is re-created by its
+  BeforeHookCreation policy, and now reads the retry BuildConfig and its
+  Build status. It still validates `iip-caddy:bootstrap-4f3b8b83`.
+- PostgreSQL, SeaweedFS, API and web BuildConfigs and all eight runtime
+  images, PVCs, credentials and the `gitops-lab` Deployment remain unchanged.
+
+After this fix is reviewed and committed on main, **Refresh the full Argo
+Diff before starting another manual Sync (Prune OFF)**. Do not manually run
+`oc start-build`, delete old Build objects or reconfigure the Descheduler.
+If the retry is also evicted, save read-only Build/Pod events and involve
+the cluster administrator for a policy/capacity assessment; do not turn off
+the namespace-wide Descheduler or modify cluster-wide scheduling policies.
+
 ## Safety/approval limitations
 
 - Existing postgres-data (20Gi), valkey-data (2Gi) and seaweed-data (100Gi)
