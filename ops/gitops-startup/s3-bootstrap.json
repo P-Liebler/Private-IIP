@@ -1,0 +1,241 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "iip-s3-internal",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-20"
+        }
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app.kubernetes.io/name": "minio",
+          "app.kubernetes.io/part-of": "investment"
+        },
+        "ports": [
+          {
+            "name": "master",
+            "port": 9333,
+            "targetPort": 9333
+          },
+          {
+            "name": "filer",
+            "port": 8888,
+            "targetPort": 8888
+          },
+          {
+            "name": "master-grpc",
+            "port": 19333,
+            "targetPort": 19333
+          },
+          {
+            "name": "filer-grpc",
+            "port": 18888,
+            "targetPort": 18888
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "iip-s3-bootstrap-ingress",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-20"
+        }
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "minio",
+            "app.kubernetes.io/part-of": "investment"
+          }
+        },
+        "policyTypes": [
+          "Ingress"
+        ],
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app.kubernetes.io/name": "iip-s3-bootstrap",
+                    "app.kubernetes.io/part-of": "investment"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 9333
+              },
+              {
+                "protocol": "TCP",
+                "port": 19333
+              },
+              {
+                "protocol": "TCP",
+                "port": 8888
+              },
+              {
+                "protocol": "TCP",
+                "port": 18888
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "iip-s3-bootstrap-egress",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-20"
+        }
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "iip-s3-bootstrap",
+            "app.kubernetes.io/part-of": "investment"
+          }
+        },
+        "policyTypes": [
+          "Egress"
+        ],
+        "egress": [
+          {
+            "to": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app.kubernetes.io/name": "minio",
+                    "app.kubernetes.io/part-of": "investment"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 9333
+              },
+              {
+                "protocol": "TCP",
+                "port": 19333
+              },
+              {
+                "protocol": "TCP",
+                "port": 8888
+              },
+              {
+                "protocol": "TCP",
+                "port": 18888
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "Job",
+      "metadata": {
+        "name": "iip-s3-bootstrap-4f3b",
+        "annotations": {
+          "argocd.argoproj.io/hook": "Sync",
+          "argocd.argoproj.io/sync-wave": "-1",
+          "argocd.argoproj.io/hook-delete-policy": "HookSucceeded,BeforeHookCreation"
+        }
+      },
+      "spec": {
+        "backoffLimit": 0,
+        "activeDeadlineSeconds": 600,
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/name": "iip-s3-bootstrap",
+              "app.kubernetes.io/part-of": "investment"
+            }
+          },
+          "spec": {
+            "restartPolicy": "Never",
+            "serviceAccountName": "iip-runtime",
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "runAsNonRoot": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "bucket-bootstrap",
+                "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-seaweed:bootstrap-4f3b8b83",
+                "imagePullPolicy": "Always",
+                "command": [
+                  "/bin/sh",
+                  "-ec"
+                ],
+                "args": [
+                  "set -eu\necho 'Checking SeaweedFS bucket registry through internal master/filer...'\naddress='iip-s3-internal:9333'\nfiler='iip-s3-internal:8888'\nattempt=0\nwhile [ \"$attempt\" -lt 12 ]; do\n  attempt=$((attempt + 1))\n  if printf 's3.bucket.list\\n' | weed shell -master=\"$address\" -filer=\"$filer\" > /tmp/bucket-list 2>&1; then break; fi\n  sleep 5\ndone\nif ! grep -q 'raw-ingestions' /tmp/bucket-list; then\n  echo 'Creating exactly one initially missing S3 bucket: raw-ingestions'\n  printf 's3.bucket.create -name raw-ingestions\\n' | weed shell -master=\"$address\" -filer=\"$filer\"\nfi\nprintf 's3.bucket.list\\n' | weed shell -master=\"$address\" -filer=\"$filer\" > /tmp/bucket-list\nif ! grep -q 'raw-ingestions' /tmp/bucket-list; then\n  echo 'Bucket creation/list verification failed' >&2\n  exit 2\nfi\necho 'SeaweedFS bucket raw-ingestions is present'"
+                ],
+                "securityContext": {
+                  "runAsNonRoot": true,
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "resources": {
+                  "requests": {
+                    "cpu": "25m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "256Mi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  }
+                ],
+                "workingDir": "/tmp",
+                "env": [
+                  {
+                    "name": "HOME",
+                    "value": "/tmp"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {
+                  "sizeLimit": "16Mi"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

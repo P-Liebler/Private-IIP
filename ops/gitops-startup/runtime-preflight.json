@@ -1,0 +1,147 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "iip-runtime-preflight-4f3b",
+    "annotations": {
+      "argocd.argoproj.io/hook": "Sync",
+      "argocd.argoproj.io/sync-wave": "2",
+      "argocd.argoproj.io/hook-delete-policy": "HookSucceeded,BeforeHookCreation"
+    }
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 180,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/name": "iip-runtime-preflight",
+          "app.kubernetes.io/part-of": "investment",
+          "investment.local/role": "backend"
+        }
+      },
+      "spec": {
+        "serviceAccountName": "iip-runtime",
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "restartPolicy": "Never",
+        "containers": [
+          {
+            "name": "check",
+            "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83",
+            "imagePullPolicy": "Always",
+            "command": [
+              "python",
+              "-c"
+            ],
+            "args": [
+              "import asyncio\nimport os\nimport urllib3\nfrom alembic.config import Config\nfrom alembic.script import ScriptDirectory\nfrom sqlalchemy import text\nfrom sqlalchemy.ext.asyncio import create_async_engine\nfrom minio import Minio\n\nasync def check_schema():\n    heads = set(ScriptDirectory.from_config(Config('/app/alembic.ini')).get_heads())\n    if not heads:\n        raise RuntimeError('No Alembic migration head in backend image')\n    engine = create_async_engine(os.environ['DATABASE_URL'], pool_pre_ping=True)\n    try:\n        async with engine.connect() as db:\n            version_table = (await db.execute(text(\"SELECT to_regclass('public.alembic_version')\"))).scalar()\n            if version_table is None:\n                raise RuntimeError('Schema not initialized: alembic_version missing. Do not run automatic migrations on an unverified PVC.')\n            installed = set((await db.execute(text('SELECT version_num FROM public.alembic_version'))).scalars().all())\n    finally:\n        await engine.dispose()\n    if installed != heads:\n        raise RuntimeError('Database Alembic revisions do not match application. Run an approved, backed-up migration first.')\n    print('Database schema matches pinned backend migration heads')\n\nasyncio.run(check_schema())\nca = os.environ.get('MINIO_CA_CERT_PATH', '/service-ca/service-ca.crt')\nif not os.path.isfile(ca):\n    raise RuntimeError('OpenShift service-CA certificate unavailable')\npool = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=ca)\nclient = Minio(\n    os.environ['MINIO_ENDPOINT'],\n    access_key=os.environ['MINIO_ACCESS_KEY'],\n    secret_key=os.environ['MINIO_SECRET_KEY'],\n    secure=True,\n    http_client=pool,\n)\nbucket = os.environ['MINIO_BUCKET_RAW']\nif not client.bucket_exists(bucket):\n    raise RuntimeError('Required bucket not present: ' + bucket + '. Provision only through an authorized S3 admin.')\nprint('Required S3 bucket exists; runtime preconditions passed')"
+            ],
+            "envFrom": [
+              {
+                "configMapRef": {
+                  "name": "iip-config"
+                }
+              }
+            ],
+            "env": [
+              {
+                "name": "DATABASE_URL",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "DATABASE_URL"
+                  }
+                }
+              },
+              {
+                "name": "MINIO_ACCESS_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "MINIO_ACCESS_KEY"
+                  }
+                }
+              },
+              {
+                "name": "MINIO_SECRET_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "iip-runtime-secrets",
+                    "key": "MINIO_SECRET_KEY"
+                  }
+                }
+              },
+              {
+                "name": "HOME",
+                "value": "/tmp"
+              },
+              {
+                "name": "XDG_CACHE_HOME",
+                "value": "/tmp/cache"
+              },
+              {
+                "name": "MPLCONFIGDIR",
+                "value": "/tmp/matplotlib"
+              },
+              {
+                "name": "PYTHONDONTWRITEBYTECODE",
+                "value": "1"
+              }
+            ],
+            "securityContext": {
+              "runAsNonRoot": true,
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "128Mi"
+              },
+              "limits": {
+                "cpu": "1",
+                "memory": "1Gi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              },
+              {
+                "name": "service-ca",
+                "mountPath": "/service-ca",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "128Mi"
+            }
+          },
+          {
+            "name": "service-ca",
+            "configMap": {
+              "name": "iip-service-ca"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
