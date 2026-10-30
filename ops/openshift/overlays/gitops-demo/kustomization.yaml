@@ -9,6 +9,13 @@
     {
       "target": {
         "kind": "ConfigMap",
+        "name": "iip-service-ca"
+      },
+      "patch": "[{\"op\":\"add\",\"path\":\"/metadata/annotations/argocd.argoproj.io~1ignore-differences\",\"value\":\"jsonPointers:\\n  - /data/service-ca.crt\"}]"
+    },
+    {
+      "target": {
+        "kind": "ConfigMap",
         "name": "iip-config"
       },
       "patch": "[{\"op\":\"replace\",\"path\":\"/data/MINIO_ENDPOINT\",\"value\":\"caddy.gitops-demo.svc:9002\"}]"
