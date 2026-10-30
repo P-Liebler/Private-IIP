@@ -118,6 +118,41 @@
         "name": "valkey"
       },
       "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"valkey/valkey@sha256:081c2f5cb575efc901aa80ff9cdbd1ec6a301682fd35e1ebb4b0990a4a4a8507\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "api"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "worker"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "scheduler"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "Deployment",
+        "name": "web"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/image\",\"value\":\"image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-web:bootstrap-907851de\"},{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/imagePullPolicy\",\"value\":\"Always\"}]"
+    },
+    {
+      "target": {
+        "kind": "ConfigMap",
+        "name": "iip-config"
+      },
+      "patch": "[{\"op\":\"replace\",\"path\":\"/data/CODE_COMMIT\",\"value\":\"907851def4f1851068d3a076ec0acdceb272aee6\"}]"
     }
   ],
   "replicas": [
@@ -135,6 +170,22 @@
     },
     {
       "name": "caddy",
+      "count": 1
+    },
+    {
+      "name": "api",
+      "count": 1
+    },
+    {
+      "name": "web",
+      "count": 1
+    },
+    {
+      "name": "worker",
+      "count": 1
+    },
+    {
+      "name": "scheduler",
       "count": 1
     }
   ]
