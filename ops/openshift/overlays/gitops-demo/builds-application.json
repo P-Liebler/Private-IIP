@@ -289,6 +289,52 @@
           }
         ]
       }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-caddy-retry-1",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-44",
+          "argocd.argoproj.io/sync-options": "SkipHealthCheck=true",
+          "investment.local/retry-reason": "BuildPodDeleted-descheduler-eviction",
+          "investment.local/retry-from": "iip-caddy-1"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "ops/caddy/Dockerfile.pr9",
+            "buildArgs": [
+              {
+                "name": "RUNTIME_IMAGE",
+                "value": "caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-caddy:bootstrap-4f3b8b83"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
     }
   ]
 }
