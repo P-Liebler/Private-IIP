@@ -53,7 +53,10 @@ for name, wave in COMPONENTS.items():
     assert bc["spec"]["triggers"] == [{"type": "ConfigChange"}]
     assert int(bc["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == wave
 
-assert set(load(STARTUP / "kustomization.yaml")["resources"]) == {"build-waiters.json", "runtime-preflight.json"}
+startup_cfg = load(STARTUP / "kustomization.yaml")
+assert set(startup_cfg["resources"]) == {"build-waiters.json", "runtime-preflight.json", "s3-bootstrap.json", "db-bootstrap-job.json"}
+assert startup_cfg["generatorOptions"]["disableNameSuffixHash"] is True
+assert startup_cfg["configMapGenerator"][0]["name"] == "iip-first-use-schema"
 waiters = load(STARTUP / "build-waiters.json")["items"]
 role = next(x for x in waiters if x["kind"] == "Role")
 assert all(rule["verbs"] == ["get"] for rule in role["rules"])
@@ -80,7 +83,7 @@ for name in NAMES:
     assert images == [expected], name
     annotation = [x["value"] for x in ops
                   if x["path"] == "/metadata/annotations/argocd.argoproj.io~1sync-wave"]
-    assert annotation == ["-10" if name in {"postgres", "valkey", "minio", "caddy"} else "2"]
+    assert annotation == ["-10" if name in {"postgres", "valkey", "minio", "caddy"} else "3"]
 
 config_patches = operations(cfg, "ConfigMap", "iip-config")
 origin = "https://privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local"
@@ -99,9 +102,23 @@ assert any(x["path"].endswith("ignore-differences") and
 
 gate = load(STARTUP / "runtime-preflight.json")
 assert gate["metadata"]["annotations"]["argocd.argoproj.io/hook"] == "Sync"
-assert int(gate["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == 1
+assert int(gate["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == 2
 preflight = gate["spec"]["template"]["spec"]["containers"][0]["args"][0]
 assert "public.alembic_version" in preflight and "bucket_exists" in preflight
 assert "alembic upgrade" not in preflight and "make_bucket" not in preflight
 
+migration = load(STARTUP / "db-bootstrap-job.json")
+assert migration["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"] == "0"
+assert migration["spec"]["template"]["spec"]["containers"][0]["command"] == ["python", "/bootstrap/bootstrap.py"]
+script = (STARTUP / "bootstrap-schema.py").read_text(encoding="utf-8")
+assert "Nonempty database without version" in script
+assert 'subprocess.run(["alembic", "upgrade", "head"]' in script
+assert "DROP " not in script and "truncate" not in script.lower()
+s3 = load(STARTUP / "s3-bootstrap.json")["items"]
+assert {x["kind"] for x in s3} == {"Service", "Job", "NetworkPolicy"}
+assert len([x for x in s3 if x["kind"] == "NetworkPolicy"]) == 2
+bucket_job = next(x for x in s3 if x["kind"] == "Job")
+assert bucket_job["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"] == "-1"
+assert "s3.bucket.create -name raw-ingestions" in bucket_job["spec"]["template"]["spec"]["containers"][0]["args"][0]
+assert "s3.bucket.delete" not in bucket_job["spec"]["template"]["spec"]["containers"][0]["args"][0]
 print("PASS: offline GitOps candidate contracts; CLUSTER START NOT VERIFIED")
