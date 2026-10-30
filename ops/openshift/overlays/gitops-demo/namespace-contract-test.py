@@ -8,8 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 BASE = ROOT.parents[1] / "base"
 STARTUP = ROOT.parents[2] / "gitops-startup"
-PIN = "dbf6b892f16f380f4784acf1884ef964f7a13e8a"
-TAG = "bootstrap-dbf6b892"
+PIN = "4f3b8b83e58554fd74fc21c3c338ee0af62bb07a"
+TAG = "bootstrap-4f3b8b83"
 NAMES = {"api", "worker", "scheduler", "web", "postgres", "valkey", "minio", "caddy"}
 COMPONENTS = {"postgres": -48, "seaweed": -46, "caddy": -44, "backend": -42, "web": -40}
 
@@ -64,7 +64,7 @@ assert {x["kind"] for x in waiters} == {"Role", "RoleBinding", "ServiceAccount",
 jobs = [x for x in waiters if x["kind"] == "Job"]
 assert len(jobs) == 5
 for name, wave in COMPONENTS.items():
-    job = next(x for x in jobs if x["metadata"]["name"] == f"iip-wait-{name}-dbf6")
+    job = next(x for x in jobs if x["metadata"]["name"] == f"iip-wait-{name}-4f3b")
     assert int(job["metadata"]["annotations"]["argocd.argoproj.io/sync-wave"]) == wave + 1
     assert job["metadata"]["annotations"]["argocd.argoproj.io/hook"] == "Sync"
     body = job["spec"]["template"]["spec"]["containers"][0]["args"][0]
