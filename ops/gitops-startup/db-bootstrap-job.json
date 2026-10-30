@@ -2,7 +2,7 @@
   "apiVersion": "batch/v1",
   "kind": "Job",
   "metadata": {
-    "name": "iip-db-init-dbf6",
+    "name": "iip-db-init-4f3b",
     "annotations": {
       "argocd.argoproj.io/hook": "Sync",
       "argocd.argoproj.io/sync-wave": "0",
@@ -33,7 +33,7 @@
         "containers": [
           {
             "name": "alembic-init",
-            "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-dbf6b892",
+            "image": "image-registry.openshift-image-registry.svc:5000/gitops-demo/iip-backend:bootstrap-4f3b8b83",
             "imagePullPolicy": "Always",
             "command": [
               "python",
