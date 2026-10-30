@@ -74,7 +74,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-wait-postgres-dbf6",
+        "name": "iip-wait-postgres-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-47",
@@ -110,7 +110,7 @@
                   "-ec"
                 ],
                 "args": [
-                  "set -eu\nname='iip-postgres'\ntag='bootstrap-dbf6b892'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
+                  "set -eu\nname='iip-postgres'\ntag='bootstrap-4f3b8b83'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
                 ],
                 "env": [
                   {
@@ -162,7 +162,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-wait-seaweed-dbf6",
+        "name": "iip-wait-seaweed-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-45",
@@ -198,7 +198,7 @@
                   "-ec"
                 ],
                 "args": [
-                  "set -eu\nname='iip-seaweed'\ntag='bootstrap-dbf6b892'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
+                  "set -eu\nname='iip-seaweed'\ntag='bootstrap-4f3b8b83'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
                 ],
                 "env": [
                   {
@@ -250,7 +250,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-wait-caddy-dbf6",
+        "name": "iip-wait-caddy-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-43",
@@ -286,7 +286,7 @@
                   "-ec"
                 ],
                 "args": [
-                  "set -eu\nname='iip-caddy'\ntag='bootstrap-dbf6b892'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
+                  "set -eu\nname='iip-caddy'\ntag='bootstrap-4f3b8b83'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
                 ],
                 "env": [
                   {
@@ -338,7 +338,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-wait-backend-dbf6",
+        "name": "iip-wait-backend-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-41",
@@ -374,7 +374,7 @@
                   "-ec"
                 ],
                 "args": [
-                  "set -eu\nname='iip-backend'\ntag='bootstrap-dbf6b892'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
+                  "set -eu\nname='iip-backend'\ntag='bootstrap-4f3b8b83'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
                 ],
                 "env": [
                   {
@@ -426,7 +426,7 @@
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": "iip-wait-web-dbf6",
+        "name": "iip-wait-web-4f3b",
         "annotations": {
           "argocd.argoproj.io/hook": "Sync",
           "argocd.argoproj.io/sync-wave": "-39",
@@ -462,7 +462,7 @@
                   "-ec"
                 ],
                 "args": [
-                  "set -eu\nname='iip-web'\ntag='bootstrap-dbf6b892'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
+                  "set -eu\nname='iip-web'\ntag='bootstrap-4f3b8b83'\necho \"Waiting for declarative ConfigChange build: $name:$tag\"\nattempt=0\nwhile [ \"$attempt\" -lt 180 ]; do\n  attempt=$((attempt + 1))\n  version=\"$(oc -n gitops-demo get buildconfig \"$name\" -o jsonpath='{.status.lastVersion}' 2>/dev/null || true)\"\n  if [ -n \"$version\" ] && [ \"$version\" != '0' ]; then\n    phase=\"$(oc -n gitops-demo get build \"$name-$version\" -o jsonpath='{.status.phase}' 2>/dev/null || true)\"\n    case \"$phase\" in\n      Complete)\n        if oc -n gitops-demo get imagestreamtag \"$name:$tag\" >/dev/null 2>&1; then\n          echo \"Build $name-$version completed; expected ImageStreamTag exists.\"\n          exit 0\n        fi\n        ;;\n      Failed|Error|Cancelled|Canceled)\n        echo \"Build $name-$version failed with phase $phase. Stopping GitOps Sync.\" >&2\n        exit 1\n        ;;\n    esac\n  fi\n  sleep 10\ndone\necho \"Timeout: build did not complete or expected tag missing for $name\" >&2\nexit 1"
                 ],
                 "env": [
                   {
