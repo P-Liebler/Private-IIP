@@ -1,0 +1,288 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "image.openshift.io/v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "name": "iip-backend",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-6",
+          "argocd.argoproj.io/sync-options": "SkipHealthCheck=true"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        }
+      }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-backend",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5",
+          "argocd.argoproj.io/sync-options": "SkipHealthCheck=true"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "907851def4f1851068d3a076ec0acdceb272aee6"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "backend/Dockerfile"
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-backend:bootstrap-907851de"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "image.openshift.io/v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "name": "iip-web",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-6",
+          "argocd.argoproj.io/sync-options": "SkipHealthCheck=true"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        }
+      }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-web",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5",
+          "argocd.argoproj.io/sync-options": "SkipHealthCheck=true"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "907851def4f1851068d3a076ec0acdceb272aee6"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "frontend/web/Dockerfile",
+            "buildArgs": [
+              {
+                "name": "NEXT_PUBLIC_API_BASE_URL",
+                "value": "/api/v1"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-web:bootstrap-907851de"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "image.openshift.io/v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "name": "iip-postgres",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-6"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        }
+      }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-postgres",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "907851def4f1851068d3a076ec0acdceb272aee6"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "ops/postgres/Dockerfile.pr5"
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-postgres:bootstrap-907851de"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "image.openshift.io/v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "name": "iip-seaweed",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-6"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        }
+      }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-seaweed",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "907851def4f1851068d3a076ec0acdceb272aee6"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "ops/seaweed/Dockerfile.pr9",
+            "buildArgs": [
+              {
+                "name": "RUNTIME_IMAGE",
+                "value": "chrislusf/seaweedfs:4.51@sha256:f7a49e3f3972ebed5be2ed4befa4a0c68eb7bdddba6e692d42729ceb545134b8"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-seaweed:bootstrap-907851de"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "image.openshift.io/v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "name": "iip-caddy",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-6"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        }
+      }
+    },
+    {
+      "apiVersion": "build.openshift.io/v1",
+      "kind": "BuildConfig",
+      "metadata": {
+        "name": "iip-caddy",
+        "annotations": {
+          "argocd.argoproj.io/sync-wave": "-5"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/P-Liebler/Private-IIP.git",
+            "ref": "907851def4f1851068d3a076ec0acdceb272aee6"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "ops/caddy/Dockerfile.pr9",
+            "buildArgs": [
+              {
+                "name": "RUNTIME_IMAGE",
+                "value": "caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "iip-caddy:bootstrap-907851de"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    }
+  ]
+}
