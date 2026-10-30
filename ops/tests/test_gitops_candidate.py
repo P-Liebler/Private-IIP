@@ -38,6 +38,8 @@ class GitOpsStartupCandidateTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("name: postgres", result.stdout)
         self.assertIn("name: iip-wait-postgres-4f3b", result.stdout)
+        self.assertIn("name: iip-caddy-retry-1", result.stdout)
+        self.assertIn("name: iip-wait-caddy-4f3b", result.stdout)
         self.assertIn("name: privat-iip", result.stdout)
 
 
