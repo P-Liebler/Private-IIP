@@ -4,6 +4,22 @@
   "namespace": "gitops-demo",
   "resources": [
     "build-waiters.json",
-    "runtime-preflight.json"
-  ]
+    "runtime-preflight.json",
+    "s3-bootstrap.json",
+    "db-bootstrap-job.json"
+  ],
+  "configMapGenerator": [
+    {
+      "name": "iip-first-use-schema",
+      "files": [
+        "bootstrap.py=bootstrap-schema.py"
+      ]
+    }
+  ],
+  "generatorOptions": {
+    "disableNameSuffixHash": true,
+    "annotations": {
+      "argocd.argoproj.io/sync-wave": "-20"
+    }
+  }
 }
