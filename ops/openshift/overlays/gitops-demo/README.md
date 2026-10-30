@@ -1,115 +1,99 @@
-# Private-IIP: Argo CD start candidate (NOT VERIFIED)
+# Private-IIP in gitops-demo — GitOps-controlled start on main
 
-**Branch:** feature/gitops-controlled-start-20261030
-**Source code pin:** 4f3b8b83e58554fd74fc21c3c338ee0af62bb07a
+Updated 2026-10-30. GitHub main is now **ENABLED** with one requested replica
+for each of: api, web, worker, scheduler, postgres, valkey, minio and caddy.
+The shared ops/openshift/base remains disabled (0), intentionally.
+Source: ops/openshift/overlays/gitops-demo. Application: openshift-gitops/privat-iip.
 
-This is an optional release candidate, NOT a verified or approved deployment.
-**Do not change the Argo Application revision or Sync until authorized review.**
-The live main branch remains rolled back, with all eight IIP workloads at zero.
+**Do not confuse manifest readiness with cluster acceptance.** The final
+readiness of these workloads, PostgreSQL/NFS permissions, and the new image
+build digests have NOT been verified against the actual OpenShift cluster.
+The app remains offline until Argo CD Sync succeeds, and may stop on any gate.
 
-## Changes in this opt-in overlay
+## Operation via Argo CD only
 
-1. Five GitOps-managed OpenShift BuildConfigs and five ImageStreams use an
-   immutable source commit. ConfigChange triggers ONE initial build per
-   BuildConfig creation. Updating Git or clicking Sync again does not
-   automatically start a new build.
-2. Five read-only Argo Sync Jobs watch build completion and the matching
-   ImageStreamTag. They run in strict sequence: postgres, seaweed, caddy,
-   backend, web. Each build must complete before the next is created.
-   Their own service account has only get permissions for BuildConfigs,
-   Builds and ImageStreamTags. They cannot create or restart builds.
-   No manual oc start-build, file transfer or local image building is needed.
-   The active Sync Jobs and read-only Role are defined in the separately
-   opt-in ops/gitops-startup Kustomize base. The pre-existing draft
-   preflight under ops/openshift remains untouched and cannot be used
-   to approve this deployment. A separate admission/security review is mandatory.
-3. GitOps then applies existing namespaced services, scoped NetworkPolicies,
-   PVCs, ConfigMaps and ServiceAccounts. The three PVCs remain protected
-   from pruning and deletion. There is no cluster-scoped registry change.
-4. PostgreSQL, Valkey, SeaweedFS and Caddy use one replica each.
-   A PostgreSQL initContainer only checks volume write access. It does
-   not chmod, chown, delete or reinitialize an existing volume.
-5. A first-use Argo Sync Job runs Alembic upgrade head ONLY if the PostgreSQL
-   database has no user relations. Existing databases with an unknown or
-   outdated schema are rejected; data is never wiped or migrated blindly.
-   Another Argo Sync Job creates ONLY the named SeaweedFS raw-ingestions
-   bucket through its namespace-restricted internal management endpoint,
-   if absent. A subsequent read-only gate checks schema and S3 access.
-6. API, web, worker and scheduler only start after the gates pass.
-   The private re-encrypt HTTPS route is applied afterwards.
+1. Ensure the existing Argo CD Application privat-iip still points to
+   GitHub main, path ops/openshift/overlays/gitops-demo, namespace gitops-demo.
+   Leave the scoped spec.ignoreDifferences rule for iip-service-ca /data.
+2. In Argo UI: Refresh, inspect Diff, and verify no resource called gitops-lab
+   is changed or deleted. Verify the three existing PVCs remain.
+3. Run a MANUAL full Sync via Argo with Prune OFF (not a selective Sync).
+   Do not run oc start-build, oc apply, oc scale, oc delete, or copy images.
+   If auto-sync is enabled, inspect its ongoing operation first.
+4. OpenShift builds five images (pinned Git commit 4f3b8b83) sequentially.
+   Build observers are Argo Sync hooks with read-only limited Kubernetes
+   credentials. If a build fails, the next build will not start.
+5. Infrastructure pods start after images are available. PostgreSQL
+   uses nss_wrapper to support arbitrary OpenShift UIDs and an initContainer
+   that checks NFS directory write access without modifying storage.
+   A failed Postgres readiness blocks later waves. Preserve logs and PVCs.
+6. When infrastructure is Healthy, a scoped SeaweedFS hook creates bucket
+   raw-ingestions if missing. Another hook runs initial Alembic migrations
+   ONLY on an empty PostgreSQL user schema. Any existing unknown/old schema
+   is never modified automatically. A final read-only gate verifies
+   exact Alembic head and S3 bucket access before application writers start.
+7. API, web, worker, scheduler start with one replica each. The private
+   reencrypt Route privat-iip is applied after application pods become
+   Healthy. No financial data collection, forward shadow or SEC scraping
+   is enabled by this deployment.
 
-## Known blockers — deployment is not yet usable
+## Safety/approval limitations
 
-- The previous PostgreSQL pod crashed. Its logs were not captured, so the
-  cause is NOT known. NFS permissions and OpenShift arbitrary UID remain
-  possible issues, not proven causes. No PVC must be reset to work around this.
-- A schema migration is not approved or automated for existing data.
-  A verified empty database is initialized by the new Argo migration job.
-  Any existing/outdated user schema still requires a reviewed backup and
-  migration outside this first-use path.
-- The raw-ingestions bucket was previously missing. A new scoped internal
-  SeaweedFS bootstrap Job creates it by name without giving the application
-  S3 identity global Admin rights. This internal management path and
-  resulting credentials still require a runtime acceptance check.
-- The proposed Route host is
-  privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local.
-  Its naming is inferred from the observed gitops-lab host. Actual routing,
-  DNS, VPN source-IP and TLS have NOT been verified. Verify it before Sync.
-- Role/RoleBinding, Job, BuildConfig, ImageStream and Route permissions for
-  the Argo CD controller, availability of the openshift/cli image, resources
-  and quotas have NOT been tested against this cluster.
-- New resulting image digests have NOT passed release/security acceptance.
-  Existing financial collection, model and recommendation gates remain off.
-- The runtime gate uses a read-only S3 HEAD/exists request; the service
-  identity must be allowed to check its configured bucket.
-- The initial ConfigChange build will not rerun on later Syncs. A failed
-  build needs a reviewed new build release; never use manual oc start-build
-  as a shortcut.
+- Existing postgres-data (20Gi), valkey-data (2Gi) and seaweed-data (100Gi)
+  PVCs have Prune=false,Delete=false. Never delete/replace them blindly.
+- Existing deployment gitops-lab and its route are unrelated and must not
+  be modified by this Application.
+- Namespace ServiceAccount iip-runtime references existing runtime and
+  Seaweed identities. Secrets are not in Git.
+- Build observer uses a dedicated get-only Role with no permission to
+  create/restart builds.
+- The SeaweedFS bucket setup Job has a namespaced internal management
+  Service limited by ingress/egress NetworkPolicies to one Job identity.
+  Review that boundary before accepting data workloads.
+- The private Route host
+  privat-iip-gitops-demo.apps.test-slieu0202.slieu0201.local
+  was inferred from gitops-lab route naming and is NOT proof of DNS/TLS
+  availability for the client.
+- Previous PostgreSQL CrashLoop logs were not retained; the exact previous
+  cause is unknown. OpenShift may require admin verification/correction
+  of TrueNAS NFS ownership/group and SELinux access. Never run privileged
+  chown or delete PVC data as a shortcut.
+- The five build images do not yet have independently accepted runtime
+  vulnerability scan and acceptance records for these exact digests.
+- No initial end-user account is created automatically. Account creation
+  requires an authorized private admin workflow; never store passwords
+  unencrypted in Git.
 
-## Safe offline checks
+## Read-only checks after Argo Sync
+
+    oc -n gitops-demo get deploy,sts,pods
+    oc -n gitops-demo get bc,build,is,istag
+    oc -n gitops-demo get route privat-iip
+    oc -n openshift-gitops get application privat-iip -o jsonpath='{.status.sync.status} {.status.health.status}'
+
+In a successful deployment, the eight workloads should report 1/1,
+the Route should exist and App health must be verified. If any hook or pod
+is failing, inspect read-only logs/events and halt further changes.
+Argo Healthy/Synced is not a substitute for functional HTTPS/login tests.
+
+## Offline tests
 
     python ops/openshift/overlays/gitops-demo/namespace-contract-test.py
+    python -m unittest discover -s ops/tests -p test_gitops_candidate.py -v
     oc kustomize ops/openshift/overlays/gitops-demo
 
-The assistant has run static JSON patch/path checks. A full Kustomize render,
-server-side API/SCC admission, real image build and functional acceptance
-have NOT been completed and must not be inferred.
+The CI checks and render are not a test of the real cluster's SCC, NFS,
+Registry, Route, service-CA, login, migration contents or end-to-end UX.
 
-## Read-only cluster inventory before reviewing any deployment
+## Emergency rollback
 
-    oc -n openshift-gitops get application privat-iip
-    oc -n gitops-demo get pvc
-    oc -n gitops-demo get secret iip-runtime-secrets iip-s3-identities
-    oc -n gitops-demo get route gitops-lab
-    oc -n gitops-demo get deploy,sts,pods,bc,build,is,route
+If the Argo operation stops in error, preserve pod/job logs and PVCs.
+The last verified disabled desired state is commit
+dbf6b892f16f380f4784acf1884ef964f7a13e8a. An authorized operator
+can temporarily point Application privat-iip targetRevision to that
+immutable commit in Argo and Sync WITHOUT PRUNE to return all eight IIP
+replicas to 0, or create a reviewed revert commit on main. This does
+NOT automatically prune newly built images, delete PVs or undo audit logs.
 
-Do not print Secret values.
-
-## Activation — only after permissions, data and backup review
-
-The current Argo CD Application uses source.path
-ops/openshift/overlays/gitops-demo and namespace gitops-demo. An authorized
-reviewer can change ONLY its source.targetRevision from main to this
-feature branch in the Argo CD UI, inspect the full Diff, and explicitly
-Sync with Prune OFF and no AutoSync. This is a REAL cluster build and
-deployment, not a preview. Read hook logs; halt on a failed gate.
-Do not manually patch the cluster or reset PVCs.
-
-Rollback: targetRevision back to main, Refresh, review Diff, Sync without
-prune to stop the eight IIP replicas. Afterwards selectively review new
-IIP build and route resources for authorized removal. Preserve gitops-lab,
-the namespace, PVCs and audit logs.
-
-References:
-- https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
-- https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/builds_using_buildconfig/triggering-builds-build-hooks
-
-## Data-safety invariant
-
-The new database hook checks for existing PostgreSQL relations and refuses
-all writes to any non-empty schema without an exact matching Alembic head.
-It cannot fix PostgreSQL's previous CrashLoop if NFS permissions still fail.
-The S3 hook can create one bucket named raw-ingestions, but cannot delete
-existing objects. Its internal master/filer endpoint is namespaced and
-NetworkPolicy-restricted; operator approval of that management boundary
-is required before the first real sync.
+Reference: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/
+Reference: https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/builds_using_buildconfig/triggering-builds-build-hooks
